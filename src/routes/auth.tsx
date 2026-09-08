@@ -125,7 +125,7 @@ function AuthPage() {
   async function handleGoogle() {
     setError(null);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
     if (result.error) {
       setError("Google sign-in didn't complete. Please try again.");
