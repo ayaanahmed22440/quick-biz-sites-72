@@ -29,8 +29,22 @@ export const Route = createFileRoute("/_authenticated/billing")({
 });
 
 function BillingPage() {
-  const { data: workspace, isLoading } = useWorkspace();
+  const { data: workspace, isLoading, refetch, isFetching } = useWorkspace();
+  const { checkout } = Route.useSearch();
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+
+  // Coming back from checkout, the payment provider may confirm a moment later.
+  useEffect(() => {
+    if (checkout !== "success") return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      void refetch();
+      if (tries >= 6) clearInterval(timer);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [checkout, refetch]);
+
   const plans = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
