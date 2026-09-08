@@ -114,8 +114,9 @@ function BillingPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         {PLAN_COPY.map((plan) => {
-          const isCurrent = subscription?.plan_id === plan.id;
-          const url = checkoutById.get(plan.id);
+          const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
+          const isCurrent = subscription?.plan_id === planId;
+          const url = checkoutUrl(planId);
           return (
             <div
               key={plan.id}
