@@ -5,7 +5,7 @@
 - Public site: home, pricing, how it works, contact, terms, privacy (mobile tuned)
 - Auth: email/password, Google, password reset
 - Onboarding, business profile, customer dashboard, admin dashboard
-- Plans + centralised entitlements ($37 / $68 / $97), Whop webhook architecture
+- Plans + centralised entitlements ($37 / $68 / $97), embedded Whop checkout, verified webhook processing, and payment confirmation
 - Cleaning Template 01 (split hero + booking, Archivo Black / Hind, brand colour from customer logo)
 - Website editor with draft, Save draft, Save & publish, live preview
 - Published customer sites at /s/{slug} with lead capture into Leads
@@ -22,8 +22,7 @@
 ## Open (blocked or awaiting input)
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
-- Whop: needs API key, webhook secret and the three plan IDs before checkout works
-- Domain: delete the old www CNAME at the DNS provider, then add A @ and A www -> 185.158.133.1 plus the _lovable TXT records
+- Whop production checkout: awaiting one customer payment test after publishing the embedded flow
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
 - Domain registrar buying inside WebWarheads: needs a reseller account (Namecheap/Cloudflare/OpenSRS) + payment/legal decisions
 - Terms and privacy are drafts pending legal review

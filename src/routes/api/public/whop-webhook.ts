@@ -10,20 +10,29 @@ import { z } from "zod";
  * centralized entitlements in `src/lib/plans.ts` read. No payment state is ever
  * set from the browser.
  *
- * The business is resolved from `metadata[business_id]` when the checkout link
- * carried it, and otherwise from the buyer's email address, so a plain Whop
- * checkout link still activates the right account.
+ * The business is resolved from checkout-session metadata, then existing
+ * membership data, with buyer email retained only as a legacy fallback.
  */
 
 const payloadSchema = z.object({
-  action: z.string().min(1).max(120).optional(),
-  event: z.string().min(1).max(120).optional(),
+  id: z.string().min(1).max(160),
+  type: z.enum([
+    "payment.succeeded",
+    "payment.failed",
+    "membership.activated",
+    "membership.deactivated",
+    "membership.cancel_at_period_end_changed",
+  ]),
+  timestamp: z.string().datetime().optional(),
   data: z
     .object({
       id: z.string().min(1).max(120).optional(),
       status: z.string().min(1).max(60).optional(),
       valid: z.boolean().optional(),
-      plan_id: z.string().min(1).max(120).optional(),
+      plan_id: z.string().min(1).max(120).nullable().optional(),
+      plan: z.union([z.string(), z.object({ id: z.string().optional() })]).nullable().optional(),
+      membership: z.union([z.string(), z.object({ id: z.string().optional() })]).nullable().optional(),
+      member: z.object({ id: z.string().optional(), email: z.string().max(320).nullable().optional() }).nullable().optional(),
       renewal_period_end: z.union([z.number(), z.string()]).nullable().optional(),
       cancel_at_period_end: z.boolean().optional(),
       metadata: z.record(z.string(), z.unknown()).nullable().optional(),
@@ -55,42 +64,22 @@ function safeEqual(a: string, b: string) {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/**
- * Whop has shipped a few signature formats over time:
- *   - a bare hex HMAC of the raw body (optionally `sha256=` prefixed)
- *   - a Stripe/Svix-style header `t=<unix>,v1=<hmac>` signed over `<t>.<body>`
- * Accept any of them, in hex or base64, so a working webhook doesn't depend on
- * which format the dashboard is using.
- */
-function verify(signature: string | null, body: string, secret: string) {
-  if (!signature) return false;
+/** Verify Whop Standard Webhooks against the untouched request body. */
+function verify(webhookId: string | null, timestamp: string | null, signature: string | null, body: string, secret: string) {
+  if (!webhookId || !timestamp || !signature) return false;
+  const seconds = Number(timestamp);
+  if (!Number.isFinite(seconds) || Math.abs(Date.now() / 1000 - seconds) > 300) return false;
+  const expected = createHmac("sha256", secret)
+    .update(`${webhookId}.${timestamp}.${body}`)
+    .digest("base64");
+  return signature.split(" ").some((part) => {
+    const [version, value] = part.split(",", 2);
+    return version === "v1" && typeof value === "string" && safeEqual(value, expected);
+  });
+}
 
-  const provided: string[] = [];
-  let timestamp: string | null = null;
-
-  for (const part of signature.split(/[,\s]+/)) {
-    const chunk = part.trim();
-    if (!chunk) continue;
-    const eq = chunk.indexOf("=");
-    const key = eq > -1 ? chunk.slice(0, eq) : "";
-    const value = eq > -1 ? chunk.slice(eq + 1) : chunk;
-    if (key === "t") timestamp = value;
-    else if (!key || key === "v1" || key === "v0" || key === "sha256") provided.push(value);
-    else provided.push(value);
-  }
-
-  const payloads = [body];
-  if (timestamp) payloads.push(`${timestamp}.${body}`);
-
-  for (const payload of payloads) {
-    const mac = createHmac("sha256", secret).update(payload);
-    const hex = mac.digest("hex");
-    const base64 = Buffer.from(hex, "hex").toString("base64");
-    for (const candidate of provided) {
-      if (safeEqual(candidate, hex) || safeEqual(candidate, base64)) return true;
-    }
-  }
-  return false;
+function resourceId(value: { id?: string | undefined } | string | null | undefined) {
+  return typeof value === "string" ? value : value?.id;
 }
 
 function toIso(value: number | string | null | undefined) {
@@ -109,21 +98,36 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
         }
 
         const body = await request.text();
-        const signature =
-          request.headers.get("x-whop-signature") ?? request.headers.get("whop-signature");
-        if (!verify(signature, body, secret)) {
+        const webhookId = request.headers.get("webhook-id");
+        const timestamp = request.headers.get("webhook-timestamp");
+        const signature = request.headers.get("webhook-signature");
+        if (!verify(webhookId, timestamp, signature, body, secret)) {
           return new Response("Invalid signature", { status: 401 });
         }
+        if (!webhookId) return new Response("Invalid signature", { status: 401 });
 
-        const parsed = payloadSchema.safeParse(JSON.parse(body));
+        let json: unknown;
+        try {
+          json = JSON.parse(body);
+        } catch {
+          return new Response("Invalid payload", { status: 400 });
+        }
+        const parsed = payloadSchema.safeParse(json);
         if (!parsed.success) {
           return new Response("Invalid payload", { status: 400 });
         }
 
         const { data } = parsed.data;
-        const action = parsed.data.action ?? parsed.data.event ?? "unknown";
+        const action = parsed.data.type;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+        const { data: claimed } = await supabaseAdmin
+          .from("billing_webhook_events")
+          .insert({ webhook_id: webhookId, event_type: action, payload_created_at: parsed.data.timestamp ?? null })
+          .select("webhook_id")
+          .maybeSingle();
+        if (!claimed) return Response.json({ ok: true, duplicate: true });
 
         /** Keep an audit trail of every verified event so billing is debuggable. */
         const log = (note: string, businessId: string | null) =>
@@ -132,8 +136,8 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
             action: `whop:${action}`,
             meta: {
               note,
-              membership_id: data.id ?? null,
-              whop_plan_id: data.plan_id ?? null,
+              membership_id: resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null),
+              whop_plan_id: data.plan_id ?? resourceId(data.plan) ?? null,
               status: data.status ?? null,
               valid: data.valid ?? null,
             },
@@ -146,17 +150,18 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
             : null;
 
         // 2) existing subscription for this membership
-        if (!businessId && data.id) {
+        const membershipId = resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null) ?? null;
+        if (!businessId && membershipId) {
           const { data: byMembership } = await supabaseAdmin
             .from("subscriptions")
             .select("business_id")
-            .eq("whop_membership_id", data.id)
+            .eq("whop_membership_id", membershipId)
             .maybeSingle();
           businessId = byMembership?.business_id ?? null;
         }
 
         // 3) fall back to the buyer's email address
-        const email = (data.email ?? data.user_email ?? data.user?.email ?? "").trim().toLowerCase();
+        const email = (data.email ?? data.user_email ?? data.user?.email ?? data.member?.email ?? "").trim().toLowerCase();
         if (!businessId && email) {
           const { data: profile } = await supabaseAdmin
             .from("profiles")
@@ -177,21 +182,25 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
 
         if (!businessId) {
           await log("could not match a business (no metadata, membership or email match)", null);
+          await supabaseAdmin.from("billing_webhook_events").update({ note: "no business match" }).eq("webhook_id", webhookId);
           return Response.json({ ok: true, ignored: "no business match" });
         }
 
-        const { data: plan } = data.plan_id
+        const metadataPlanId = typeof data.metadata?.["plan_id"] === "string" ? data.metadata["plan_id"] : null;
+        const externalPlanId = data.plan_id ?? resourceId(data.plan);
+        const { data: plan } = externalPlanId
           ? await supabaseAdmin
               .from("plans")
               .select("id")
-              .eq("whop_plan_id", data.plan_id)
+              .eq("whop_plan_id", externalPlanId)
               .maybeSingle()
           : { data: null };
 
         const rawStatus = data.status ?? (data.valid ? "active" : "canceled");
-        const status =
-          action.includes("invalid") || action.includes("cancel")
-            ? (STATUS_MAP[rawStatus] ?? "canceled")
+        const status = action === "membership.deactivated"
+          ? "canceled"
+          : action === "payment.failed"
+            ? "past_due"
             : (STATUS_MAP[rawStatus] ?? "active");
 
         const { data: existing } = await supabaseAdmin
@@ -200,9 +209,9 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
           .eq("business_id", businessId)
           .maybeSingle();
 
-        const planId = plan?.id ?? existing?.plan_id;
+        const planId = metadataPlanId ?? plan?.id ?? existing?.plan_id;
         if (!planId) {
-          await log(`unknown whop plan ${data.plan_id ?? "(none)"}`, businessId);
+          await log(`unknown whop plan ${externalPlanId ?? "(none)"}`, businessId);
           return Response.json({ ok: true, ignored: "unknown plan" });
         }
 
@@ -211,10 +220,14 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
           plan_id: planId,
           provider: "whop",
           status: status as "active",
-          whop_membership_id: data.id ?? null,
-          whop_plan_id: data.plan_id ?? null,
+          whop_membership_id: membershipId,
+          whop_plan_id: externalPlanId ?? null,
           current_period_end: toIso(data.renewal_period_end ?? null),
-          cancel_at_period_end: data.cancel_at_period_end ?? false,
+          cancel_at_period_end:
+            action === "membership.cancel_at_period_end_changed"
+              ? (data.cancel_at_period_end ?? true)
+              : (data.cancel_at_period_end ?? false),
+          last_payment_failed_at: action === "payment.failed" ? new Date().toISOString() : null,
         };
 
         const { error } = existing
@@ -227,6 +240,10 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
         }
 
         await log(`subscription ${existing ? "updated" : "created"} as ${planId}/${status}`, businessId);
+        await supabaseAdmin
+          .from("billing_webhook_events")
+          .update({ processed: true, business_id: businessId, note: `${planId}/${status}` })
+          .eq("webhook_id", webhookId);
 
         return Response.json({ ok: true });
       },

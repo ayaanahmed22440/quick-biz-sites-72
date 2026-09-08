@@ -1,20 +1,23 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { PLAN_COPY, planCopy, isYearly, yearlyPrice } from "@/lib/plans";
-import { syncWhopSubscription } from "@/lib/whop-sync.functions";
+import { confirmWhopCheckout, createWhopCheckout } from "@/lib/whop-checkout.functions";
+import { WhopCheckoutPanel } from "@/components/billing/WhopCheckoutPanel";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
   plan: z.enum(["basic", "seo", "premium"]).optional(),
-  checkout: z.enum(["success"]).optional(),
+  status: z.enum(["success", "error"]).optional(),
+  state_id: z.string().max(200).optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/billing")({
@@ -31,30 +34,18 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { data: workspace, isLoading, refetch, isFetching } = useWorkspace();
-  const { checkout } = Route.useSearch();
+  const { status } = Route.useSearch();
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
-
-  // Coming back from checkout: sync straight from the Whop API (webhooks can
-  // lag), then keep refetching briefly in case the webhook refines the state.
-  useEffect(() => {
-    if (checkout !== "success") return;
-    let tries = 0;
-    const tick = () => {
-      tries += 1;
-      void syncWhopSubscription().finally(() => void refetch());
-      if (tries >= 6) clearInterval(timer);
-    };
-    void syncWhopSubscription().finally(() => void refetch());
-    const timer = setInterval(tick, 3000);
-    return () => clearInterval(timer);
-  }, [checkout, refetch]);
+  const [checkoutSession, setCheckoutSession] = useState<{ sessionId: string; email: string } | null>(null);
+  const [checkoutState, setCheckoutState] = useState<"idle" | "starting" | "confirming" | "confirmed" | "error">("idle");
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const plans = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("plans")
-        .select("id, name, price_cents, whop_checkout_url, is_active")
+        .select("id, name, price_cents, whop_plan_id, is_active")
         .eq("is_active", true)
         .order("sort_order");
       if (error) throw error;
@@ -67,25 +58,42 @@ function BillingPage() {
 
   const subscription = workspace?.subscription;
   const current = planCopy(subscription?.plan_id);
-  const businessId = workspace?.business?.id;
-  const checkoutById = new Map((plans.data ?? []).map((p) => [p.id, p.whop_checkout_url]));
-  const anyCheckout = (plans.data ?? []).some((p) => p.whop_checkout_url);
+  const configuredPlans = new Set((plans.data ?? []).filter((plan) => plan.whop_plan_id).map((plan) => plan.id));
+  const anyCheckout = configuredPlans.size > 0;
 
-  /**
-   * Whop reads `metadata[business_id]` back to us on the membership webhook, and
-   * `redirect_url` brings the customer straight back here after paying.
-   */
-  function checkoutUrl(planId: string) {
-    const base = checkoutById.get(planId);
-    if (!base) return null;
-    const params = new URLSearchParams();
-    if (businessId) params.set("metadata[business_id]", businessId);
-    if (typeof window !== "undefined") {
-      params.set("redirect_url", `${window.location.origin}/billing?checkout=success`);
+  async function openCheckout(planId: "basic" | "seo" | "premium" | "basic_yearly" | "seo_yearly" | "premium_yearly") {
+    setCheckoutState("starting");
+    setCheckoutError(null);
+    try {
+      const result = await createWhopCheckout({
+        data: { planId, returnUrl: `${window.location.origin}/billing` },
+      });
+      setCheckoutSession(result);
+      setCheckoutState("idle");
+    } catch (error) {
+      setCheckoutState("error");
+      setCheckoutError(error instanceof Error ? error.message : "Checkout could not be started.");
     }
-    const query = params.toString();
-    if (!query) return base;
-    return `${base}${base.includes("?") ? "&" : "?"}${query}`;
+  }
+
+  async function completeCheckout(receiptId: string | undefined) {
+    setCheckoutState("confirming");
+    setCheckoutError(null);
+    if (!receiptId) {
+      setCheckoutState("error");
+      setCheckoutError("Payment completed, but confirmation is still pending. Please refresh shortly.");
+      return;
+    }
+    try {
+      const result = await confirmWhopCheckout({ data: { receiptId } });
+      if (!result.confirmed) throw new Error("Payment is still being confirmed. Please wait a moment and refresh.");
+      await refetch();
+      setCheckoutState("confirmed");
+      setTimeout(() => setCheckoutSession(null), 1000);
+    } catch (error) {
+      setCheckoutState("error");
+      setCheckoutError(error instanceof Error ? error.message : "Payment confirmation is still pending.");
+    }
   }
 
   return (
@@ -111,7 +119,7 @@ function BillingPage() {
         ))}
       </div>
 
-      {checkout === "success" && !subscription ? (
+      {status === "success" && !subscription ? (
         <div className="rounded-xl border border-accent/40 bg-accent/10 p-5">
           <h2 className="text-sm font-semibold">Confirming your payment…</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
@@ -153,18 +161,23 @@ function BillingPage() {
         <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
           <h2 className="text-sm font-semibold">Checkout isn't connected yet</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            WebWarheads billing runs through Whop. Once the Whop plans and API credentials are added
-            to this account, the buttons below take customers straight to a real checkout. Nothing
-            here charges anyone until then.
+            WebWarheads billing runs through Whop. Checkout will be available when the active plans
+            are connected.
           </p>
         </div>
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-3">
         {PLAN_COPY.map((plan) => {
-          const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
+          const planId = (period === "yearly" ? `${plan.id}_yearly` : plan.id) as
+            | "basic"
+            | "seo"
+            | "premium"
+            | "basic_yearly"
+            | "seo_yearly"
+            | "premium_yearly";
           const isCurrent = subscription?.plan_id === planId;
-          const url = checkoutUrl(planId);
+          const isConfigured = configuredPlans.has(planId);
           return (
             <div
               key={plan.id}
@@ -198,17 +211,18 @@ function BillingPage() {
                   <Button variant="outline" className="w-full" disabled>
                     Your current plan
                   </Button>
-                ) : url ? (
+                ) : isConfigured ? (
                   <Button
-                    asChild
+                    type="button"
+                    onClick={() => void openCheckout(planId)}
+                    disabled={checkoutState === "starting"}
                     className={cn(
                       "w-full",
                       plan.recommended && "bg-accent text-accent-foreground hover:bg-accent/90",
                     )}
                   >
-                    <a href={url} rel="noreferrer">
-                      {subscription ? "Switch to this plan" : "Choose this plan"}
-                    </a>
+                    {checkoutState === "starting" ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    {subscription ? "Switch to this plan" : "Choose this plan"}
                   </Button>
                 ) : (
                   <Button variant="outline" className="w-full" disabled>
@@ -224,6 +238,40 @@ function BillingPage() {
       <p className="text-sm text-muted-foreground">
         Questions about billing? <Link to="/support" className="text-accent hover:underline">Contact support</Link>.
       </p>
+
+      {checkoutError && !checkoutSession ? (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          {checkoutError}
+        </div>
+      ) : null}
+
+      <Dialog open={Boolean(checkoutSession)} onOpenChange={(open) => !open && setCheckoutSession(null)}>
+        <DialogContent className="max-h-[92dvh] max-w-2xl overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Complete your WebWarheads plan</DialogTitle>
+            <DialogDescription>Your payment is securely handled by Whop without leaving WebWarheads.</DialogDescription>
+          </DialogHeader>
+          {checkoutSession ? (
+            <WhopCheckoutPanel
+              sessionId={checkoutSession.sessionId}
+              email={checkoutSession.email}
+              returnUrl={`${window.location.origin}/billing`}
+              onComplete={(receiptId) => void completeCheckout(receiptId)}
+              onError={(message) => {
+                setCheckoutState("error");
+                setCheckoutError(message);
+              }}
+            />
+          ) : null}
+          {checkoutState === "confirming" ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Confirming your payment…
+            </div>
+          ) : null}
+          {checkoutState === "confirmed" ? <p className="text-sm font-medium text-success">Plan activated.</p> : null}
+          {checkoutError ? <p className="text-sm text-destructive">{checkoutError}</p> : null}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -49,6 +49,47 @@ export type Database = {
           },
         ]
       }
+      billing_webhook_events: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          event_type: string
+          note: string | null
+          payload_created_at: string | null
+          processed: boolean
+          updated_at: string
+          webhook_id: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          event_type: string
+          note?: string | null
+          payload_created_at?: string | null
+          processed?: boolean
+          updated_at?: string
+          webhook_id: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          event_type?: string
+          note?: string | null
+          payload_created_at?: string | null
+          processed?: boolean
+          updated_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_webhook_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_hours: {
         Row: {
           business_id: string
