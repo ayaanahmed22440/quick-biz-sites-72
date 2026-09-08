@@ -98,21 +98,27 @@ function HomePage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-navy text-navy-foreground">
-        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
+      <section className="relative overflow-hidden bg-navy text-navy-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/20 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="inline-flex rounded-full border border-navy-foreground/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy-foreground/80">
-              For small &amp; local businesses
+            <p className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-navy-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Built for the trades, not for designers
             </p>
             <h1 className="mt-5 text-[1.75rem] font-extrabold leading-[1.12] sm:text-4xl md:text-5xl lg:text-6xl">
               Your business website live for{" "}
               <span className="text-accent">$37 a month</span> — not $1,500 upfront.
             </h1>
             <p className="mt-5 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
-              We build it, host it, secure it and keep it running. You send us your business
-              details; we handle everything technical. No developer, no setup fee, no waiting weeks
-              for a quote.
+              You clean houses. You fix roofs. You do not want a three-week email thread about
+              hosting. Tell us about your business, pick a template, hit publish — we handle every
+              technical part of it.
             </p>
+
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
