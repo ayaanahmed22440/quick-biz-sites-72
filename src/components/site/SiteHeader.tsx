@@ -21,7 +21,7 @@ export function SiteHeader() {
       <div className="bg-accent text-accent-foreground">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-4 py-1.5 text-center text-[11px] font-semibold uppercase tracking-[0.14em] sm:text-xs">
           <Zap className="h-3.5 w-3.5 shrink-0" />
-          <span>Cleaning companies: build free, pay only when you publish</span>
+          <span>Build your site free — pay only when you publish</span>
         </div>
       </div>
 
