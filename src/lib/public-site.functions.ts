@@ -11,6 +11,8 @@ function publicClient() {
   );
 }
 
+type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+
 export type PublishedSite = {
   business: {
     id: string;
@@ -31,7 +33,7 @@ export type PublishedSite = {
     primary_service: string | null;
   };
   website: { id: string; template_id: string | null; published_at: string | null };
-  content: Record<string, unknown> | null;
+  content: JsonValue | null;
   services: { id: string; name: string; description: string | null; price_note: string | null }[];
   service_areas: { id: string; city: string; state: string | null }[];
   hours: {
