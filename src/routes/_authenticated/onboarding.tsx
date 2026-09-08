@@ -10,6 +10,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const NICHES = [
+  { value: "cleaning", label: "Cleaning company", ready: true },
+  { value: "landscaping", label: "Landscaping & lawn care", ready: false },
+  { value: "handyman", label: "Handyman & home repair", ready: false },
+  { value: "pest_control", label: "Pest control", ready: false },
+  { value: "plumbing", label: "Plumbing", ready: false },
+  { value: "electrical", label: "Electrical", ready: false },
+  { value: "hvac", label: "Heating & air", ready: false },
+  { value: "other", label: "Something else", ready: false },
+] as const;
+
+const DEMO: Omit<Draft, "niche"> = {
+  name: "Sparkle & Shine Cleaning Co.",
+  primary_service: "House cleaning",
+  description:
+    "A family-run cleaning team looking after homes and small offices, with the same cleaner every visit and a satisfaction guarantee.",
+  phone: "(704) 555-0142",
+  email: "hello@sparkleandshine.example",
+  city: "Charlotte",
+  state: "NC",
+  services: "Regular house cleaning\nDeep cleaning\nMove-in / move-out cleaning\nOffice cleaning",
+  areas: "Matthews, Huntersville, Concord, Pineville",
+};
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -45,6 +76,7 @@ function slugify(value: string) {
 }
 
 type Draft = {
+  niche: string;
   name: string;
   primary_service: string;
   description: string;
@@ -57,6 +89,7 @@ type Draft = {
 };
 
 const EMPTY: Draft = {
+  niche: "cleaning",
   name: "",
   primary_service: "",
   description: "",
@@ -125,7 +158,7 @@ function OnboardingPage() {
         owner_id: userId,
         name: draft.name.trim(),
         slug,
-        niche: "cleaning",
+        niche: draft.niche,
         primary_service: draft.primary_service.trim(),
         description: draft.description.trim() || null,
         phone: draft.phone.trim(),
@@ -188,6 +221,41 @@ function OnboardingPage() {
       <div className="rounded-xl border border-border bg-card p-6">
         {step === 1 ? (
           <div className="space-y-5">
+            <div>
+              <Label htmlFor="niche">Type of business</Label>
+              <Select value={draft.niche} onValueChange={(v) => set("niche", v)}>
+                <SelectTrigger id="niche" className="mt-1.5">
+                  <SelectValue placeholder="Choose your industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {NICHES.map((n) => (
+                    <SelectItem key={n.value} value={n.value} disabled={!n.ready}>
+                      {n.label}
+                      {n.ready ? "" : " — design coming soon"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Cleaning designs are ready today. Other industries open as each design is approved.
+              </p>
+            </div>
+            <div className="rounded-lg border border-dashed border-border p-4">
+              <p className="text-sm font-medium">Just having a look?</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Fill every step with an example cleaning business so you can see how a finished site
+                looks. Change anything before you save.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
+              >
+                Use example details
+              </Button>
+            </div>
             <div>
               <Label htmlFor="name">Business name</Label>
               <Input
