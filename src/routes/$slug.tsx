@@ -2,7 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getPublishedSite, type PublishedSite } from "@/lib/public-site.functions";
 import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
 
-export const Route = createFileRoute("/s/$slug")({
+export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
     const site = (await getPublishedSite({ data: { slug: params.slug } })) as PublishedSite | null;
     if (!site) throw notFound();

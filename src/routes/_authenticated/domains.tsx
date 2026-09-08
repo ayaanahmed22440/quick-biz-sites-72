@@ -87,10 +87,9 @@ function DomainsPage() {
       {slug ? (
         <div className="mb-6 rounded-lg border border-border bg-card p-4">
           <p className="text-sm font-medium">Your free WebWarheads address</p>
-          <p className="mt-1 break-all text-sm text-muted-foreground">{slug}.webwarheads.com</p>
+          <p className="mt-1 break-all text-sm text-muted-foreground">webwarheads.com/{slug}</p>
           <p className="mt-1 break-all text-xs text-muted-foreground">
-            Also reachable now at {typeof window !== "undefined" ? window.location.origin : ""}/s/
-            {slug}
+            Live now at {typeof window !== "undefined" ? window.location.origin : ""}/{slug}
           </p>
         </div>
       ) : null}
