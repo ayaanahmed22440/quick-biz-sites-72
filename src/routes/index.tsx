@@ -98,21 +98,27 @@ function HomePage() {
   return (
     <PublicLayout>
       {/* Hero */}
-      <section className="bg-navy text-navy-foreground">
-        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
+      <section className="relative overflow-hidden bg-navy text-navy-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/20 blur-3xl"
+        />
+        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="inline-flex rounded-full border border-navy-foreground/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy-foreground/80">
-              For small &amp; local businesses
+            <p className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-navy-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Built for the trades, not for designers
             </p>
             <h1 className="mt-5 text-[1.75rem] font-extrabold leading-[1.12] sm:text-4xl md:text-5xl lg:text-6xl">
               Your business website live for{" "}
               <span className="text-accent">$37 a month</span> — not $1,500 upfront.
             </h1>
             <p className="mt-5 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
-              We build it, host it, secure it and keep it running. You send us your business
-              details; we handle everything technical. No developer, no setup fee, no waiting weeks
-              for a quote.
+              You clean houses. You fix roofs. You do not want a three-week email thread about
+              hosting. Tell us about your business, pick a template, hit publish — we handle every
+              technical part of it.
             </p>
+
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button
@@ -176,12 +182,25 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Promise strip */}
+      <div className="border-y border-border bg-foreground text-background">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] sm:text-xs">
+          {["No setup fee", "No contract", "No jargon", "Cancel anytime"].map((item, i) => (
+            <span key={item} className="flex items-center gap-6">
+              {i > 0 ? <span className="hidden h-1 w-1 rounded-full bg-accent sm:block" /> : null}
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Who it's for */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            Built for service businesses that need customers, not a design award
+            For businesses that want the phone to ring, not a design award
           </h2>
+
           <p className="mt-3 max-w-2xl text-muted-foreground">
             We start with cleaning companies and are adding more trades. If your customers find you
             by searching your service and your city, this is for you.
@@ -216,7 +235,10 @@ function HomePage() {
       {/* What you get */}
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">What you get</h2>
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+            Everything's in the $37 — here's the list
+          </h2>
+
           <div className="mt-10 grid gap-8 sm:grid-cols-2">
             {INCLUDED.map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-4">
@@ -280,6 +302,32 @@ function HomePage() {
           </Button>
         </div>
       </section>
+
+      {/* Honest note */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+            The part nobody puts on their homepage
+          </p>
+          <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+            What we won't do
+          </h2>
+          <div className="mt-6 space-y-4 border-l-2 border-accent pl-5 text-muted-foreground">
+            <p>
+              We won't promise you page one of Google. We won't invent testimonials for your
+              website. We won't sell you a redesign every eighteen months, and we won't charge you
+              $120 to change a phone number.
+            </p>
+            <p>
+              What we will do is give you a fast, correct, properly structured website for your
+              trade and your town, keep it online, and answer you when you message. That's the whole
+              business.
+            </p>
+            <p className="text-sm font-semibold text-foreground">— The WebWarheads team</p>
+          </div>
+        </div>
+      </section>
+
 
       {/* FAQ */}
       <section className="border-b border-border">
