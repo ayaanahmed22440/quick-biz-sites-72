@@ -35,6 +35,27 @@ function AdminLoginPage() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function handleResetLink() {
+    setError(null);
+    setNotice(null);
+    const input = document.getElementById("email") as HTMLInputElement | null;
+    const email = (input?.value ?? "").trim();
+    if (!z.string().email().safeParse(email).success) {
+      setError("Enter your email address above first.");
+      return;
+    }
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (resetError) {
+      setError("We couldn't send that link. Try again in a minute.");
+      return;
+    }
+    setNotice("If that address has staff access, a password link is on its way.");
+  }
+
 
   async function goToAdmin() {
     const { data: userData } = await supabase.auth.getUser();
