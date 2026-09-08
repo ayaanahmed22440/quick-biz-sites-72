@@ -387,9 +387,15 @@ function WebsitePage() {
                 Keep editing and previewing as long as you like. Choose a plan when you're happy
                 with how it looks and we'll put it online straight away.
               </p>
-              <Button asChild className="mt-3">
-                <Link to="/billing">See plans and publish</Link>
-              </Button>
+              {showPlans ? (
+                <div className="mt-4">
+                  <PlanChooser currentPlanId={null} returnPath="/website" featureCount={4} />
+                </div>
+              ) : (
+                <Button className="mt-3" onClick={() => void openPlans()}>
+                  See plans and publish
+                </Button>
+              )}
             </div>
           ) : null}
 
