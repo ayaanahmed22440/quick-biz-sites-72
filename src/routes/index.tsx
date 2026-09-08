@@ -182,12 +182,25 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Promise strip */}
+      <div className="border-y border-border bg-foreground text-background">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] sm:text-xs">
+          {["No setup fee", "No contract", "No jargon", "Cancel anytime"].map((item, i) => (
+            <span key={item} className="flex items-center gap-6">
+              {i > 0 ? <span className="hidden h-1 w-1 rounded-full bg-accent sm:block" /> : null}
+              {item}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Who it's for */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            Built for service businesses that need customers, not a design award
+            For businesses that want the phone to ring, not a design award
           </h2>
+
           <p className="mt-3 max-w-2xl text-muted-foreground">
             We start with cleaning companies and are adding more trades. If your customers find you
             by searching your service and your city, this is for you.
