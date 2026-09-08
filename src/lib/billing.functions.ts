@@ -112,3 +112,21 @@ export const checkSubscriptionState = createServerFn({ method: "POST" })
       planId: subscription?.plan_id ?? null,
     };
   });
+
+const sessionInput = z.object({ sessionId: z.string().uuid() });
+
+/** Where to send the customer back to after checkout, read from the stored session. */
+export const getCheckoutReturn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => sessionInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: session } = await context.supabase
+      .from("checkout_sessions")
+      .select("return_path, plan_id, status")
+      .eq("id", data.sessionId)
+      .maybeSingle();
+    return {
+      returnPath: safeReturnPath(session?.return_path ?? undefined),
+      planId: session?.plan_id ?? null,
+    };
+  });
