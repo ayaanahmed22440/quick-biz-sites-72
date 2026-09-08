@@ -158,7 +158,7 @@ function OnboardingPage() {
         owner_id: userId,
         name: draft.name.trim(),
         slug,
-        niche: "cleaning",
+        niche: draft.niche,
         primary_service: draft.primary_service.trim(),
         description: draft.description.trim() || null,
         phone: draft.phone.trim(),
@@ -221,6 +221,41 @@ function OnboardingPage() {
       <div className="rounded-xl border border-border bg-card p-6">
         {step === 1 ? (
           <div className="space-y-5">
+            <div>
+              <Label htmlFor="niche">Type of business</Label>
+              <Select value={draft.niche} onValueChange={(v) => set("niche", v)}>
+                <SelectTrigger id="niche" className="mt-1.5">
+                  <SelectValue placeholder="Choose your industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {NICHES.map((n) => (
+                    <SelectItem key={n.value} value={n.value} disabled={!n.ready}>
+                      {n.label}
+                      {n.ready ? "" : " — design coming soon"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Cleaning designs are ready today. Other industries open as each design is approved.
+              </p>
+            </div>
+            <div className="rounded-lg border border-dashed border-border p-4">
+              <p className="text-sm font-medium">Just having a look?</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Fill every step with an example cleaning business so you can see how a finished site
+                looks. Change anything before you save.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
+              >
+                Use example details
+              </Button>
+            </div>
             <div>
               <Label htmlFor="name">Business name</Label>
               <Input
