@@ -10,9 +10,8 @@ import { z } from "zod";
  * centralized entitlements in `src/lib/plans.ts` read. No payment state is ever
  * set from the browser.
  *
- * The business is resolved from `metadata[business_id]` when the checkout link
- * carried it, and otherwise from the buyer's email address, so a plain Whop
- * checkout link still activates the right account.
+ * The business is resolved from checkout-session metadata, then existing
+ * membership data, with buyer email retained only as a legacy fallback.
  */
 
 const payloadSchema = z.object({
@@ -65,13 +64,7 @@ function safeEqual(a: string, b: string) {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-/**
- * Whop has shipped a few signature formats over time:
- *   - a bare hex HMAC of the raw body (optionally `sha256=` prefixed)
- *   - a Stripe/Svix-style header `t=<unix>,v1=<hmac>` signed over `<t>.<body>`
- * Accept any of them, in hex or base64, so a working webhook doesn't depend on
- * which format the dashboard is using.
- */
+/** Verify Whop Standard Webhooks against the untouched request body. */
 function verify(webhookId: string | null, timestamp: string | null, signature: string | null, body: string, secret: string) {
   if (!webhookId || !timestamp || !signature) return false;
   const seconds = Number(timestamp);
@@ -85,7 +78,7 @@ function verify(webhookId: string | null, timestamp: string | null, signature: s
   });
 }
 
-function resourceId(value: { id?: string } | string | null | undefined) {
+function resourceId(value: { id?: string | undefined } | string | null | undefined) {
   return typeof value === "string" ? value : value?.id;
 }
 
@@ -111,6 +104,7 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
         if (!verify(webhookId, timestamp, signature, body, secret)) {
           return new Response("Invalid signature", { status: 401 });
         }
+        if (!webhookId) return new Response("Invalid signature", { status: 401 });
 
         let json: unknown;
         try {
@@ -142,8 +136,8 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
             action: `whop:${action}`,
             meta: {
               note,
-               membership_id: resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null),
-               whop_plan_id: data.plan_id ?? resourceId(data.plan) ?? null,
+              membership_id: resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null),
+              whop_plan_id: data.plan_id ?? resourceId(data.plan) ?? null,
               status: data.status ?? null,
               valid: data.valid ?? null,
             },
@@ -156,7 +150,7 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
             : null;
 
         // 2) existing subscription for this membership
-        const membershipId = resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null);
+        const membershipId = resourceId(data.membership) ?? (action.startsWith("membership.") ? data.id : null) ?? null;
         if (!businessId && membershipId) {
           const { data: byMembership } = await supabaseAdmin
             .from("subscriptions")
