@@ -10,7 +10,9 @@ import {
   LayoutDashboard,
   LifeBuoy,
   LogOut,
+  Mail,
   Menu,
+
   Search,
   Settings,
   Shield,
