@@ -1055,10 +1055,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      claim_staff_invitation: {
-        Args: never
-        Returns: Database["public"]["Enums"]["app_role"]
-      }
       get_published_site: { Args: { p_slug: string }; Returns: Json }
       has_role: {
         Args: {

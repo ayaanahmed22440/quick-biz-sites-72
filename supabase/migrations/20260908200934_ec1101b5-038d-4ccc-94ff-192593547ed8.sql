@@ -1,0 +1,1 @@
+DROP FUNCTION public.claim_staff_invitation();
