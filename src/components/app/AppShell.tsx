@@ -16,6 +16,7 @@ import {
   Search,
   Settings,
   Shield,
+  LayoutTemplate,
   Users,
   X,
 } from "lucide-react";
@@ -81,6 +82,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Shield className="h-4 w-4" />
             Admin
+          </Link>
+          <Link
+            to="/admin-templates"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <LayoutTemplate className="h-4 w-4" />
+            Website templates
           </Link>
           <Link
             to="/admin-emails"

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -171,7 +171,14 @@ function AdminPage() {
             New templates must pass human review and be approved before they can be published to
             customers.
           </p>
+          <Link
+            to="/admin-templates"
+            className="mt-3 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            View template previews →
+          </Link>
         </div>
+
 
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-sm font-semibold">Latest support tickets</h2>

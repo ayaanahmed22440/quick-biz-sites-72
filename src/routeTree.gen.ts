@@ -23,6 +23,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin-team'
+import { Route as AuthenticatedAdminTemplatesRouteImport } from './routes/_authenticated/admin-templates'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
@@ -112,6 +113,12 @@ const AuthenticatedAdminTeamRoute = AuthenticatedAdminTeamRouteImport.update({
   path: '/admin-team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminTemplatesRoute =
+  AuthenticatedAdminTemplatesRouteImport.update({
+    id: '/admin-templates',
+    path: '/admin-templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
+  '/admin-templates': typeof AuthenticatedAdminTemplatesRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/business': typeof AuthenticatedBusinessRoute
@@ -251,6 +259,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
+  '/admin-templates': typeof AuthenticatedAdminTemplatesRoute
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/business': typeof AuthenticatedBusinessRoute
@@ -286,6 +295,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-team': typeof AuthenticatedAdminTeamRoute
+  '/_authenticated/admin-templates': typeof AuthenticatedAdminTemplatesRoute
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/business': typeof AuthenticatedBusinessRoute
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-emails'
     | '/admin-team'
+    | '/admin-templates'
     | '/analytics'
     | '/billing'
     | '/business'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin-emails'
     | '/admin-team'
+    | '/admin-templates'
     | '/analytics'
     | '/billing'
     | '/business'
@@ -388,6 +400,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-team'
+    | '/_authenticated/admin-templates'
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
     | '/_authenticated/business'
@@ -526,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin-templates': {
+      id: '/_authenticated/admin-templates'
+      path: '/admin-templates'
+      fullPath: '/admin-templates'
+      preLoaderRoute: typeof AuthenticatedAdminTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/analytics': {
       id: '/_authenticated/analytics'
       path: '/analytics'
@@ -659,6 +679,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
+  AuthenticatedAdminTemplatesRoute: typeof AuthenticatedAdminTemplatesRoute
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
@@ -678,6 +699,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
+  AuthenticatedAdminTemplatesRoute: AuthenticatedAdminTemplatesRoute,
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
