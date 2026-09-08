@@ -216,6 +216,7 @@ function WebsitePage() {
   };
 
   const liveUrl = `/s/${site.data.business.slug}`;
+  const canPublish = Boolean(workspace?.entitlements.website);
 
   return (
     <>

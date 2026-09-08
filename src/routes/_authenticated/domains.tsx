@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,11 +87,25 @@ function DomainsPage() {
       {slug ? (
         <div className="mb-6 rounded-lg border border-border bg-card p-4">
           <p className="text-sm font-medium">Your free WebWarheads address</p>
-          <p className="mt-1 break-all text-sm text-muted-foreground">
-            {typeof window !== "undefined" ? window.location.origin : ""}/s/{slug}
+          <p className="mt-1 break-all text-sm text-muted-foreground">{slug}.webwarheads.com</p>
+          <p className="mt-1 break-all text-xs text-muted-foreground">
+            Also reachable now at {typeof window !== "undefined" ? window.location.origin : ""}/s/
+            {slug}
           </p>
         </div>
       ) : null}
+
+      <div className="mb-6 rounded-lg border border-accent/40 bg-accent/10 p-4">
+        <p className="text-sm font-semibold">Not sure how domains work?</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          We have a short walkthrough and plain-English steps for pointing a domain you already own
+          at your site.
+        </p>
+        <Button asChild variant="outline" className="mt-3">
+          <Link to="/connect-domain">Show me how</Link>
+        </Button>
+      </div>
+
 
       <section className="mb-6 space-y-3 rounded-lg border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">Connect a domain you own</h2>
