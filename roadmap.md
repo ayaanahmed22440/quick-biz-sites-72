@@ -23,7 +23,7 @@
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
 - Whop: needs API key, webhook secret and the three plan IDs before checkout works
-- Domain: webwarheads.com + www DNS records must be added at the DNS provider, then publish
+- Domain: delete the old www CNAME at the DNS provider, then add A @ and A www -> 185.158.133.1 plus the _lovable TXT records
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
 - Domain registrar buying inside WebWarheads: needs a reseller account (Namecheap/Cloudflare/OpenSRS) + payment/legal decisions
 - Terms and privacy are drafts pending legal review
