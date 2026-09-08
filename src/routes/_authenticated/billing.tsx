@@ -44,15 +44,40 @@ function BillingPage() {
 
   const subscription = workspace?.subscription;
   const current = planCopy(subscription?.plan_id);
+  const businessId = workspace?.business?.id;
   const checkoutById = new Map((plans.data ?? []).map((p) => [p.id, p.whop_checkout_url]));
   const anyCheckout = (plans.data ?? []).some((p) => p.whop_checkout_url);
+
+  /** Whop reads `metadata[business_id]` back to us on the membership webhook. */
+  function checkoutUrl(planId: string) {
+    const base = checkoutById.get(planId);
+    if (!base || !businessId) return base ?? null;
+    const joiner = base.includes("?") ? "&" : "?";
+    return `${base}${joiner}metadata[business_id]=${encodeURIComponent(businessId)}`;
+  }
 
   return (
     <>
       <PageHeader
         title="Billing"
-        description="Plans are billed monthly through Whop. Cancel any time."
+        description="Plans are billed through Whop. Cancel any time."
       />
+
+      <div className="inline-flex rounded-lg border border-border bg-card p-1">
+        {(["monthly", "yearly"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPeriod(p)}
+            className={cn(
+              "rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+              period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+            )}
+          >
+            {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
+          </button>
+        ))}
+      </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="text-sm font-semibold">Current plan</h2>
