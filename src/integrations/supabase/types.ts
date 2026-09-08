@@ -1022,6 +1022,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_published_site: { Args: { p_slug: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1034,6 +1035,25 @@ export type Database = {
         Returns: boolean
       }
       is_platform_staff: { Args: { _user_id: string }; Returns: boolean }
+      list_published_site_slugs: {
+        Args: never
+        Returns: {
+          published_at: string
+          slug: string
+        }[]
+      }
+      submit_website_lead: {
+        Args: {
+          p_email?: string
+          p_message?: string
+          p_name: string
+          p_phone?: string
+          p_preferred_time?: string
+          p_service?: string
+          p_slug: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "customer"

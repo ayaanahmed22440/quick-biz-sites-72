@@ -31,6 +31,8 @@ import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/se
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
+import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -142,6 +144,16 @@ const AuthenticatedWebsiteRoute = AuthenticatedWebsiteRouteImport.update({
   path: '/website',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const SSlugRoute = SSlugRouteImport.update({
+  id: '/s/$slug',
+  path: '/s/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
+  id: '/api/public/sitemap.xml',
+  path: '/api/public/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
   id: '/api/public/whop-webhook',
   path: '/api/public/whop-webhook',
@@ -170,6 +182,8 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
+  '/s/$slug': typeof SSlugRoute
+  '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -194,6 +208,8 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
+  '/s/$slug': typeof SSlugRoute
+  '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesById {
@@ -220,6 +236,8 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
+  '/s/$slug': typeof SSlugRoute
+  '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRouteTypes {
@@ -246,6 +264,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/support'
     | '/website'
+    | '/s/$slug'
+    | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -270,6 +290,8 @@ export interface FileRouteTypes {
     | '/settings'
     | '/support'
     | '/website'
+    | '/s/$slug'
+    | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
   id:
     | '__root__'
@@ -295,6 +317,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/support'
     | '/_authenticated/website'
+    | '/s/$slug'
+    | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -308,6 +332,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
+  SSlugRoute: typeof SSlugRoute
+  ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
   ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
 }
 
@@ -467,6 +493,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWebsiteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/s/$slug': {
+      id: '/s/$slug'
+      path: '/s/$slug'
+      fullPath: '/s/$slug'
+      preLoaderRoute: typeof SSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sitemap.xml': {
+      id: '/api/public/sitemap.xml'
+      path: '/api/public/sitemap.xml'
+      fullPath: '/api/public/sitemap.xml'
+      preLoaderRoute: typeof ApiPublicSitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whop-webhook': {
       id: '/api/public/whop-webhook'
       path: '/api/public/whop-webhook'
@@ -522,6 +562,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
+  SSlugRoute: SSlugRoute,
+  ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
   ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
 }
 export const routeTree = rootRouteImport
