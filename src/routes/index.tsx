@@ -132,21 +132,21 @@ function HomePage() {
               What a website normally costs
             </h2>
             <dl className="mt-6 space-y-4 text-sm">
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Freelance designer, one-off build</dt>
-                <dd className="text-lg font-semibold">$1,500 – $5,000</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$1,500 – $5,000</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Hosting, SSL and maintenance</dt>
-                <dd className="text-lg font-semibold">$20 – $60/mo</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$20 – $60/mo</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Every text or photo change</dt>
-                <dd className="text-lg font-semibold">$75 – $150/hr</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$75 – $150/hr</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 pt-1">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 pt-1">
                 <dt className="font-semibold text-navy-foreground">WebWarheads, all of it</dt>
-                <dd className="text-2xl font-extrabold text-accent">$37/mo</dd>
+                <dd className="whitespace-nowrap text-xl font-extrabold text-accent sm:text-2xl">$37/mo</dd>
               </div>
             </dl>
             <p className="mt-6 text-xs text-navy-foreground/55">
