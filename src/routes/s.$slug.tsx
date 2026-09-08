@@ -117,7 +117,7 @@ function PublicSitePage() {
           postalCode: b.postal_code ?? undefined,
           addressCountry: b.country ?? undefined,
         },
-        areaServed: site.service_areas.map((a) => a.name),
+        areaServed: site.service_areas.map((a) => a.city),
       }
     : null;
 

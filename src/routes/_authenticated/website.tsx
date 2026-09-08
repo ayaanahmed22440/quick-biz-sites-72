@@ -111,13 +111,13 @@ function WebsitePage() {
             .maybeSingle(),
           supabase
             .from("services")
-            .select("id, name, description, price_from")
+            .select("id, name, description, price_note")
             .eq("business_id", id)
             .order("sort_order"),
-          supabase.from("service_areas").select("id, name").eq("business_id", id).order("name"),
+          supabase.from("service_areas").select("id, city, state").eq("business_id", id).order("city"),
           supabase
             .from("business_hours")
-            .select("day_of_week, opens_at, closes_at, closed")
+            .select("day_of_week, opens_at, closes_at, is_closed")
             .eq("business_id", id)
             .order("day_of_week"),
         ]);
@@ -136,9 +136,9 @@ function WebsitePage() {
         publishedAt: website.published_at,
         hasPublished: Boolean(custom?.published_content),
         content: normaliseContent(custom?.draft_content, fallback),
-        services: (services ?? []) as TemplateService[],
-        areas: (areas ?? []) as TemplateArea[],
-        hours: (hours ?? []) as TemplateHour[],
+        services: (services ?? []) as unknown as TemplateService[],
+        areas: (areas ?? []) as unknown as TemplateArea[],
+        hours: (hours ?? []) as unknown as TemplateHour[],
         business,
       };
     },
@@ -151,11 +151,12 @@ function WebsitePage() {
   const save = useMutation({
     mutationFn: async ({ publish }: { publish: boolean }) => {
       if (!site.data || !draft || !businessId) return;
+      const serialised = JSON.parse(JSON.stringify(draft)) as never;
       const payload = {
         website_id: site.data.websiteId,
         business_id: businessId,
-        draft_content: draft as unknown as Record<string, unknown>,
-        ...(publish ? { published_content: draft as unknown as Record<string, unknown> } : {}),
+        draft_content: serialised,
+        ...(publish ? { published_content: serialised } : {}),
         updated_at: new Date().toISOString(),
       };
       const { error } = await supabase

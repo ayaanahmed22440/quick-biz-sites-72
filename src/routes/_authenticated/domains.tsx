@@ -50,7 +50,7 @@ function DomainsPage() {
       if (!DOMAIN_PATTERN.test(domain)) throw new Error("That doesn't look like a valid domain name.");
       const { error } = await supabase
         .from("domains")
-        .insert({ business_id: businessId!, domain, kind: "custom" });
+        .insert({ business_id: businessId!, domain, kind: "connected" });
       if (error) throw error;
     },
     onSuccess: () => {

@@ -17,7 +17,7 @@ export const getPublishedSite = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: site, error } = await supabase.rpc("get_published_site", { p_slug: data.slug });
     if (error) throw new Error(error.message);
-    return site as unknown;
+    return (site ?? null) as Record<string, unknown> | null;
   });
 
 export const submitWebsiteLead = createServerFn({ method: "POST" })
@@ -39,11 +39,11 @@ export const submitWebsiteLead = createServerFn({ method: "POST" })
     const { error } = await supabase.rpc("submit_website_lead", {
       p_slug: data.slug,
       p_name: data.name,
-      p_email: data.email || null,
-      p_phone: data.phone || null,
-      p_service: data.service || null,
-      p_preferred_time: data.preferred_time || null,
-      p_message: data.message || null,
+      p_email: data.email || undefined,
+      p_phone: data.phone || undefined,
+      p_service: data.service || undefined,
+      p_preferred_time: data.preferred_time || undefined,
+      p_message: data.message || undefined,
     });
     if (error) throw new Error(error.message);
     return { ok: true };

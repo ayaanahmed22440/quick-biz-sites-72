@@ -17,16 +17,16 @@ export type TemplateService = {
   id: string;
   name: string;
   description: string | null;
-  price_from: number | null;
+  price_note: string | null;
 };
 
-export type TemplateArea = { id: string; name: string };
+export type TemplateArea = { id: string; city: string; state: string | null };
 
 export type TemplateHour = {
   day_of_week: number;
   opens_at: string | null;
   closes_at: string | null;
-  closed: boolean;
+  is_closed: boolean;
 };
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -148,7 +148,7 @@ export function CleaningTemplate01({
           </ul>
           {areas.length > 0 ? (
             <p className="mt-6 text-sm text-black/60">
-              Covering {areas.map((a) => a.name).join(", ")}
+              Covering {areas.map((a) => a.city).join(", ")}
             </p>
           ) : null}
         </div>
@@ -225,9 +225,9 @@ export function CleaningTemplate01({
                   {service.description ? (
                     <p className="mt-2 text-sm text-black/70">{service.description}</p>
                   ) : null}
-                  {service.price_from != null ? (
+                  {service.price_note ? (
                     <p className="mt-3 text-sm font-semibold" style={{ color: brand }}>
-                      From {service.price_from}
+                      {service.price_note}
                     </p>
                   ) : null}
                 </div>
@@ -255,7 +255,7 @@ export function CleaningTemplate01({
               <ul className="mt-4 flex flex-wrap gap-2">
                 {areas.map((a) => (
                   <li key={a.id} className="rounded-full bg-black/5 px-3 py-1 text-sm">
-                    {a.name}
+                    {a.city}
                   </li>
                 ))}
               </ul>
@@ -302,7 +302,7 @@ export function CleaningTemplate01({
                   <li key={h.day_of_week} className="flex justify-between gap-4 border-b border-white/20 py-1">
                     <span>{DAYS[h.day_of_week] ?? ""}</span>
                     <span>
-                      {h.closed ? "Closed" : `${formatTime(h.opens_at)} – ${formatTime(h.closes_at)}`}
+                      {h.is_closed ? "Closed" : `${formatTime(h.opens_at)} – ${formatTime(h.closes_at)}`}
                     </span>
                   </li>
                 ))}
