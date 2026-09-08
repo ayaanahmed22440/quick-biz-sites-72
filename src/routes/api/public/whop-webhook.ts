@@ -49,13 +49,48 @@ const STATUS_MAP: Record<string, string> = {
   incomplete: "incomplete",
 };
 
+function safeEqual(a: string, b: string) {
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
+}
+
+/**
+ * Whop has shipped a few signature formats over time:
+ *   - a bare hex HMAC of the raw body (optionally `sha256=` prefixed)
+ *   - a Stripe/Svix-style header `t=<unix>,v1=<hmac>` signed over `<t>.<body>`
+ * Accept any of them, in hex or base64, so a working webhook doesn't depend on
+ * which format the dashboard is using.
+ */
 function verify(signature: string | null, body: string, secret: string) {
   if (!signature) return false;
-  const provided = signature.replace(/^sha256=/, "").trim();
-  const expected = createHmac("sha256", secret).update(body).digest("hex");
-  const a = Buffer.from(provided);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
+
+  const provided: string[] = [];
+  let timestamp: string | null = null;
+
+  for (const part of signature.split(/[,\s]+/)) {
+    const chunk = part.trim();
+    if (!chunk) continue;
+    const eq = chunk.indexOf("=");
+    const key = eq > -1 ? chunk.slice(0, eq) : "";
+    const value = eq > -1 ? chunk.slice(eq + 1) : chunk;
+    if (key === "t") timestamp = value;
+    else if (!key || key === "v1" || key === "v0" || key === "sha256") provided.push(value);
+    else provided.push(value);
+  }
+
+  const payloads = [body];
+  if (timestamp) payloads.push(`${timestamp}.${body}`);
+
+  for (const payload of payloads) {
+    const mac = createHmac("sha256", secret).update(payload);
+    const hex = mac.digest("hex");
+    const base64 = Buffer.from(hex, "hex").toString("base64");
+    for (const candidate of provided) {
+      if (safeEqual(candidate, hex) || safeEqual(candidate, base64)) return true;
+    }
+  }
+  return false;
 }
 
 function toIso(value: number | string | null | undefined) {
