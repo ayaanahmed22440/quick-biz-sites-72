@@ -30,7 +30,6 @@ export function WhopCheckoutPanel({
         returnUrl={returnUrl}
         onComplete={(_planId, receiptId) => onComplete(receiptId)}
         onPaymentError={(error) => onError(error.message)}
-        styles={{ borderRadius: 8 }}
       />
     </Suspense>
   );

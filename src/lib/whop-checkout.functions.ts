@@ -126,7 +126,7 @@ export const confirmWhopCheckout = createServerFn({ method: "POST" })
     if (!ownedBusiness) return { confirmed: false as const };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const whopPlanId = payment.plan_id ?? nestedId(payment.plan);
+    const whopPlanId = payment.plan_id ?? nestedId(payment.plan) ?? null;
     const whopMembershipId = nestedId(payment.membership) ?? payment.member?.id ?? null;
     const periodEnd = payment.renewal_period_end
       ? new Date(

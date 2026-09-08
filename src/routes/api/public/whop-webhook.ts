@@ -74,7 +74,7 @@ function verify(webhookId: string | null, timestamp: string | null, signature: s
     .digest("base64");
   return signature.split(" ").some((part) => {
     const [version, value] = part.split(",", 2);
-    return version === "v1" && Boolean(value) && safeEqual(value, expected);
+    return version === "v1" && typeof value === "string" && safeEqual(value, expected);
   });
 }
 
