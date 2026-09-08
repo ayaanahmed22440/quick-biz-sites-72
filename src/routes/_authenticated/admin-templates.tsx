@@ -196,7 +196,7 @@ function AdminTemplatesPage() {
                   variant={device === key ? "default" : "outline"}
                   onClick={() => setDevice(key)}
                 >
-                  {key[0].toUpperCase() + key.slice(1)}
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
                 </Button>
               ))}
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
