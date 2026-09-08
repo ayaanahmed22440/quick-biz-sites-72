@@ -126,12 +126,7 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
           return new Response("Write failed", { status: 500 });
         }
 
-        await supabaseAdmin.from("activity_logs").insert({
-          business_id: businessId,
-          action: `billing.${action}`,
-          entity_type: "subscription",
-          entity_id: data.id,
-        });
+        console.log("whop webhook applied", action, businessId);
 
         return Response.json({ ok: true });
       },
