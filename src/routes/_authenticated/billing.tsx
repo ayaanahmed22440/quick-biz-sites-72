@@ -11,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const searchSchema = z.object({ plan: z.enum(["basic", "seo", "premium"]).optional() });
+const searchSchema = z.object({
+  plan: z.enum(["basic", "seo", "premium"]).optional(),
+  checkout: z.enum(["success"]).optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/billing")({
   validateSearch: searchSchema,
