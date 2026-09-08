@@ -67,12 +67,21 @@ function BillingPage() {
   const checkoutById = new Map((plans.data ?? []).map((p) => [p.id, p.whop_checkout_url]));
   const anyCheckout = (plans.data ?? []).some((p) => p.whop_checkout_url);
 
-  /** Whop reads `metadata[business_id]` back to us on the membership webhook. */
+  /**
+   * Whop reads `metadata[business_id]` back to us on the membership webhook, and
+   * `redirect_url` brings the customer straight back here after paying.
+   */
   function checkoutUrl(planId: string) {
     const base = checkoutById.get(planId);
-    if (!base || !businessId) return base ?? null;
-    const joiner = base.includes("?") ? "&" : "?";
-    return `${base}${joiner}metadata[business_id]=${encodeURIComponent(businessId)}`;
+    if (!base) return null;
+    const params = new URLSearchParams();
+    if (businessId) params.set("metadata[business_id]", businessId);
+    if (typeof window !== "undefined") {
+      params.set("redirect_url", `${window.location.origin}/billing?checkout=success`);
+    }
+    const query = params.toString();
+    if (!query) return base;
+    return `${base}${base.includes("?") ? "&" : "?"}${query}`;
   }
 
   return (
