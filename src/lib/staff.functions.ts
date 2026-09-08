@@ -80,7 +80,7 @@ export const inviteStaff = createServerFn({ method: "POST" })
     if (!invitedUserId) {
       const { data: invite, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
         email,
-        { redirectTo: process.env.APP_URL ?? "https://webwarheads.com" },
+        { redirectTo: process.env["APP_URL"] ?? "https://webwarheads.com" },
       );
       if (inviteError) throw new Error(inviteError.message);
       invitedUserId = invite.user.id;

@@ -1,6 +1,7 @@
 # WebWarheads roadmap
 
 ## Done
+- Preview typecheck and production build are error-free
 - Public site: home, pricing, how it works, contact, terms, privacy (mobile tuned)
 - Auth: email/password, Google, password reset
 - Onboarding, business profile, customer dashboard, admin dashboard
