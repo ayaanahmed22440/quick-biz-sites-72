@@ -122,12 +122,13 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: claimed } = await supabaseAdmin
+        const { data: claimed, error: claimError } = await supabaseAdmin
           .from("billing_webhook_events")
           .insert({ webhook_id: webhookId, event_type: action, payload_created_at: parsed.data.timestamp ?? null })
           .select("webhook_id")
           .maybeSingle();
-        if (!claimed) return Response.json({ ok: true, duplicate: true });
+        if (claimError?.code === "23505") return Response.json({ ok: true, duplicate: true });
+        if (claimError || !claimed) return new Response("Event could not be recorded", { status: 500 });
 
         /** Keep an audit trail of every verified event so billing is debuggable. */
         const log = (note: string, businessId: string | null) =>
@@ -212,6 +213,10 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
         const planId = metadataPlanId ?? plan?.id ?? existing?.plan_id;
         if (!planId) {
           await log(`unknown whop plan ${externalPlanId ?? "(none)"}`, businessId);
+          await supabaseAdmin
+            .from("billing_webhook_events")
+            .update({ business_id: businessId, note: "unknown plan" })
+            .eq("webhook_id", webhookId);
           return Response.json({ ok: true, ignored: "unknown plan" });
         }
 
@@ -236,6 +241,10 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
 
         if (error) {
           await log(`write failed: ${error.message}`, businessId);
+          await supabaseAdmin
+            .from("billing_webhook_events")
+            .update({ business_id: businessId, note: "subscription write failed" })
+            .eq("webhook_id", webhookId);
           return new Response("Write failed", { status: 500 });
         }
 

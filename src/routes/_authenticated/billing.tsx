@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +40,8 @@ function BillingPage() {
   const [checkoutSession, setCheckoutSession] = useState<{ sessionId: string; email: string } | null>(null);
   const [checkoutState, setCheckoutState] = useState<"idle" | "starting" | "confirming" | "confirmed" | "error">("idle");
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const startCheckout = useServerFn(createWhopCheckout);
+  const confirmCheckout = useServerFn(confirmWhopCheckout);
 
   const plans = useQuery({
     queryKey: ["plans"],
@@ -65,7 +68,7 @@ function BillingPage() {
     setCheckoutState("starting");
     setCheckoutError(null);
     try {
-      const result = await createWhopCheckout({
+      const result = await startCheckout({
         data: { planId, returnUrl: `${window.location.origin}/billing` },
       });
       setCheckoutSession(result);
@@ -85,7 +88,7 @@ function BillingPage() {
       return;
     }
     try {
-      const result = await confirmWhopCheckout({ data: { receiptId } });
+      const result = await confirmCheckout({ data: { receiptId } });
       if (!result.confirmed) throw new Error("Payment is still being confirmed. Please wait a moment and refresh.");
       await refetch();
       setCheckoutState("confirmed");
