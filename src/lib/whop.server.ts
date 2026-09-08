@@ -2,6 +2,7 @@
  * Whop billing helpers. Server-only: never import from client code.
  * All calls use WHOP_API_KEY, which must never reach the browser.
  */
+import { createHmac, timingSafeEqual } from "crypto";
 import type { Database } from "@/integrations/supabase/types";
 
 const WHOP_API = "https://api.whop.com/api/v2";
