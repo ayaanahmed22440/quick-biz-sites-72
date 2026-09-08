@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/public/sitemap.xml")({
           ...staticPaths.map((p) => `<url><loc>${origin}${p}</loc></url>`),
           ...slugs.map(
             (s) =>
-              `<url><loc>${origin}/s/${s.slug}</loc>${s.published_at ? `<lastmod>${new Date(s.published_at).toISOString()}</lastmod>` : ""}</url>`,
+              `<url><loc>${origin}/${s.slug}</loc>${s.published_at ? `<lastmod>${new Date(s.published_at).toISOString()}</lastmod>` : ""}</url>`,
           ),
         ].join("");
 

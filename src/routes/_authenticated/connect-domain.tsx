@@ -99,7 +99,7 @@ function ConnectDomainPage() {
           </p>
         )}
         <p className="mt-3 text-xs text-muted-foreground">
-          Your site is already reachable at {slug ? `/s/${slug}` : "your WebWarheads link"} while
+          Your site is already reachable at {slug ? `/${slug}` : "your WebWarheads link"} while
           the friendly address finishes setting up.
         </p>
       </section>
