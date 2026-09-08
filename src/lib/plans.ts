@@ -56,13 +56,26 @@ export const PLAN_ENTITLEMENTS: Record<PlanId, Entitlements> = {
 
 export const ACTIVE_SUBSCRIPTION_STATUSES = ["active", "trialing", "past_due"] as const;
 
+/** Yearly plans use the id `<plan>_yearly` and carry identical entitlements. */
+export function basePlanId(planId: string | null | undefined): PlanId | undefined {
+  if (!planId) return undefined;
+  const base = planId.replace(/_yearly$/, "") as PlanId;
+  return base in PLAN_ENTITLEMENTS ? base : undefined;
+}
+
+/** Yearly price = ten months (two months free). */
+export function yearlyPrice(monthly: number): number {
+  return monthly * 10;
+}
+
 export function entitlementsFor(
   planId: string | null | undefined,
   status: string | null | undefined,
 ): Entitlements {
-  if (!planId) return NO_ENTITLEMENTS;
+  const base = basePlanId(planId);
+  if (!base) return NO_ENTITLEMENTS;
   if (!status || !ACTIVE_SUBSCRIPTION_STATUSES.includes(status as never)) return NO_ENTITLEMENTS;
-  return PLAN_ENTITLEMENTS[planId as PlanId] ?? NO_ENTITLEMENTS;
+  return PLAN_ENTITLEMENTS[base] ?? NO_ENTITLEMENTS;
 }
 
 export function can(entitlements: Entitlements, feature: FeatureKey): boolean {
@@ -138,5 +151,10 @@ export const PLAN_COPY: PlanCopy[] = [
 ];
 
 export function planCopy(id: string | null | undefined): PlanCopy | undefined {
-  return PLAN_COPY.find((p) => p.id === id);
+  const base = basePlanId(id);
+  return PLAN_COPY.find((p) => p.id === base);
+}
+
+export function isYearly(id: string | null | undefined): boolean {
+  return Boolean(id?.endsWith("_yearly"));
 }

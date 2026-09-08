@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { PLAN_COPY, planCopy } from "@/lib/plans";
+import { PLAN_COPY, planCopy, isYearly, yearlyPrice } from "@/lib/plans";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { data: workspace, isLoading } = useWorkspace();
+  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
   const plans = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
@@ -44,22 +46,48 @@ function BillingPage() {
 
   const subscription = workspace?.subscription;
   const current = planCopy(subscription?.plan_id);
+  const businessId = workspace?.business?.id;
   const checkoutById = new Map((plans.data ?? []).map((p) => [p.id, p.whop_checkout_url]));
   const anyCheckout = (plans.data ?? []).some((p) => p.whop_checkout_url);
+
+  /** Whop reads `metadata[business_id]` back to us on the membership webhook. */
+  function checkoutUrl(planId: string) {
+    const base = checkoutById.get(planId);
+    if (!base || !businessId) return base ?? null;
+    const joiner = base.includes("?") ? "&" : "?";
+    return `${base}${joiner}metadata[business_id]=${encodeURIComponent(businessId)}`;
+  }
 
   return (
     <>
       <PageHeader
         title="Billing"
-        description="Plans are billed monthly through Whop. Cancel any time."
+        description="Plans are billed through Whop. Cancel any time."
       />
+
+      <div className="inline-flex rounded-lg border border-border bg-card p-1">
+        {(["monthly", "yearly"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPeriod(p)}
+            className={cn(
+              "rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors",
+              period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+            )}
+          >
+            {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
+          </button>
+        ))}
+      </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="text-sm font-semibold">Current plan</h2>
         {subscription && current ? (
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-lg font-semibold">
-              ${current.price}/month — {current.name}
+              ${isYearly(subscription.plan_id) ? yearlyPrice(current.price) : current.price}
+              {isYearly(subscription.plan_id) ? "/year" : "/month"} — {current.name}
             </span>
             <Badge variant="secondary">{subscription.status}</Badge>
             {subscription.current_period_end ? (
@@ -89,8 +117,9 @@ function BillingPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         {PLAN_COPY.map((plan) => {
-          const isCurrent = subscription?.plan_id === plan.id;
-          const url = checkoutById.get(plan.id);
+          const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
+          const isCurrent = subscription?.plan_id === planId;
+          const url = checkoutUrl(planId);
           return (
             <div
               key={plan.id}
@@ -106,8 +135,10 @@ function BillingPage() {
               ) : null}
               <h3 className="text-base font-semibold">{plan.name}</h3>
               <p className="mt-1 text-2xl font-bold">
-                ${plan.price}
-                <span className="text-sm font-normal text-muted-foreground">/month</span>
+                ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
+                <span className="text-sm font-normal text-muted-foreground">
+                  {period === "yearly" ? "/year" : "/month"}
+                </span>
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.slice(0, 5).map((f) => (
