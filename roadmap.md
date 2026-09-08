@@ -11,19 +11,19 @@
 - Published customer sites at /s/{slug} with lead capture into Leads
 - SEO settings: title, description, local targeting, structured data toggles, sitemap
 - Domains: add/remove a domain you own, free WebWarheads address
-- Deployment: npm, single lock file, production start script, .env.example
+- Deployment: hosted on Lovable, GitHub for version control, Lovable Cloud backend
 
 - Staff login at /admin-login, Google sign-in returns via /auth/callback
 - Free build, pay at publish (editor open to everyone, publishing needs a plan)
 - Domain help page with walkthrough placeholder + free subdomain option
 - Administrator-only team invitations and staff access review
-- Google login uses the Hostinger-safe root return address
+- Google login returns to the site root, then routes staff or customers
 
 ## Open (blocked or awaiting input)
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
 - Whop: needs API key, webhook secret and the three plan IDs before checkout works
-- Google OAuth: add webwarheads.com to the Cloud auth URL allow-list
+- Domain: webwarheads.com + www DNS records must be added at the DNS provider, then publish
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
 - Domain registrar buying inside WebWarheads: needs a reseller account (Namecheap/Cloudflare/OpenSRS) + payment/legal decisions
 - Terms and privacy are drafts pending legal review
