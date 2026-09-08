@@ -110,10 +110,10 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
           business_id: businessId,
           plan_id: planId,
           provider: "whop",
-          status: status as never,
+          status: status as "active",
           whop_membership_id: data.id,
           whop_plan_id: data.plan_id ?? null,
-          current_period_end: toIso(data.renewal_period_end),
+          current_period_end: toIso(data.renewal_period_end ?? null),
           cancel_at_period_end: data.cancel_at_period_end ?? false,
         };
 

@@ -26,7 +26,7 @@ function DomainsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("domains")
-        .select("id, hostname, kind, status, is_primary")
+        .select("id, domain, kind, status, ssl_active")
         .eq("business_id", businessId!);
       if (error) throw error;
       return data;
@@ -56,9 +56,9 @@ function DomainsPage() {
               key={d.id}
               className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3"
             >
-              <span className="font-medium">{d.hostname}</span>
+              <span className="font-medium">{d.domain}</span>
               <Badge variant="secondary">{d.status}</Badge>
-              {d.is_primary ? <Badge>Primary</Badge> : null}
+              {d.ssl_active ? <Badge>SSL active</Badge> : null}
             </li>
           ))}
         </ul>
