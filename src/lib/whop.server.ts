@@ -111,7 +111,7 @@ export function verifyWhopSignature(args: {
   signatureHeader: string;
   body: string;
 }): boolean {
-  const { createHmac, timingSafeEqual } = require("crypto") as typeof import("crypto");
+  
   const secretBytes = args.secret.startsWith("whsec_")
     ? Buffer.from(args.secret.slice(6), "base64")
     : Buffer.from(args.secret, "utf8");
