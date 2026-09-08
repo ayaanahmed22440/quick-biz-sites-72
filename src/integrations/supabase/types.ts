@@ -49,6 +49,53 @@ export type Database = {
           },
         ]
       }
+      billing_events: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          error: string | null
+          event_id: string
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          status: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          status?: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          error?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_hours: {
         Row: {
           business_id: string
@@ -190,6 +237,63 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      checkout_sessions: {
+        Row: {
+          business_id: string
+          checkout_url: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          plan_id: string
+          return_path: string
+          status: string
+          updated_at: string
+          user_id: string
+          whop_plan_id: string
+        }
+        Insert: {
+          business_id: string
+          checkout_url?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          plan_id: string
+          return_path?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          whop_plan_id: string
+        }
+        Update: {
+          business_id?: string
+          checkout_url?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string
+          return_path?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          whop_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkout_sessions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checkout_sessions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contact_messages: {
         Row: {
@@ -443,6 +547,7 @@ export type Database = {
           sort_order: number
           tagline: string | null
           updated_at: string
+          whop_plan_id: string | null
         }
         Insert: {
           created_at?: string
@@ -454,6 +559,7 @@ export type Database = {
           sort_order?: number
           tagline?: string | null
           updated_at?: string
+          whop_plan_id?: string | null
         }
         Update: {
           created_at?: string
@@ -465,6 +571,7 @@ export type Database = {
           sort_order?: number
           tagline?: string | null
           updated_at?: string
+          whop_plan_id?: string | null
         }
         Relationships: []
       }
@@ -696,38 +803,53 @@ export type Database = {
         Row: {
           business_id: string
           cancel_at_period_end: boolean
+          canceled_at: string | null
           created_at: string
           current_period_end: string | null
+          current_period_start: string | null
           id: string
           last_payment_failed_at: string | null
           plan_id: string
           provider: string
           status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
+          whop_membership_id: string | null
+          whop_plan_id: string | null
+          whop_user_id: string | null
         }
         Insert: {
           business_id: string
           cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
           last_payment_failed_at?: string | null
           plan_id: string
           provider?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
+          whop_membership_id?: string | null
+          whop_plan_id?: string | null
+          whop_user_id?: string | null
         }
         Update: {
           business_id?: string
           cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string | null
+          current_period_start?: string | null
           id?: string
           last_payment_failed_at?: string | null
           plan_id?: string
           provider?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
+          whop_membership_id?: string | null
+          whop_plan_id?: string | null
+          whop_user_id?: string | null
         }
         Relationships: [
           {
