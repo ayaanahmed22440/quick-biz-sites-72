@@ -665,6 +665,39 @@ export type Database = {
           },
         ]
       }
+      staff_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           business_id: string
@@ -1022,6 +1055,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_staff_invitation: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_published_site: { Args: { p_slug: string }; Returns: Json }
       has_role: {
         Args: {
