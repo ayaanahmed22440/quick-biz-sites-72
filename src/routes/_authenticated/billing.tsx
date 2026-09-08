@@ -6,6 +6,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { PLAN_COPY, planCopy, isYearly, yearlyPrice } from "@/lib/plans";
+import { syncWhopSubscription } from "@/lib/whop-sync.functions";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,15 +34,18 @@ function BillingPage() {
   const { checkout } = Route.useSearch();
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
 
-  // Coming back from checkout, the payment provider may confirm a moment later.
+  // Coming back from checkout: sync straight from the Whop API (webhooks can
+  // lag), then keep refetching briefly in case the webhook refines the state.
   useEffect(() => {
     if (checkout !== "success") return;
     let tries = 0;
-    const timer = setInterval(() => {
+    const tick = () => {
       tries += 1;
-      void refetch();
+      void syncWhopSubscription().finally(() => void refetch());
       if (tries >= 6) clearInterval(timer);
-    }, 3000);
+    };
+    void syncWhopSubscription().finally(() => void refetch());
+    const timer = setInterval(tick, 3000);
     return () => clearInterval(timer);
   }, [checkout, refetch]);
 
