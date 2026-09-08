@@ -412,8 +412,8 @@ function WebsitePage() {
                 Save &amp; publish
               </Button>
             ) : (
-              <Button asChild>
-                <Link to="/billing">Publish my site</Link>
+              <Button disabled={save.isPending} onClick={() => void openPlans()}>
+                Publish my site
               </Button>
             )}
             {dirty ? (
