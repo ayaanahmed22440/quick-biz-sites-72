@@ -75,8 +75,8 @@ function ContactPage() {
     <PublicLayout>
       <section className="border-b border-border bg-navy text-navy-foreground">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Talk to us</h1>
-          <p className="mt-3 max-w-xl text-lg text-navy-foreground/75">
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">Talk to us</h1>
+          <p className="mt-3 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
             Tell us about your business and what you need. A real person reads every message.
           </p>
         </div>
