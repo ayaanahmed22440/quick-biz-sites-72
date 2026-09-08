@@ -15,12 +15,14 @@
 - Staff login at /admin-login, Google sign-in returns via /auth/callback
 - Free build, pay at publish (editor open to everyone, publishing needs a plan)
 - Domain help page with walkthrough placeholder + free subdomain option
+- Administrator-only team invitations and staff access review
+- Google login uses the Hostinger-safe root return address
 
 ## Open (blocked or awaiting input)
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
 - Whop: needs API key, webhook secret and the three plan IDs before checkout works
-- Google OAuth: production credentials for the live domain
+- Google OAuth: add webwarheads.com to the Cloud auth URL allow-list
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
 - Domain registrar buying inside WebWarheads: needs a reseller account (Namecheap/Cloudflare/OpenSRS) + payment/legal decisions
 - Terms and privacy are drafts pending legal review
