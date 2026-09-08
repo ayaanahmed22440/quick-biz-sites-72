@@ -134,6 +134,17 @@ function AdminLoginPage() {
             Continue with Google
           </Button>
 
+          <button
+            type="button"
+            onClick={handleResetLink}
+            className="mt-5 w-full text-center text-xs font-medium text-accent hover:underline"
+          >
+            Email me a link to set a new password
+          </button>
+          {notice ? (
+            <p className="mt-2 text-center text-xs text-muted-foreground">{notice}</p>
+          ) : null}
+
           <p className="mt-6 text-center text-xs text-muted-foreground">
             <Link to="/auth" className="hover:underline">
               Customer log in
