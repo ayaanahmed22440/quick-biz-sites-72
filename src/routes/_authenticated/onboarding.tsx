@@ -76,6 +76,7 @@ function slugify(value: string) {
 }
 
 type Draft = {
+  niche: string;
   name: string;
   primary_service: string;
   description: string;
@@ -88,6 +89,7 @@ type Draft = {
 };
 
 const EMPTY: Draft = {
+  niche: "cleaning",
   name: "",
   primary_service: "",
   description: "",
