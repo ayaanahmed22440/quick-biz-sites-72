@@ -64,6 +64,7 @@ function WebsitePage() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
