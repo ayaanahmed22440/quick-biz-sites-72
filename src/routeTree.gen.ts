@@ -23,6 +23,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedBusinessRouteImport } from './routes/_authenticated/business'
+import { Route as AuthenticatedConnectDomainRouteImport } from './routes/_authenticated/connect-domain'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDomainsRouteImport } from './routes/_authenticated/domains'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
@@ -106,6 +107,12 @@ const AuthenticatedBusinessRoute = AuthenticatedBusinessRouteImport.update({
   path: '/business',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConnectDomainRoute =
+  AuthenticatedConnectDomainRouteImport.update({
+    id: '/connect-domain',
+    path: '/connect-domain',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -186,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/business': typeof AuthenticatedBusinessRoute
+  '/connect-domain': typeof AuthenticatedConnectDomainRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/domains': typeof AuthenticatedDomainsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -214,6 +222,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AuthenticatedAnalyticsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/business': typeof AuthenticatedBusinessRoute
+  '/connect-domain': typeof AuthenticatedConnectDomainRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/domains': typeof AuthenticatedDomainsRoute
   '/leads': typeof AuthenticatedLeadsRoute
@@ -244,6 +253,7 @@ export interface FileRoutesById {
   '/_authenticated/analytics': typeof AuthenticatedAnalyticsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/business': typeof AuthenticatedBusinessRoute
+  '/_authenticated/connect-domain': typeof AuthenticatedConnectDomainRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/domains': typeof AuthenticatedDomainsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/billing'
     | '/business'
+    | '/connect-domain'
     | '/dashboard'
     | '/domains'
     | '/leads'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/analytics'
     | '/billing'
     | '/business'
+    | '/connect-domain'
     | '/dashboard'
     | '/domains'
     | '/leads'
@@ -331,6 +343,7 @@ export interface FileRouteTypes {
     | '/_authenticated/analytics'
     | '/_authenticated/billing'
     | '/_authenticated/business'
+    | '/_authenticated/connect-domain'
     | '/_authenticated/dashboard'
     | '/_authenticated/domains'
     | '/_authenticated/leads'
@@ -462,6 +475,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/connect-domain': {
+      id: '/_authenticated/connect-domain'
+      path: '/connect-domain'
+      fullPath: '/connect-domain'
+      preLoaderRoute: typeof AuthenticatedConnectDomainRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -561,6 +581,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnalyticsRoute: typeof AuthenticatedAnalyticsRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedBusinessRoute: typeof AuthenticatedBusinessRoute
+  AuthenticatedConnectDomainRoute: typeof AuthenticatedConnectDomainRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
@@ -577,6 +598,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnalyticsRoute: AuthenticatedAnalyticsRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedBusinessRoute: AuthenticatedBusinessRoute,
+  AuthenticatedConnectDomainRoute: AuthenticatedConnectDomainRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
