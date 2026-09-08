@@ -1,12 +1,10 @@
-import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check } from "lucide-react";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { PLAN_COPY, planCopy, isYearly, yearlyPrice } from "@/lib/plans";
+import { planCopy, isYearly, yearlyPrice } from "@/lib/plans";
 import { LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
+import { PlanChooser } from "@/components/billing/PlanChooser";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({
