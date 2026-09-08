@@ -10,6 +10,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const NICHES = [
+  { value: "cleaning", label: "Cleaning company", ready: true },
+  { value: "landscaping", label: "Landscaping & lawn care", ready: false },
+  { value: "handyman", label: "Handyman & home repair", ready: false },
+  { value: "pest_control", label: "Pest control", ready: false },
+  { value: "plumbing", label: "Plumbing", ready: false },
+  { value: "electrical", label: "Electrical", ready: false },
+  { value: "hvac", label: "Heating & air", ready: false },
+  { value: "other", label: "Something else", ready: false },
+] as const;
+
+const DEMO: Omit<Draft, "niche"> = {
+  name: "Sparkle & Shine Cleaning Co.",
+  primary_service: "House cleaning",
+  description:
+    "A family-run cleaning team looking after homes and small offices, with the same cleaner every visit and a satisfaction guarantee.",
+  phone: "(704) 555-0142",
+  email: "hello@sparkleandshine.example",
+  city: "Charlotte",
+  state: "NC",
+  services: "Regular house cleaning\nDeep cleaning\nMove-in / move-out cleaning\nOffice cleaning",
+  areas: "Matthews, Huntersville, Concord, Pineville",
+};
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
