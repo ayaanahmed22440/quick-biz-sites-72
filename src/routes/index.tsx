@@ -83,11 +83,16 @@ function HomePage() {
   useEffect(() => {
     const target = sessionStorage.getItem("ww:after-login");
     if (target !== "/admin" && target !== "/dashboard") return;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) return;
+    const forward = (hasSession: boolean) => {
+      if (!hasSession) return;
       sessionStorage.removeItem("ww:after-login");
       void navigate({ to: target, replace: true });
+    };
+    void supabase.auth.getSession().then(({ data }) => forward(Boolean(data.session)));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      forward(Boolean(session));
     });
+    return () => listener.subscription.unsubscribe();
   }, [navigate]);
 
   return (

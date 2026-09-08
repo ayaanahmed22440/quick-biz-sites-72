@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 const inviteSchema = z.object({
   email: z.string().trim().email().max(255),
@@ -8,7 +10,7 @@ const inviteSchema = z.object({
 });
 
 async function requireAdmin(
-  supabase: Parameters<Parameters<typeof requireSupabaseAuth>[0]>[0] extends never ? never : any,
+  supabase: SupabaseClient<Database>,
   userId: string,
 ) {
   const { data } = await supabase
@@ -78,7 +80,7 @@ export const inviteStaff = createServerFn({ method: "POST" })
     if (!invitedUserId) {
       const { data: invite, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
         email,
-        { redirectTo: "https://webwarheads.com" },
+        { redirectTo: process.env.APP_URL ?? "https://webwarheads.com" },
       );
       if (inviteError) throw new Error(inviteError.message);
       invitedUserId = invite.user.id;
