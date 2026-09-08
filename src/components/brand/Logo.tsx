@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logo from "@/assets/webwarheads-logo.jpg.asset.json";
+import logoUrl from "@/assets/webwarheads-logo.jpg";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
@@ -15,7 +15,7 @@ export function Logo({ className, showWordmark = true, tone = "dark", to = "/" }
   return (
     <Link to={to} className={cn("inline-flex items-center gap-2.5", className)}>
       <img
-        src={logo.url}
+        src={logoUrl}
         alt="WebWarheads"
         className="h-8 w-8 rounded-md object-cover"
         width={32}
