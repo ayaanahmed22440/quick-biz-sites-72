@@ -210,6 +210,15 @@ function WebsitePage() {
   if (site.isError) return <ErrorBlock />;
   if (!site.data || !draft) return <LoadingBlock rows={3} />;
 
+  // Save the work first, so nothing is lost while the customer is at checkout.
+  const openPlans = async () => {
+    try {
+      if (dirty) await save.mutateAsync({ publish: false });
+    } finally {
+      setShowPlans(true);
+    }
+  };
+
   const update = (patch: (current: SiteContent) => SiteContent) => {
     setDraft((current) => (current ? patch(current) : current));
     setDirty(true);
