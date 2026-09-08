@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { PlanChooser } from "@/components/billing/PlanChooser";
 import {
   CleaningTemplate01,
   type TemplateArea,
@@ -64,6 +65,7 @@ function WebsitePage() {
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
@@ -209,6 +211,15 @@ function WebsitePage() {
 
   if (site.isError) return <ErrorBlock />;
   if (!site.data || !draft) return <LoadingBlock rows={3} />;
+
+  // Save the work first, so nothing is lost while the customer is at checkout.
+  const openPlans = async () => {
+    try {
+      if (dirty) await save.mutateAsync({ publish: false });
+    } finally {
+      setShowPlans(true);
+    }
+  };
 
   const update = (patch: (current: SiteContent) => SiteContent) => {
     setDraft((current) => (current ? patch(current) : current));
@@ -387,9 +398,15 @@ function WebsitePage() {
                 Keep editing and previewing as long as you like. Choose a plan when you're happy
                 with how it looks and we'll put it online straight away.
               </p>
-              <Button asChild className="mt-3">
-                <Link to="/billing">See plans and publish</Link>
-              </Button>
+              {showPlans ? (
+                <div className="mt-4">
+                  <PlanChooser currentPlanId={null} returnPath="/website" featureCount={4} />
+                </div>
+              ) : (
+                <Button className="mt-3" onClick={() => void openPlans()}>
+                  See plans and publish
+                </Button>
+              )}
             </div>
           ) : null}
 
@@ -406,8 +423,8 @@ function WebsitePage() {
                 Save &amp; publish
               </Button>
             ) : (
-              <Button asChild>
-                <Link to="/billing">Publish my site</Link>
+              <Button disabled={save.isPending} onClick={() => void openPlans()}>
+                Publish my site
               </Button>
             )}
             {dirty ? (
