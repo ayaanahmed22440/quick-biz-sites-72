@@ -39,6 +39,7 @@ import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -196,6 +197,12 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedBillingReturnRoute =
+  AuthenticatedBillingReturnRouteImport.update({
+    id: '/billing_/return',
+    path: '/billing/return',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   id: '/api/public/sitemap.xml',
   path: '/api/public/sitemap.xml',
@@ -247,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -282,6 +290,7 @@ export interface FileRoutesByTo {
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -319,6 +328,7 @@ export interface FileRoutesById {
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/billing/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/billing/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
@@ -427,6 +439,7 @@ export interface FileRouteTypes {
     | '/_authenticated/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/_authenticated/billing_/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
@@ -664,6 +677,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/billing_/return': {
+      id: '/_authenticated/billing_/return'
+      path: '/billing/return'
+      fullPath: '/billing/return'
+      preLoaderRoute: typeof AuthenticatedBillingReturnRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/sitemap.xml': {
       id: '/api/public/sitemap.xml'
       path: '/api/public/sitemap.xml'
@@ -713,6 +733,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWebsiteRoute: typeof AuthenticatedWebsiteRoute
+  AuthenticatedBillingReturnRoute: typeof AuthenticatedBillingReturnRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -733,6 +754,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWebsiteRoute: AuthenticatedWebsiteRoute,
+  AuthenticatedBillingReturnRoute: AuthenticatedBillingReturnRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

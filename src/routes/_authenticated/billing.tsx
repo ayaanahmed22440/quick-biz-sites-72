@@ -76,55 +76,17 @@ function BillingPage() {
         )}
       </div>
 
-      <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
-        <h2 className="text-sm font-semibold">Checkout is being rebuilt</h2>
-        <p className="mt-1.5 text-sm text-muted-foreground">
-          Online payment is temporarily unavailable while we set up a new payment system. Your site
-          and account are unaffected — contact us and we'll get you started manually.
-        </p>
-      </div>
+      {subscription?.status === "past_due" ? (
+        <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
+          <h2 className="text-sm font-semibold">There's a problem with your last payment</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Your website stays online while we retry. Update your payment details on Whop, or
+            choose a plan again below to fix it.
+          </p>
+        </div>
+      ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {PLAN_COPY.map((plan) => {
-          const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
-          const isCurrent = subscription?.plan_id === planId;
-          return (
-            <div
-              key={plan.id}
-              className={cn(
-                "flex flex-col rounded-xl border bg-card p-6",
-                plan.recommended ? "border-accent" : "border-border",
-              )}
-            >
-              {plan.recommended ? (
-                <span className="mb-3 inline-flex w-fit rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-accent-foreground">
-                  Most businesses pick this
-                </span>
-              ) : null}
-              <h3 className="text-base font-semibold">{plan.name}</h3>
-              <p className="mt-1 text-2xl font-bold">
-                ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
-                <span className="text-sm font-normal text-muted-foreground">
-                  {period === "yearly" ? "/year" : "/month"}
-                </span>
-              </p>
-              <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-                {plan.features.slice(0, 5).map((f) => (
-                  <li key={f} className="flex gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5">
-                <Button variant="outline" className="w-full" disabled>
-                  {isCurrent ? "Your current plan" : "Checkout coming soon"}
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <PlanChooser currentPlanId={subscription?.plan_id ?? null} returnPath="/billing" />
 
       <p className="text-sm text-muted-foreground">
         Questions about billing? <Link to="/support" className="text-accent hover:underline">Contact support</Link>.
