@@ -107,8 +107,23 @@ function BillingPage() {
         ))}
       </div>
 
+      {checkout === "success" && !subscription ? (
+        <div className="rounded-xl border border-accent/40 bg-accent/10 p-5">
+          <h2 className="text-sm font-semibold">Confirming your payment…</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            This usually takes a few seconds. This page checks automatically — you can also refresh
+            it below.
+          </p>
+        </div>
+      ) : null}
+
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold">Current plan</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold">Current plan</h2>
+          <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching}>
+            {isFetching ? "Checking…" : "Refresh"}
+          </Button>
+        </div>
         {subscription && current ? (
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-lg font-semibold">
