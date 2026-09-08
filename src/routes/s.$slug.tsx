@@ -1,6 +1,10 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { getPublishedSite, submitWebsiteLead } from "@/lib/public-site.functions";
+import {
+  getPublishedSite,
+  submitWebsiteLead,
+  type PublishedSite,
+} from "@/lib/public-site.functions";
 import {
   CleaningTemplate01,
   type TemplateArea,
@@ -9,44 +13,9 @@ import {
 } from "@/components/templates/CleaningTemplate01";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
-type SitePayload = {
-  business: {
-    id: string;
-    name: string;
-    slug: string;
-    tagline: string | null;
-    description: string | null;
-    phone: string | null;
-    email: string | null;
-    city: string | null;
-    state: string | null;
-    postal_code: string | null;
-    address_line1: string | null;
-    country: string | null;
-    logo_url: string | null;
-    primary_color: string;
-    secondary_color: string;
-    primary_service: string | null;
-  };
-  website: { id: string; template_id: string | null; published_at: string | null };
-  content: unknown;
-  services: TemplateService[];
-  service_areas: TemplateArea[];
-  hours: TemplateHour[];
-  seo: {
-    meta_title: string | null;
-    meta_description: string | null;
-    indexing_enabled: boolean;
-    localbusiness_schema: boolean;
-    service_schema: boolean;
-    primary_city: string | null;
-    primary_keyword: string | null;
-  } | null;
-};
-
 export const Route = createFileRoute("/s/$slug")({
   loader: async ({ params }) => {
-    const site = (await getPublishedSite({ data: { slug: params.slug } })) as SitePayload | null;
+    const site = (await getPublishedSite({ data: { slug: params.slug } })) as PublishedSite | null;
     if (!site) throw notFound();
     return site;
   },
