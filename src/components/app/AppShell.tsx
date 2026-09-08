@@ -10,7 +10,9 @@ import {
   LayoutDashboard,
   LifeBuoy,
   LogOut,
+  Mail,
   Menu,
+
   Search,
   Settings,
   Shield,
@@ -80,7 +82,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Shield className="h-4 w-4" />
             Admin
           </Link>
+          <Link
+            to="/admin-emails"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <Mail className="h-4 w-4" />
+            Email templates
+          </Link>
         </>
+
       ) : null}
     </nav>
   );
