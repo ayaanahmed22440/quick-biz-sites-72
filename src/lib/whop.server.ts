@@ -79,7 +79,7 @@ export function mapWhopStatus(raw: string | null | undefined, valid?: boolean | 
       return "trialing";
     case "active":
     case "completed":
-ުｽ      return "active";
+return "active";
     case "past_due":
     case "unresolved":
       return "past_due";
