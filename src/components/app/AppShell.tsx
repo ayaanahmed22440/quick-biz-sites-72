@@ -12,7 +12,7 @@ import {
   LogOut,
   Mail,
   Menu,
-
+  UserPlus,
   Search,
   Settings,
   Shield,
@@ -91,6 +91,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Mail className="h-4 w-4" />
             Email templates
           </Link>
+          {workspace.isAdmin ? (
+            <Link
+              to="/admin-team"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+              activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+            >
+              <UserPlus className="h-4 w-4" />
+              Team access
+            </Link>
+          ) : null}
         </>
 
       ) : null}

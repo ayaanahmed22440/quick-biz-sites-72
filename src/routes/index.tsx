@@ -1,8 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Check, Globe, MessageSquare, Search, Wrench } from "lucide-react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PricingCards } from "@/components/site/PricingCards";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Accordion,
   AccordionContent,
@@ -76,6 +78,23 @@ const FAQS = [
 ];
 
 function HomePage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const target = sessionStorage.getItem("ww:after-login");
+    if (target !== "/admin" && target !== "/dashboard") return;
+    const forward = (hasSession: boolean) => {
+      if (!hasSession) return;
+      sessionStorage.removeItem("ww:after-login");
+      void navigate({ to: target, replace: true });
+    };
+    void supabase.auth.getSession().then(({ data }) => forward(Boolean(data.session)));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      forward(Boolean(session));
+    });
+    return () => listener.subscription.unsubscribe();
+  }, [navigate]);
+
   return (
     <PublicLayout>
       {/* Hero */}
