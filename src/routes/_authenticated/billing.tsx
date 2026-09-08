@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { PLAN_COPY, planCopy } from "@/lib/plans";
+import { PLAN_COPY, planCopy, isYearly, yearlyPrice } from "@/lib/plans";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { data: workspace, isLoading } = useWorkspace();
+  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
   const plans = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
@@ -84,7 +86,8 @@ function BillingPage() {
         {subscription && current ? (
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-lg font-semibold">
-              ${current.price}/month — {current.name}
+              ${isYearly(subscription.plan_id) ? yearlyPrice(current.price) : current.price}
+              {isYearly(subscription.plan_id) ? "/year" : "/month"} — {current.name}
             </span>
             <Badge variant="secondary">{subscription.status}</Badge>
             {subscription.current_period_end ? (
