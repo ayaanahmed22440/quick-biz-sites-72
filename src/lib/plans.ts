@@ -151,5 +151,10 @@ export const PLAN_COPY: PlanCopy[] = [
 ];
 
 export function planCopy(id: string | null | undefined): PlanCopy | undefined {
-  return PLAN_COPY.find((p) => p.id === id);
+  const base = basePlanId(id);
+  return PLAN_COPY.find((p) => p.id === base);
+}
+
+export function isYearly(id: string | null | undefined): boolean {
+  return Boolean(id?.endsWith("_yearly"));
 }
