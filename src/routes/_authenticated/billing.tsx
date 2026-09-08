@@ -132,8 +132,10 @@ function BillingPage() {
               ) : null}
               <h3 className="text-base font-semibold">{plan.name}</h3>
               <p className="mt-1 text-2xl font-bold">
-                ${plan.price}
-                <span className="text-sm font-normal text-muted-foreground">/month</span>
+                ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
+                <span className="text-sm font-normal text-muted-foreground">
+                  {period === "yearly" ? "/year" : "/month"}
+                </span>
               </p>
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.slice(0, 5).map((f) => (
