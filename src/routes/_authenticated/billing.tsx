@@ -19,7 +19,6 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { data: workspace, isLoading, refetch, isFetching } = useWorkspace();
-  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
 
   if (isLoading) return <LoadingBlock rows={3} />;
 
@@ -30,21 +29,6 @@ function BillingPage() {
     <>
       <PageHeader title="Billing" description="Your WebWarheads plan. Cancel any time." />
 
-      <div className="inline-flex rounded-lg border border-border bg-card p-1">
-        {(["monthly", "yearly"] as const).map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPeriod(p)}
-            className={cn(
-              "rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors",
-              period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-            )}
-          >
-            {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
-          </button>
-        ))}
-      </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex items-center justify-between gap-3">
