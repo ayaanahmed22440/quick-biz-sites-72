@@ -80,16 +80,16 @@ function HomePage() {
     <PublicLayout>
       {/* Hero */}
       <section className="bg-navy text-navy-foreground">
-        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2 lg:items-center">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="inline-flex rounded-full border border-navy-foreground/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-navy-foreground/80">
               For small &amp; local businesses
             </p>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] sm:text-5xl md:text-6xl">
+            <h1 className="mt-5 text-[1.75rem] font-extrabold leading-[1.12] sm:text-4xl md:text-5xl lg:text-6xl">
               Your business website live for{" "}
               <span className="text-accent">$37 a month</span> — not $1,500 upfront.
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-navy-foreground/75">
+            <p className="mt-5 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
               We build it, host it, secure it and keep it running. You send us your business
               details; we handle everything technical. No developer, no setup fee, no waiting weeks
               for a quote.
@@ -132,21 +132,21 @@ function HomePage() {
               What a website normally costs
             </h2>
             <dl className="mt-6 space-y-4 text-sm">
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Freelance designer, one-off build</dt>
-                <dd className="text-lg font-semibold">$1,500 – $5,000</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$1,500 – $5,000</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Hosting, SSL and maintenance</dt>
-                <dd className="text-lg font-semibold">$20 – $60/mo</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$20 – $60/mo</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-navy-foreground/10 pb-4">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
                 <dt className="text-navy-foreground/75">Every text or photo change</dt>
-                <dd className="text-lg font-semibold">$75 – $150/hr</dd>
+                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$75 – $150/hr</dd>
               </div>
-              <div className="flex items-baseline justify-between gap-4 pt-1">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 pt-1">
                 <dt className="font-semibold text-navy-foreground">WebWarheads, all of it</dt>
-                <dd className="text-2xl font-extrabold text-accent">$37/mo</dd>
+                <dd className="whitespace-nowrap text-xl font-extrabold text-accent sm:text-2xl">$37/mo</dd>
               </div>
             </dl>
             <p className="mt-6 text-xs text-navy-foreground/55">
@@ -160,7 +160,7 @@ function HomePage() {
       {/* Who it's for */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
             Built for service businesses that need customers, not a design award
           </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">
@@ -197,7 +197,7 @@ function HomePage() {
       {/* What you get */}
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">What you get</h2>
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">What you get</h2>
           <div className="mt-10 grid gap-8 sm:grid-cols-2">
             {INCLUDED.map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-4">
@@ -217,7 +217,7 @@ function HomePage() {
       {/* How it works */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
             Three steps from nothing to live
           </h2>
           <ol className="mt-10 grid gap-8 md:grid-cols-3">
@@ -243,7 +243,7 @@ function HomePage() {
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="max-w-2xl">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
               Simple monthly pricing
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -265,7 +265,7 @@ function HomePage() {
       {/* FAQ */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Straight answers</h2>
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">Straight answers</h2>
           <Accordion type="single" collapsible className="mt-8">
             {FAQS.map((faq) => (
               <AccordionItem key={faq.q} value={faq.q}>
@@ -283,7 +283,7 @@ function HomePage() {
       <section className="bg-navy text-navy-foreground">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-bold sm:text-3xl">Ready to stop putting this off?</h2>
+            <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Ready to stop putting this off?</h2>
             <p className="mt-2 text-navy-foreground/75">
               Create your account, answer a few questions about your business, publish.
             </p>

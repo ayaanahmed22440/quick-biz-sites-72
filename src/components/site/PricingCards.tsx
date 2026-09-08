@@ -25,7 +25,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
           <p className="mt-1 text-sm text-muted-foreground">{plan.headline}</p>
 
           <div className="mt-5 flex items-baseline gap-1">
-            <span className="text-4xl font-extrabold tracking-tight text-foreground">
+            <span className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
               ${plan.price}
             </span>
             <span className="text-sm text-muted-foreground">/month</span>

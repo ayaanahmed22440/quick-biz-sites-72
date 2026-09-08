@@ -84,7 +84,7 @@ function PricingPage() {
     <PublicLayout>
       <section className="border-b border-border bg-navy text-navy-foreground">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
             One monthly price. Website, hosting and support included.
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
