@@ -235,7 +235,10 @@ function HomePage() {
       {/* What you get */}
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">What you get</h2>
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+            Everything's in the $37 — here's the list
+          </h2>
+
           <div className="mt-10 grid gap-8 sm:grid-cols-2">
             {INCLUDED.map(({ icon: Icon, title, body }) => (
               <div key={title} className="flex gap-4">
