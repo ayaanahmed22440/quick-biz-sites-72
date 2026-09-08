@@ -16,6 +16,7 @@ import {
   Search,
   Settings,
   Shield,
+  LayoutTemplate,
   Users,
   X,
 } from "lucide-react";
