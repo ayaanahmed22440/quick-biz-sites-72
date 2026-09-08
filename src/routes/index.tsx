@@ -107,11 +107,11 @@ function HomePage() {
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-navy-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Built for the trades, not for designers
+              Built for local business owners
             </p>
             <h1 className="mt-5 text-[1.75rem] font-extrabold leading-[1.12] sm:text-4xl md:text-5xl lg:text-6xl">
-              Your business website live for{" "}
-              <span className="text-accent">$37 a month</span> — not $1,500 upfront.
+              Stop paying $1,500 for a website.{" "}
+              <span className="text-accent">Get yours live for $37.</span>
             </h1>
             <p className="mt-5 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
               You clean houses. You fix roofs. You do not want a three-week email thread about
