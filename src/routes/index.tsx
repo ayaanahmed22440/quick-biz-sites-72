@@ -303,6 +303,32 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Honest note */}
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
+            The part nobody puts on their homepage
+          </p>
+          <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+            What we won't do
+          </h2>
+          <div className="mt-6 space-y-4 border-l-2 border-accent pl-5 text-muted-foreground">
+            <p>
+              We won't promise you page one of Google. We won't invent testimonials for your
+              website. We won't sell you a redesign every eighteen months, and we won't charge you
+              $120 to change a phone number.
+            </p>
+            <p>
+              What we will do is give you a fast, correct, properly structured website for your
+              trade and your town, keep it online, and answer you when you message. That's the whole
+              business.
+            </p>
+            <p className="text-sm font-semibold text-foreground">— The WebWarheads team</p>
+          </div>
+        </div>
+      </section>
+
+
       {/* FAQ */}
       <section className="border-b border-border">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
