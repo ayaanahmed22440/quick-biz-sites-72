@@ -216,6 +216,7 @@ function WebsitePage() {
   };
 
   const liveUrl = `/s/${site.data.business.slug}`;
+  const canPublish = Boolean(workspace?.entitlements.website);
 
   return (
     <>
@@ -379,6 +380,19 @@ function WebsitePage() {
             />
           </Section>
 
+          {!canPublish ? (
+            <div className="rounded-lg border border-accent/40 bg-accent/10 p-4">
+              <p className="text-sm font-semibold">Building is free — you only pay to go live</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Keep editing and previewing as long as you like. Choose a plan when you're happy
+                with how it looks and we'll put it online straight away.
+              </p>
+              <Button asChild className="mt-3">
+                <Link to="/billing">See plans and publish</Link>
+              </Button>
+            </div>
+          ) : null}
+
           <div className="sticky bottom-4 flex flex-wrap gap-2 rounded-lg border border-border bg-card p-3">
             <Button
               variant="outline"
@@ -387,13 +401,20 @@ function WebsitePage() {
             >
               Save draft
             </Button>
-            <Button disabled={save.isPending} onClick={() => save.mutate({ publish: true })}>
-              Save & publish
-            </Button>
+            {canPublish ? (
+              <Button disabled={save.isPending} onClick={() => save.mutate({ publish: true })}>
+                Save &amp; publish
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/billing">Publish my site</Link>
+              </Button>
+            )}
             {dirty ? (
               <span className="self-center text-xs text-muted-foreground">Unsaved changes</span>
             ) : null}
           </div>
+
         </div>
 
         <div>

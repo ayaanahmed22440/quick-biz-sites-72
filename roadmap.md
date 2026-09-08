@@ -12,7 +12,13 @@
 - Domains: add/remove a domain you own, free WebWarheads address
 - Deployment: npm, single lock file, production start script, .env.example
 
+- Staff login at /admin-login, Google sign-in returns via /auth/callback
+- Free build, pay at publish (editor open to everyone, publishing needs a plan)
+- Domain help page with walkthrough placeholder + free subdomain option
+
 ## Open (blocked or awaiting input)
+- Email from support@webwarheads.com: needs the sender domain set up (DNS)
+- Wildcard DNS for *.webwarheads.com subdomains
 - Whop: needs API key, webhook secret and the three plan IDs before checkout works
 - Google OAuth: production credentials for the live domain
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
