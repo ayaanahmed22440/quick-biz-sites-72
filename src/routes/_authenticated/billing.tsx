@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Check } from "lucide-react";
@@ -11,7 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const searchSchema = z.object({ plan: z.enum(["basic", "seo", "premium"]).optional() });
+const searchSchema = z.object({
+  plan: z.enum(["basic", "seo", "premium"]).optional(),
+  checkout: z.enum(["success"]).optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/billing")({
   validateSearch: searchSchema,
@@ -26,8 +29,22 @@ export const Route = createFileRoute("/_authenticated/billing")({
 });
 
 function BillingPage() {
-  const { data: workspace, isLoading } = useWorkspace();
+  const { data: workspace, isLoading, refetch, isFetching } = useWorkspace();
+  const { checkout } = Route.useSearch();
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+
+  // Coming back from checkout, the payment provider may confirm a moment later.
+  useEffect(() => {
+    if (checkout !== "success") return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      void refetch();
+      if (tries >= 6) clearInterval(timer);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [checkout, refetch]);
+
   const plans = useQuery({
     queryKey: ["plans"],
     queryFn: async () => {
@@ -50,12 +67,21 @@ function BillingPage() {
   const checkoutById = new Map((plans.data ?? []).map((p) => [p.id, p.whop_checkout_url]));
   const anyCheckout = (plans.data ?? []).some((p) => p.whop_checkout_url);
 
-  /** Whop reads `metadata[business_id]` back to us on the membership webhook. */
+  /**
+   * Whop reads `metadata[business_id]` back to us on the membership webhook, and
+   * `redirect_url` brings the customer straight back here after paying.
+   */
   function checkoutUrl(planId: string) {
     const base = checkoutById.get(planId);
-    if (!base || !businessId) return base ?? null;
-    const joiner = base.includes("?") ? "&" : "?";
-    return `${base}${joiner}metadata[business_id]=${encodeURIComponent(businessId)}`;
+    if (!base) return null;
+    const params = new URLSearchParams();
+    if (businessId) params.set("metadata[business_id]", businessId);
+    if (typeof window !== "undefined") {
+      params.set("redirect_url", `${window.location.origin}/billing?checkout=success`);
+    }
+    const query = params.toString();
+    if (!query) return base;
+    return `${base}${base.includes("?") ? "&" : "?"}${query}`;
   }
 
   return (
@@ -81,8 +107,23 @@ function BillingPage() {
         ))}
       </div>
 
+      {checkout === "success" && !subscription ? (
+        <div className="rounded-xl border border-accent/40 bg-accent/10 p-5">
+          <h2 className="text-sm font-semibold">Confirming your payment…</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            This usually takes a few seconds. This page checks automatically — you can also refresh
+            it below.
+          </p>
+        </div>
+      ) : null}
+
       <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold">Current plan</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold">Current plan</h2>
+          <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching}>
+            {isFetching ? "Checking…" : "Refresh"}
+          </Button>
+        </div>
         {subscription && current ? (
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-lg font-semibold">
