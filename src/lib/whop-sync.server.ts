@@ -55,11 +55,14 @@ export async function resolveMembershipOwner(membership: WhopMembership): Promis
 }
 
 /** Upserts the subscription row for a membership. Returns the business it belongs to. */
-export async function syncMembership(membership: WhopMembership): Promise<string | null> {
+export async function syncMembership(
+  membership: WhopMembership,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+): Promise<string | null> {
   const owner = await resolveMembershipOwner(membership);
   if (!owner) return null;
 
-  const status = mapWhopStatus(membership.status, membership.valid);
+  const status = options?.forceStatus ?? mapWhopStatus(membership.status, membership.valid);
   const row = {
     business_id: owner.businessId,
     plan_id: owner.planId,
