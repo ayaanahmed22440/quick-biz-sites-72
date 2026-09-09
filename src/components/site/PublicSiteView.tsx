@@ -1,6 +1,6 @@
 import { useServerFn } from "@tanstack/react-start";
 import { submitWebsiteLead, type PublishedSite } from "@/lib/public-site.functions";
-import { CleaningTemplate01 } from "@/components/templates/CleaningTemplate01";
+import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
 export function publicSiteMeta(site: PublishedSite | null | undefined) {
@@ -72,7 +72,7 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ) : null}
-      <CleaningTemplate01
+      <LocalBusinessTemplate
         business={b}
         content={content}
         services={site.services}
