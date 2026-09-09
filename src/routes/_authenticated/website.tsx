@@ -72,6 +72,7 @@ function WebsitePage() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
+  const [device, setDevice] = useState<DeviceKey>("desktop");
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
@@ -82,7 +83,7 @@ function WebsitePage() {
       const { data: business, error: bErr } = await supabase
         .from("businesses")
         .select(
-          "name, tagline, phone, email, city, state, address_line1, postal_code, logo_url, primary_color, primary_service, slug",
+          "name, tagline, phone, email, city, state, address_line1, postal_code, logo_url, primary_color, primary_service, slug, niche",
         )
         .eq("id", id)
         .single();
@@ -99,7 +100,7 @@ function WebsitePage() {
         const { data: template } = await supabase
           .from("templates")
           .select("id")
-          .eq("slug", "cleaning-01")
+          .eq("slug", templateIdForNiche(business.niche))
           .maybeSingle();
         const { data: created, error: cErr } = await supabase
           .from("websites")
