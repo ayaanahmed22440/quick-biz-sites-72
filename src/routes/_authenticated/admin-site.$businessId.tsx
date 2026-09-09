@@ -100,16 +100,6 @@ function AdminSitePage() {
         content = fallback;
         content.templateId = templateIdForNiche(business.niche);
       }
-        content = defaultSiteContent({
-          businessName: business.name,
-          city: business.city ?? "",
-          primaryService: business.primary_service ?? "",
-          primaryColor: business.primary_color,
-          logoUrl: business.logo_url,
-          niche: business.niche,
-        });
-        content.templateId = templateIdForNiche(business.niche);
-      }
 
       return {
         business,
