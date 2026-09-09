@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getEmailPreviews } from "@/lib/email-previews.functions";
 import { getEmailLog } from "@/lib/email-logs.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
