@@ -280,8 +280,9 @@ function WebsitePage() {
         </Badge>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-        <div className="space-y-6">
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
+        <div className="order-2 min-w-0 space-y-6 lg:order-1">
+
           <Section title="Your brand">
             <ImageUpload
               businessId={businessId!}
