@@ -461,10 +461,31 @@ function OnboardingPage() {
       /* ignore */
     }
     await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
+
+    if (checkout && draft.plan) {
+      try {
+        const result = await startCheckoutFn({
+          data: { planId: draft.plan, returnPath: "/website", businessId: id },
+        });
+        window.location.href = result.url;
+        return;
+      } catch (checkoutError) {
+        setSaving(false);
+        toast.error(
+          checkoutError instanceof Error
+            ? checkoutError.message
+            : "We couldn't open checkout. Your website is saved — you can pay from the editor.",
+        );
+        void navigate({ to: "/website" });
+        return;
+      }
+    }
+
     setSaving(false);
     toast.success("Your website is ready to look at");
     void navigate({ to: "/website" });
   }
+
 
   const previewNode = (
     <BrowserPreview address={address}>
