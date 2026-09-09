@@ -137,8 +137,11 @@ function AdminTemplatesPage() {
   if (templates.isLoading) return <LoadingBlock rows={4} />;
   if (templates.isError) return <ErrorBlock />;
 
-  const list = templates.data ?? [];
-  const selected = list.find((t) => t.slug === activeSlug) ?? null;
+  const dbRows = templates.data ?? [];
+  const list = TEMPLATE_PRESETS.map((p) => ({
+    ...p,
+    status: dbRows.find((row) => row.slug === p.templateId)?.status ?? "approved",
+  }));
 
   return (
     <>
@@ -148,48 +151,41 @@ function AdminTemplatesPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {list.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
-            No templates have been added yet.
-          </div>
-        ) : (
-          list.map((t) => {
-            const canPreview = Boolean(RENDERABLE[t.slug]);
-            return (
-              <div key={t.id} className="flex flex-col rounded-xl border border-border bg-card p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-sm font-semibold">{t.name}</h2>
-                    <p className="text-xs text-muted-foreground">{t.niche}</p>
-                  </div>
-                  <Badge variant="secondary">{t.status}</Badge>
-                </div>
-                {t.description ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
-                ) : null}
-                <div className="mt-4 flex-1" />
-                <Button
-                  className="mt-4"
-                  variant={activeSlug === t.slug ? "default" : "outline"}
-                  disabled={!canPreview}
-                  onClick={() => setActiveSlug(t.slug)}
-                >
-                  {canPreview
-                    ? activeSlug === t.slug
-                      ? "Previewing"
-                      : "Preview"
-                    : "Preview coming soon"}
-                </Button>
+        {list.map((t) => (
+          <div key={t.templateId} className="flex flex-col rounded-xl border border-border bg-card p-5">
+            <img
+              src={t.images.hero}
+              alt=""
+              loading="lazy"
+              className="mb-4 h-32 w-full rounded-lg object-cover"
+            />
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold">{t.name}</h2>
+                <p className="text-xs text-muted-foreground">{t.industryLabel}</p>
               </div>
-            );
-          })
-        )}
+              <Badge variant="secondary">{t.status}</Badge>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
+            <div className="mt-4 flex-1" />
+            <Button
+              className="mt-4"
+              variant={activeSlug === t.templateId ? "default" : "outline"}
+              onClick={() => {
+                setActiveSlug(t.templateId);
+                setAccent(null);
+              }}
+            >
+              {activeSlug === t.templateId ? "Previewing" : "Preview"}
+            </Button>
+          </div>
+        ))}
       </div>
 
-      {selected && RENDERABLE[selected.slug] ? (
+      {selectedPreset ? (
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-sm font-semibold">{selected.name} preview</h2>
+            <h2 className="text-sm font-semibold">{selectedPreset.name} preview</h2>
             <div className="ml-auto flex items-center gap-2">
               {(Object.keys(WIDTHS) as DeviceKey[]).map((key) => (
                 <Button
