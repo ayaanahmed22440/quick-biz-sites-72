@@ -359,6 +359,57 @@ export function LocalBusinessTemplate({
         </section>
       ) : null}
 
+      {/* Reviews */}
+      {reviews.length > 0 ? (
+        <section className="border-t border-black/10 bg-[#f7f8fa]">
+          <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:py-16">
+            <h2 style={heading} className="text-2xl sm:text-3xl">
+              {content.reviews.heading}
+            </h2>
+            <p className="mt-2 max-w-2xl text-black/70">{content.reviews.intro}</p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {reviews.map((review) => (
+                <figure key={review.id} className="rounded-xl border border-black/10 bg-white p-5">
+                  {review.rating ? (
+                    <div aria-label={`${review.rating} out of 5`} className="text-sm tracking-widest" style={{ color: brand }}>
+                      {"★".repeat(Math.max(1, Math.min(5, review.rating)))}
+                      <span className="text-black/20">
+                        {"★".repeat(5 - Math.max(1, Math.min(5, review.rating)))}
+                      </span>
+                    </div>
+                  ) : null}
+                  <blockquote className="mt-3 text-sm leading-relaxed text-black/75">
+                    “{review.quote}”
+                  </blockquote>
+                  <figcaption className="mt-4 text-sm font-semibold">
+                    {review.author_name}
+                    {review.location ? (
+                      <span className="font-normal text-black/55"> · {review.location}</span>
+                    ) : null}
+                    {review.source === "google" ? (
+                      <span className="ml-2 rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-black/60">
+                        Google
+                      </span>
+                    ) : null}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+            {content.reviews.googleUrl ? (
+              <a
+                href={content.reviews.googleUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="mt-6 inline-block text-sm font-semibold underline"
+                style={{ color: brand }}
+              >
+                See all our Google reviews
+              </a>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
       {/* About */}
       <section className="border-t border-black/10">
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-center lg:py-16">
