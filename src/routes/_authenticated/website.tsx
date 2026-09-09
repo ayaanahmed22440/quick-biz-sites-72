@@ -76,6 +76,13 @@ function WebsitePage() {
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [device, setDevice] = useState<DeviceKey>("desktop");
+  const isMobile = useIsMobile();
+
+  // On a phone, a scaled-down desktop preview is unreadable — start on phone size.
+  useEffect(() => {
+    if (isMobile) setDevice("mobile");
+  }, [isMobile]);
+
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
