@@ -202,6 +202,17 @@ function WebsitePage() {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Could not save"),
   });
 
+  // Autosave the draft a moment after typing stops, so nothing is ever lost.
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = setTimeout(() => {
+      if (!saveRef.current.isPending) saveRef.current.mutate({ publish: false });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [draft, dirty]);
+
   if (isLoading || site.isLoading) return <LoadingBlock rows={3} />;
 
   if (!workspace?.business) {
@@ -556,6 +567,7 @@ function WebsitePage() {
                 services={site.data.services}
                 areas={site.data.areas}
                 hours={site.data.hours}
+                reviews={reviews.data ?? []}
                 previewOnly
               />
             </div>
