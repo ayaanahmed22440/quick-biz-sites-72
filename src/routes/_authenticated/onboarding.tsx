@@ -17,17 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { INDUSTRY_OPTIONS } from "@/lib/template-registry";
 
-const NICHES = [
-  { value: "cleaning", label: "Cleaning company", ready: true },
-  { value: "landscaping", label: "Landscaping & lawn care", ready: false },
-  { value: "handyman", label: "Handyman & home repair", ready: false },
-  { value: "pest_control", label: "Pest control", ready: false },
-  { value: "plumbing", label: "Plumbing", ready: false },
-  { value: "electrical", label: "Electrical", ready: false },
-  { value: "hvac", label: "Heating & air", ready: false },
-  { value: "other", label: "Something else", ready: false },
-] as const;
+const NICHES = INDUSTRY_OPTIONS;
 
 const DEMO: Omit<Draft, "niche"> = {
   name: "Sparkle & Shine Cleaning Co.",
