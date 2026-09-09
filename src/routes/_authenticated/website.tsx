@@ -12,16 +12,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { PlanChooser } from "@/components/billing/PlanChooser";
 import {
-  CleaningTemplate01,
+  LocalBusinessTemplate,
   type TemplateArea,
   type TemplateHour,
   type TemplateService,
-} from "@/components/templates/CleaningTemplate01";
+} from "@/components/templates/LocalBusinessTemplate";
 import {
   defaultSiteContent,
   normaliseContent,
+  templateIdForNiche,
   type SiteContent,
 } from "@/lib/site-content";
+import { presetFor } from "@/lib/template-registry";
+
+const PREVIEW_WIDTHS = { desktop: "100%", tablet: "820px", mobile: "390px" } as const;
+type DeviceKey = keyof typeof PREVIEW_WIDTHS;
 
 export const Route = createFileRoute("/_authenticated/website")({
   head: () => ({
