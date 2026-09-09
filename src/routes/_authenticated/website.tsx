@@ -156,6 +156,8 @@ function WebsitePage() {
     },
   });
 
+  const reviews = useBusinessReviews(businessId);
+
   useEffect(() => {
     if (site.data && !draft) setDraft(site.data.content);
   }, [site.data, draft]);
@@ -403,6 +405,26 @@ function WebsitePage() {
               rows={6}
               value={draft.about.body}
               onChange={(v) => update((c) => ({ ...c, about: { ...c.about, body: v } }))}
+            />
+          </Section>
+
+          <Section title="Reviews">
+            <Field
+              label="Reviews heading"
+              value={draft.reviews.heading}
+              onChange={(v) => update((c) => ({ ...c, reviews: { ...c.reviews, heading: v } }))}
+            />
+            <AreaField
+              label="Reviews intro"
+              value={draft.reviews.intro}
+              onChange={(v) => update((c) => ({ ...c, reviews: { ...c.reviews, intro: v } }))}
+            />
+            <ReviewsEditor
+              businessId={businessId!}
+              googleUrl={draft.reviews.googleUrl}
+              onGoogleUrlChange={(v) =>
+                update((c) => ({ ...c, reviews: { ...c.reviews, googleUrl: v } }))
+              }
             />
           </Section>
 
