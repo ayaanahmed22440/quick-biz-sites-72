@@ -240,6 +240,8 @@ function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const startCheckoutFn = useServerFn(startCheckout);
+  const { data: workspace, isLoading } = useWorkspace();
+
 
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<Draft>(EMPTY);
