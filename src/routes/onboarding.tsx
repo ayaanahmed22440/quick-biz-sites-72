@@ -828,8 +828,8 @@ function OnboardingPage() {
           </div>
         </div>
 
-        {/* Preview column */}
-        <div className="hidden lg:block">
+        {/* Preview column (hidden on the plan step, which uses the full width) */}
+        <div className={step.key === "plan" ? "hidden" : "hidden lg:block"}>
           <div className="sticky top-24">
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Live preview
