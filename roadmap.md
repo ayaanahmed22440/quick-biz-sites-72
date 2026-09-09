@@ -19,10 +19,19 @@
 - Administrator-only team invitations and staff access review
 - Google login returns to the site root, then routes staff or customers
 
+- Whop billing rebuilt: real server-side checkout, verified webhook, subscription sync, plan entitlements
+- Instant activation on payment — no admin approval anywhere in customer signup
+
+## Next up
+- Step-by-step onboarding with live preview and autosave
+- Template library engine + admin template management
+- Full admin control centre (billing events, websites, domains, leads)
+- App-wide dark mode (light / dark / system)
+
 ## Open (blocked or awaiting input)
+- Whop webhook must be pointed at https://webwarheads.com/api/public/whop-webhook
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
-- Checkout: fully removed; a new payment provider needs to be chosen and built from scratch
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
 - Domain registrar buying inside WebWarheads: needs a reseller account (Namecheap/Cloudflare/OpenSRS) + payment/legal decisions
 - Terms and privacy are drafts pending legal review

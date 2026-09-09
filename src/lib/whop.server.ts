@@ -112,25 +112,31 @@ export function verifyWhopSignature(args: {
   signatureHeader: string;
   body: string;
 }): boolean {
-  
-  const secretBytes = args.secret.startsWith("whsec_")
-    ? Buffer.from(args.secret.slice(6), "base64")
-    : Buffer.from(args.secret, "utf8");
+  // Providers differ in how the secret is encoded; try each plausible key form.
+  const keys: Buffer[] = [Buffer.from(args.secret, "utf8")];
+  if (args.secret.startsWith("whsec_")) keys.push(Buffer.from(args.secret.slice(6), "base64"));
+  if (args.secret.startsWith("ws_") && /^[0-9a-f]+$/i.test(args.secret.slice(3))) {
+    keys.push(Buffer.from(args.secret.slice(3), "hex"));
+  }
 
-  const expected = createHmac("sha256", secretBytes)
-    .update(`${args.id}.${args.timestamp}.${args.body}`)
-    .digest("base64");
+  const signedContent = `${args.id}.${args.timestamp}.${args.body}`;
+  const expected = keys.flatMap((key) => [
+    createHmac("sha256", key).update(signedContent).digest("base64"),
+    createHmac("sha256", key).update(signedContent).digest("hex"),
+  ]);
 
   const provided = args.signatureHeader
     .split(" ")
-    .map((part) => (part.includes(",") ? part.split(",")[1] ?? "" : part))
+    .map((part) => (part.includes(",") ? (part.split(",")[1] ?? "") : part))
     .filter(Boolean);
 
-  const expectedBuf = Buffer.from(expected);
-  return provided.some((candidate) => {
-    const buf = Buffer.from(candidate);
-    return buf.length === expectedBuf.length && timingSafeEqual(buf, expectedBuf);
-  });
+  return provided.some((candidate) =>
+    expected.some((value) => {
+      const a = Buffer.from(candidate);
+      const b = Buffer.from(value);
+      return a.length === b.length && timingSafeEqual(a, b);
+    }),
+  );
 }
 
 /** Standard Webhooks replay window: five minutes. */
