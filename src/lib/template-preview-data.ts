@@ -41,7 +41,7 @@ function preview(
   };
 }
 
-export const TEMPLATE_PREVIEW_DATA: Record<string, TemplatePreviewData> = {
+export const TEMPLATE_PREVIEW_DATA = {
   cleaning: preview(
     {
       name: "Sparkle & Shine Cleaning Co.",
@@ -154,8 +154,11 @@ export const TEMPLATE_PREVIEW_DATA: Record<string, TemplatePreviewData> = {
     ["Tampa", "Brandon", "Clearwater", "St. Petersburg"],
     { author_name: "Rachel Foster", location: "Tampa, FL", quote: "Clearway was quick, friendly and cleared the entire garage in under an hour." },
   ),
-};
+} satisfies Record<string, TemplatePreviewData>;
 
 export function previewDataFor(niche: string): TemplatePreviewData {
-  return TEMPLATE_PREVIEW_DATA[niche] ?? TEMPLATE_PREVIEW_DATA.cleaning;
+  if (niche in TEMPLATE_PREVIEW_DATA) {
+    return TEMPLATE_PREVIEW_DATA[niche as keyof typeof TEMPLATE_PREVIEW_DATA];
+  }
+  return TEMPLATE_PREVIEW_DATA.cleaning;
 }
