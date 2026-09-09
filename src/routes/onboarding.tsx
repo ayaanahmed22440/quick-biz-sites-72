@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
+
 import { z } from "zod";
 import { toast } from "sonner";
 import { ArrowLeft, Check, Eye, Loader2, Sparkles } from "lucide-react";
@@ -18,6 +20,8 @@ import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTempl
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
 import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
+import { startCheckout } from "@/lib/billing.functions";
+
 import { cn } from "@/lib/utils";
 
 const DRAFT_KEY = "ww-onboarding-draft";
@@ -226,7 +230,7 @@ const STEPS: Step[] = [
     key: "plan",
     stage: "plan",
     question: "Which plan suits you?",
-    helper: "Nothing is charged now — you only pay when you're ready to go live.",
+    helper: "Pick a plan and we'll take you straight to secure checkout — or skip and pay later.",
   },
 ];
 
@@ -235,7 +239,10 @@ const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172
 function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const startCheckoutFn = useServerFn(startCheckout);
   const { data: workspace, isLoading } = useWorkspace();
+
+
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [error, setError] = useState<string | null>(null);
@@ -398,16 +405,17 @@ function OnboardingPage() {
     }
     if (businessId) await persistStep(step.key, businessId);
     if (isLast) {
-      await finish();
+      await finish({ checkout: true });
       return;
     }
     setIndex((i) => Math.min(STEPS.length - 1, i + 1));
   }
 
-  async function finish() {
+  async function finish({ checkout }: { checkout: boolean }) {
     const id = businessId ?? (await ensureBusiness());
     if (!id) return;
     setSaving(true);
+
 
     await supabase
       .from("businesses")
@@ -460,10 +468,31 @@ function OnboardingPage() {
       /* ignore */
     }
     await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
+
+    if (checkout && draft.plan) {
+      try {
+        const result = await startCheckoutFn({
+          data: { planId: draft.plan, returnPath: "/website", businessId: id },
+        });
+        window.location.href = result.url;
+        return;
+      } catch (checkoutError) {
+        setSaving(false);
+        toast.error(
+          checkoutError instanceof Error
+            ? checkoutError.message
+            : "We couldn't open checkout. Your website is saved — you can pay from the editor.",
+        );
+        void navigate({ to: "/website" });
+        return;
+      }
+    }
+
     setSaving(false);
     toast.success("Your website is ready to look at");
     void navigate({ to: "/website" });
   }
+
 
   const previewNode = (
     <BrowserPreview address={address}>
@@ -800,7 +829,7 @@ function OnboardingPage() {
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
 
-            <div className="mt-10 flex items-center justify-between">
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
               <Button
                 variant="ghost"
                 onClick={() => setIndex((i) => Math.max(0, i - 1))}
@@ -808,23 +837,35 @@ function OnboardingPage() {
               >
                 Back
               </Button>
-              <Button
-                size="lg"
-                onClick={() => void next()}
-                disabled={saving}
-                className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
-                  </>
-                ) : isLast ? (
-                  "See my website"
-                ) : (
-                  "Continue"
-                )}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {isLast ? (
+                  <Button
+                    variant="ghost"
+                    disabled={saving}
+                    onClick={() => void finish({ checkout: false })}
+                  >
+                    Skip — pay later
+                  </Button>
+                ) : null}
+                <Button
+                  size="lg"
+                  onClick={() => void next()}
+                  disabled={saving}
+                  className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                    </>
+                  ) : isLast ? (
+                    "Continue to checkout"
+                  ) : (
+                    "Continue"
+                  )}
+                </Button>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -842,9 +883,17 @@ function OnboardingPage() {
   );
 }
 
-/** Plan selection only — payment happens later, when the site is published. */
+/** Plan selection. The chosen plan is taken to checkout when the step is confirmed. */
 function PlanPicker({ value, onChange }: { value: string; onChange: (plan: string) => void }) {
-  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [period, setPeriod] = useState<"monthly" | "yearly">(
+    value.endsWith("_yearly") ? "yearly" : "monthly",
+  );
+  const baseId = value.replace(/_yearly$/, "");
+
+  function pick(nextPeriod: "monthly" | "yearly", base: string) {
+    setPeriod(nextPeriod);
+    onChange(nextPeriod === "yearly" ? `${base}_yearly` : base);
+  }
 
   return (
     <div className="space-y-6">
@@ -854,9 +903,9 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
             <button
               key={p}
               type="button"
-              onClick={() => setPeriod(p)}
+              onClick={() => pick(p, baseId)}
               className={cn(
-                "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:px-4 sm:text-sm",
                 period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
               )}
             >
@@ -866,19 +915,19 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 pt-3 sm:grid-cols-2 lg:grid-cols-3">
         {PLAN_COPY.map((plan) => {
-          const selected = value === plan.id;
+          const selected = baseId === plan.id;
           return (
             <button
               key={plan.id}
               type="button"
-              onClick={() => onChange(plan.id)}
+              onClick={() => pick(period, plan.id)}
               className={cn(
-                "relative flex w-full flex-col rounded-2xl border bg-card p-6 text-left transition-all",
+                "relative flex w-full min-w-0 flex-col rounded-2xl border bg-card p-5 text-left transition-all sm:p-6",
                 selected
                   ? "border-accent shadow-lg ring-2 ring-accent/30"
-                  : "border-border hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
+                  : "border-border hover:border-accent/50 hover:shadow-md",
               )}
             >
               {plan.recommended ? (
@@ -887,7 +936,7 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
                 </span>
               ) : null}
               <span className="flex items-center justify-between gap-2">
-                <span className="text-base font-semibold">{plan.name}</span>
+                <span className="truncate text-base font-semibold">{plan.name}</span>
                 <span
                   className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
@@ -917,11 +966,12 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        No card needed yet. You'll pay when you publish, and you can change plan any time.
+        Secure payment by Whop. Cancel any time — or skip and pay later when you publish.
       </p>
     </div>
   );
 }
+
 
 function previewContent(draft: Draft): SiteContent {
   const content = defaultSiteContent({

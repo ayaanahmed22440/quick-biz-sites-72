@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +78,13 @@ function WebsitePage() {
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
   const [device, setDevice] = useState<DeviceKey>("desktop");
+  const isMobile = useIsMobile();
+
+  // On a phone, a scaled-down desktop preview is unreadable — start on phone size.
+  useEffect(() => {
+    if (isMobile) setDevice("mobile");
+  }, [isMobile]);
+
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
@@ -280,8 +289,9 @@ function WebsitePage() {
         </Badge>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
-        <div className="space-y-6">
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
+        <div className="order-2 min-w-0 space-y-6 lg:order-1">
+
           <Section title="Your brand">
             <ImageUpload
               businessId={businessId!}
@@ -517,34 +527,45 @@ function WebsitePage() {
             </div>
           ) : null}
 
-          <div className="sticky bottom-4 flex flex-wrap gap-2 rounded-lg border border-border bg-card p-3">
+          <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-card/95 p-3 backdrop-blur">
             <Button
               variant="outline"
+              className="flex-1 sm:flex-none"
               disabled={save.isPending}
               onClick={() => save.mutate({ publish: false })}
             >
               Save draft
             </Button>
             {canPublish ? (
-              <Button disabled={save.isPending} onClick={() => save.mutate({ publish: true })}>
+              <Button
+                className="flex-1 sm:flex-none"
+                disabled={save.isPending}
+                onClick={() => save.mutate({ publish: true })}
+              >
                 Save &amp; publish
               </Button>
             ) : (
-              <Button disabled={save.isPending} onClick={() => void openPlans()}>
+              <Button
+                className="flex-1 sm:flex-none"
+                disabled={save.isPending}
+                onClick={() => void openPlans()}
+              >
                 Publish my site
               </Button>
             )}
             {dirty ? (
-              <span className="self-center text-xs text-muted-foreground">Unsaved changes</span>
+              <span className="w-full text-xs text-muted-foreground sm:w-auto sm:self-center">
+                Unsaved changes
+              </span>
             ) : null}
           </div>
 
         </div>
 
-        <div>
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <p className="text-sm font-medium">Preview</p>
-            <div className="ml-auto flex gap-1.5">
+        <div className="order-1 min-w-0 lg:order-2 lg:sticky lg:top-6">
+          <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+            <p className="truncate text-sm font-medium">Preview</p>
+            <div className="flex shrink-0 gap-1.5">
               {(Object.keys(PREVIEW_WIDTHS) as DeviceKey[]).map((key) => (
                 <Button
                   key={key}
@@ -557,8 +578,8 @@ function WebsitePage() {
               ))}
             </div>
           </div>
-          <div className="overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-            <PreviewFrame width={PREVIEW_WIDTHS[device]} height={900}>
+          <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-muted/40 p-2 sm:p-3">
+            <PreviewFrame width={PREVIEW_WIDTHS[device]} height={900} className="min-w-0">
               <LocalBusinessTemplate
                 business={site.data.business}
                 content={draft}
@@ -571,6 +592,7 @@ function WebsitePage() {
             </PreviewFrame>
           </div>
         </div>
+
       </div>
     </>
   );
