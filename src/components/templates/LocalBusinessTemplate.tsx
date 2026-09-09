@@ -213,7 +213,7 @@ export function LocalBusinessTemplate({
           Trusted local professionals
         </span>
       </div>
-      <h1 style={display} className="mt-6 text-5xl font-bold leading-[1.02] sm:text-6xl lg:text-7xl">
+       <h1 style={display} className="mt-6 text-5xl font-extrabold leading-[1.08] sm:text-6xl lg:text-7xl">
         {content.hero.headline}
       </h1>
       <p className="mt-6 max-w-2xl text-lg leading-8 opacity-75 sm:text-xl">{content.hero.subheadline}</p>
