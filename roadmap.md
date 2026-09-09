@@ -44,3 +44,15 @@
 - 7 approved presets: cleaning, landscaping, roofing, plumbing, renovation, construction, junk removal — each with starter photography, accent colour and hero layout variant.
 - Onboarding industry list now maps 1:1 to the presets; the editor and admin gallery both preview desktop/tablet/mobile.
 - Next: media uploads (private bucket "business-media" created; needs a public read route), onboarding autosave, dashboard/domain polish.
+
+## Done — setup wizard, media, reviews, admin control (this pass)
+- 5-step onboarding wizard: trade picker with design thumbnails, business details, contact/services/areas, brand colour + logo upload, reviews. Live preview, draft restored after closing the tab.
+- Photo & logo uploads (private bucket + signed proxy) wired into the site editor.
+- Customer reviews table + editor + Google Business Profile link; shown on the live site.
+- Site editor autosaves the draft.
+- Admin panel rebuilt: revenue/MRR/LTV/renewals, client table with put live / take offline / suspend / restore, support ticket replies, enquiry handling.
+
+## Still open
+- Google Business Profile automatic review import (needs Google API approval).
+- Light/dark/system mode.
+- Lead workflow email alerts.

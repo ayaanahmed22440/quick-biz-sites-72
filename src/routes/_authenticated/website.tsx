@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ import {
   type SiteContent,
 } from "@/lib/site-content";
 import { presetFor } from "@/lib/template-registry";
+import { ImageUpload } from "@/components/app/ImageUpload";
+import { ReviewsEditor, useBusinessReviews } from "@/components/website/ReviewsEditor";
 
 const PREVIEW_WIDTHS = { desktop: "100%", tablet: "820px", mobile: "390px" } as const;
 type DeviceKey = keyof typeof PREVIEW_WIDTHS;
@@ -154,6 +156,8 @@ function WebsitePage() {
     },
   });
 
+  const reviews = useBusinessReviews(businessId);
+
   useEffect(() => {
     if (site.data && !draft) setDraft(site.data.content);
   }, [site.data, draft]);
@@ -192,11 +196,22 @@ function WebsitePage() {
     },
     onSuccess: (_data, variables) => {
       setDirty(false);
-      toast.success(variables.publish ? "Your website is live" : "Draft saved");
+      if (variables.publish) toast.success("Your website is live");
       void queryClient.invalidateQueries({ queryKey: ["website-editor", businessId] });
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Could not save"),
   });
+
+  // Autosave the draft a moment after typing stops, so nothing is ever lost.
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  useEffect(() => {
+    if (!dirty) return;
+    const timer = setTimeout(() => {
+      if (!saveRef.current.isPending) saveRef.current.mutate({ publish: false });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [draft, dirty]);
 
   if (isLoading || site.isLoading) return <LoadingBlock rows={3} />;
 
@@ -267,6 +282,15 @@ function WebsitePage() {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="space-y-6">
           <Section title="Your brand">
+            <ImageUpload
+              businessId={businessId!}
+              label="Your logo"
+              hint="A PNG with a see-through background looks best. It shows at the top of every page."
+              aspect="square"
+              kind="logo"
+              value={draft.brand.logoUrl}
+              onChange={(url) => update((c) => ({ ...c, brand: { ...c.brand, logoUrl: url } }))}
+            />
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
               <input
                 type="color"
@@ -287,42 +311,51 @@ function WebsitePage() {
             <p className="text-xs text-muted-foreground">
               Pick the main colour from your own logo. Buttons, links and the contact band use it.
             </p>
-            <Field
-              label="Logo image address"
-              value={draft.brand.logoUrl ?? ""}
-              placeholder="https://…"
-              onChange={(v) => update((c) => ({ ...c, brand: { ...c.brand, logoUrl: v || null } }))}
-            />
           </Section>
 
           <Section title="Photos">
             <p className="text-xs text-muted-foreground">
-              Your design comes with professional photos for your trade. Paste the web address of
-              your own photos to swap any of them.
+              Your design already comes with professional photos for your trade. Upload your own
+              whenever you like — your work always sells better than a stock photo.
             </p>
-            <Field
+            <ImageUpload
+              businessId={businessId!}
               label="Main photo"
+              hint="The big picture at the top of your website."
               value={draft.images.hero}
-              onChange={(v) =>
-                update((c) => ({ ...c, images: { ...c.images, hero: v || c.images.hero } }))
+              kind="hero"
+              onChange={(url) =>
+                update((c) => ({
+                  ...c,
+                  images: { ...c.images, hero: url ?? presetFor(c.templateId).images.hero },
+                }))
               }
             />
-            <Field
+            <ImageUpload
+              businessId={businessId!}
               label="About photo"
+              hint="Shown beside your story. A photo of you or the team works well."
               value={draft.images.about}
-              onChange={(v) =>
-                update((c) => ({ ...c, images: { ...c.images, about: v || c.images.about } }))
+              kind="about"
+              onChange={(url) =>
+                update((c) => ({
+                  ...c,
+                  images: { ...c.images, about: url ?? presetFor(c.templateId).images.about },
+                }))
               }
             />
             {draft.images.gallery.map((src, index) => (
-              <Field
+              <ImageUpload
                 key={index}
+                businessId={businessId!}
                 label={`Gallery photo ${index + 1}`}
                 value={src}
-                onChange={(v) =>
+                kind={`gallery-${index + 1}`}
+                onChange={(url) =>
                   update((c) => {
                     const gallery = [...c.images.gallery];
-                    gallery[index] = v;
+                    gallery[index] =
+                      url ?? presetFor(c.templateId).images.gallery[index] ?? gallery[index]!;
                     return { ...c, images: { ...c.images, gallery } };
                   })
                 }
@@ -383,6 +416,26 @@ function WebsitePage() {
               rows={6}
               value={draft.about.body}
               onChange={(v) => update((c) => ({ ...c, about: { ...c.about, body: v } }))}
+            />
+          </Section>
+
+          <Section title="Reviews">
+            <Field
+              label="Reviews heading"
+              value={draft.reviews.heading}
+              onChange={(v) => update((c) => ({ ...c, reviews: { ...c.reviews, heading: v } }))}
+            />
+            <AreaField
+              label="Reviews intro"
+              value={draft.reviews.intro}
+              onChange={(v) => update((c) => ({ ...c, reviews: { ...c.reviews, intro: v } }))}
+            />
+            <ReviewsEditor
+              businessId={businessId!}
+              googleUrl={draft.reviews.googleUrl}
+              onGoogleUrlChange={(v) =>
+                update((c) => ({ ...c, reviews: { ...c.reviews, googleUrl: v } }))
+              }
             />
           </Section>
 
@@ -514,6 +567,7 @@ function WebsitePage() {
                 services={site.data.services}
                 areas={site.data.areas}
                 hours={site.data.hours}
+                reviews={reviews.data ?? []}
                 previewOnly
               />
             </div>

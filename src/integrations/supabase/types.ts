@@ -1269,6 +1269,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_media_path: { Args: { _path: string }; Returns: boolean }
       get_published_site: { Args: { p_slug: string }; Returns: Json }
       has_role: {
         Args: {

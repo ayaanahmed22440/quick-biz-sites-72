@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
@@ -11,7 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -26,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
 const MONTH_MS = 1000 * 60 * 60 * 24 * 30.44;
+const ADMIN_KEY = ["admin-overview"] as const;
 
 function money(cents: number) {
   return `$${(cents / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -33,42 +40,126 @@ function money(cents: number) {
 
 function AdminPage() {
   const { data: workspace, isLoading } = useWorkspace();
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [openTicket, setOpenTicket] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
 
   const admin = useQuery({
-    queryKey: ["admin-overview"],
+    queryKey: ADMIN_KEY,
     enabled: Boolean(workspace?.isStaff),
     queryFn: async () => {
-      const [businesses, subscriptions, plans, tickets, messages] = await Promise.all([
-        supabase
-          .from("businesses")
-          .select("id, name, city, state, onboarding_completed, created_at, suspended")
-          .order("created_at", { ascending: false })
-          .limit(200),
-        supabase
-          .from("subscriptions")
-          .select(
-            "business_id, plan_id, status, current_period_end, cancel_at_period_end, created_at, last_payment_failed_at",
-          ),
-        supabase.from("plans").select("id, name, price_cents"),
-        supabase
-          .from("support_tickets")
-          .select("id, subject, status, priority, business_id, created_at")
-          .order("created_at", { ascending: false })
-          .limit(25),
-        supabase
-          .from("contact_messages")
-          .select("id, name, email, business_name, message, handled, created_at")
-          .order("created_at", { ascending: false })
-          .limit(10),
-      ]);
+      const [businesses, subscriptions, plans, tickets, messages, websites, leads] =
+        await Promise.all([
+          supabase
+            .from("businesses")
+            .select(
+              "id, name, slug, city, state, email, phone, niche, onboarding_completed, created_at, suspended",
+            )
+            .order("created_at", { ascending: false })
+            .limit(300),
+          supabase
+            .from("subscriptions")
+            .select(
+              "business_id, plan_id, status, current_period_end, cancel_at_period_end, created_at, last_payment_failed_at",
+            ),
+          supabase.from("plans").select("id, name, price_cents"),
+          supabase
+            .from("support_tickets")
+            .select("id, subject, body, status, priority, business_id, created_at")
+            .order("created_at", { ascending: false })
+            .limit(50),
+          supabase
+            .from("contact_messages")
+            .select("id, name, email, business_name, message, handled, created_at")
+            .order("created_at", { ascending: false })
+            .limit(25),
+          supabase.from("websites").select("id, business_id, status, published_at"),
+          supabase.from("leads").select("id, business_id, created_at").limit(1000),
+        ]);
       return {
         businesses: businesses.data ?? [],
         subscriptions: subscriptions.data ?? [],
         plans: plans.data ?? [],
         tickets: tickets.data ?? [],
         messages: messages.data ?? [],
+        websites: websites.data ?? [],
+        leads: leads.data ?? [],
       };
     },
+  });
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ADMIN_KEY });
+
+  const setSuspended = useMutation({
+    mutationFn: async ({ id, suspended }: { id: string; suspended: boolean }) => {
+      const { error } = await supabase.from("businesses").update({ suspended }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void refresh();
+      toast.success("Client updated");
+    },
+    onError: () => toast.error("That change didn't save"),
+  });
+
+  const setSiteStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "published" | "unpublished" }) => {
+      const { error } = await supabase
+        .from("websites")
+        .update({
+          status,
+          ...(status === "published" ? { published_at: new Date().toISOString() } : {}),
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void refresh();
+      toast.success("Website updated");
+    },
+    onError: () => toast.error("That change didn't save"),
+  });
+
+  const setTicketStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: "open" | "resolved" }) => {
+      const { error } = await supabase.from("support_tickets").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => void refresh(),
+  });
+
+  const sendReply = useMutation({
+    mutationFn: async ({ ticketId, businessId }: { ticketId: string; businessId: string }) => {
+      if (reply.trim().length < 2) throw new Error("Write a reply first.");
+      const { data: userData } = await supabase.auth.getUser();
+      const { error } = await supabase.from("ticket_messages").insert({
+        ticket_id: ticketId,
+        business_id: businessId,
+        author_id: userData.user?.id ?? null,
+        body: reply.trim().slice(0, 4000),
+      });
+      if (error) throw error;
+      await supabase.from("support_tickets").update({ status: "pending" }).eq("id", ticketId);
+    },
+    onSuccess: () => {
+      setReply("");
+      setOpenTicket(null);
+      void refresh();
+      toast.success("Reply sent");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not send that reply"),
+  });
+
+  const markHandled = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("contact_messages")
+        .update({ handled: true })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => void refresh(),
   });
 
   if (isLoading) return <LoadingBlock rows={4} />;
@@ -95,6 +186,12 @@ function AdminPage() {
   const planById = new Map(data.plans.map((p) => [p.id, p]));
   const businessById = new Map(data.businesses.map((b) => [b.id, b]));
   const subByBusiness = new Map(data.subscriptions.map((s) => [s.business_id, s]));
+  const siteByBusiness = new Map(data.websites.map((w) => [w.business_id, w]));
+
+  const leadsByBusiness = new Map<string, number>();
+  for (const l of data.leads) {
+    leadsByBusiness.set(l.business_id, (leadsByBusiness.get(l.business_id) ?? 0) + 1);
+  }
   const openTicketsByBusiness = new Map<string, number>();
   for (const t of data.tickets) {
     if (t.status === "open" || t.status === "pending") {
@@ -102,13 +199,14 @@ function AdminPage() {
     }
   }
 
-  /** Monthly recurring value of a plan (yearly plans divided across 12 months). */
+  /** Monthly value of a plan; yearly plans spread across twelve months. */
   function monthlyCents(planId: string) {
     const plan = planById.get(planId);
     if (!plan) return 0;
     return planId.endsWith("_yearly") ? Math.round(plan.price_cents / 12) : plan.price_cents;
   }
 
+  const term = search.trim().toLowerCase();
   const customers = data.businesses
     .map((b) => {
       const sub = subByBusiness.get(b.id);
@@ -116,10 +214,24 @@ function AdminPage() {
       const monthsActive = sub
         ? Math.max(1, Math.round((now - new Date(sub.created_at).getTime()) / MONTH_MS))
         : 0;
-      const ltv = sub ? monthlyCents(sub.plan_id) * monthsActive : 0;
-      return { business: b, sub, mrr, monthsActive, ltv };
+      return {
+        business: b,
+        sub,
+        site: siteByBusiness.get(b.id),
+        mrr,
+        monthsActive,
+        ltv: sub ? monthlyCents(sub.plan_id) * monthsActive : 0,
+      };
     })
     .sort((a, b) => b.mrr - a.mrr || b.ltv - a.ltv);
+
+  const filtered = term
+    ? customers.filter((c) =>
+        [c.business.name, c.business.city, c.business.email, c.business.slug]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(term)),
+      )
+    : customers;
 
   const paying = customers.filter((c) => c.mrr > 0);
   const mrr = paying.reduce((sum, c) => sum + c.mrr, 0);
@@ -127,28 +239,42 @@ function AdminPage() {
   const arpu = paying.length ? Math.round(mrr / paying.length) : 0;
   const pastDue = customers.filter((c) => c.sub?.status === "past_due");
   const cancelling = customers.filter((c) => c.sub?.cancel_at_period_end);
+  const live = data.websites.filter((w) => w.status === "published").length;
+  const newThisMonth = customers.filter(
+    (c) => now - new Date(c.business.created_at).getTime() < MONTH_MS,
+  ).length;
 
   const renewals = customers
     .filter((c) => c.sub?.current_period_end)
     .map((c) => ({ ...c, renewsAt: new Date(c.sub!.current_period_end!) }))
     .filter((c) => c.renewsAt.getTime() > now - 3 * 24 * 60 * 60 * 1000)
     .sort((a, b) => a.renewsAt.getTime() - b.renewsAt.getTime())
-    .slice(0, 10);
+    .slice(0, 12);
 
   const openTickets = data.tickets.filter((t) => t.status === "open" || t.status === "pending");
+  const newMessages = data.messages.filter((m) => !m.handled);
 
   const stats = [
-    { label: "MRR", value: money(mrr), note: `${paying.length} paying customers` },
+    { label: "MRR", value: money(mrr), note: `${paying.length} paying clients` },
     { label: "Annual run rate", value: money(mrr * 12), note: "MRR × 12" },
-    { label: "Total LTV to date", value: money(totalLtv), note: "Billed across all customers" },
-    { label: "Avg per customer", value: money(arpu), note: "Monthly average" },
+    { label: "Billed to date", value: money(totalLtv), note: "Across all clients" },
+    { label: "Avg per client", value: money(arpu), note: "Each month" },
+  ];
+
+  const counters = [
+    { label: "Clients", value: data.businesses.length, note: `${newThisMonth} new this month` },
+    { label: "Live websites", value: live, note: `${data.businesses.length - live} not live` },
+    { label: "Payment failed", value: pastDue.length, note: "Chase first" },
+    { label: "Cancelling", value: cancelling.length, note: "Ends at period end" },
+    { label: "Open tickets", value: openTickets.length, note: "Needs a reply" },
+    { label: "New enquiries", value: newMessages.length, note: "From the website" },
   ];
 
   return (
     <>
       <PageHeader
         title="Admin panel"
-        description="Revenue, customers, renewals and support in one place."
+        description="Revenue, clients, their websites and support — with the controls to act on them."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -163,192 +289,321 @@ function AdminPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "Total clients", value: data.businesses.length },
-          { label: "Payment failed", value: pastDue.length },
-          { label: "Cancelling", value: cancelling.length },
-          { label: "Open tickets", value: openTickets.length },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-border bg-card p-5">
+      <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        {counters.map((stat) => (
+          <div key={stat.label} className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {stat.label}
             </p>
-            <p className="mt-2 text-2xl font-bold">{stat.value}</p>
+            <p className="mt-1.5 text-xl font-bold">{stat.value}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{stat.note}</p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl border border-border bg-card">
-        <div className="flex items-center justify-between border-b border-border p-5">
-          <h2 className="text-sm font-semibold">Clients</h2>
-          <Link
-            to="/admin-templates"
-            className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
-          >
-            Website templates →
-          </Link>
-        </div>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">MRR</TableHead>
-                <TableHead className="text-right">LTV</TableHead>
-                <TableHead>Renews</TableHead>
-                <TableHead>Tickets</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.length === 0 ? (
+      <Tabs defaultValue="clients">
+        <TabsList>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
+          <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
+          <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="clients" className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Input
+              placeholder="Search clients by name, town or email"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-sm"
+            />
+            <Link
+              to="/admin-templates"
+              className="ml-auto text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              Website templates →
+            </Link>
+          </div>
+          <div className="overflow-x-auto rounded-xl border border-border bg-card">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-sm text-muted-foreground">
-                    No clients yet.
-                  </TableCell>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Plan</TableHead>
+                  <TableHead>Website</TableHead>
+                  <TableHead className="text-right">MRR</TableHead>
+                  <TableHead className="text-right">Billed</TableHead>
+                  <TableHead>Renews</TableHead>
+                  <TableHead className="text-right">Leads</TableHead>
+                  <TableHead className="text-right">Controls</TableHead>
                 </TableRow>
-              ) : (
-                customers.map(({ business: b, sub, mrr: m, ltv, monthsActive }) => (
-                  <TableRow key={b.id}>
-                    <TableCell className="font-medium">
-                      {b.name}
-                      {b.suspended ? (
-                        <Badge variant="destructive" className="ml-2">
-                          Suspended
-                        </Badge>
-                      ) : null}
-                      {!b.onboarding_completed ? (
-                        <Badge variant="secondary" className="ml-2">
-                          Onboarding
-                        </Badge>
-                      ) : null}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {[b.city, b.state].filter(Boolean).join(", ") || "—"}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {sub ? (planById.get(sub.plan_id)?.name ?? sub.plan_id) : "No plan"}
-                    </TableCell>
-                    <TableCell>
-                      {sub ? (
-                        <Badge
-                          variant={
-                            sub.status === "past_due" || sub.status === "canceled"
-                              ? "destructive"
-                              : "secondary"
-                          }
-                        >
-                          {sub.cancel_at_period_end ? "cancelling" : sub.status}
-                        </Badge>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right text-sm">{m ? money(m) : "—"}</TableCell>
-                    <TableCell className="text-right text-sm">
-                      {ltv ? (
-                        <span title={`${monthsActive} month(s) billed`}>{money(ltv)}</span>
-                      ) : (
-                        "—"
-                      )}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {sub?.current_period_end
-                        ? new Date(sub.current_period_end).toLocaleDateString()
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {openTicketsByBusiness.get(b.id) ?? 0}
+              </TableHeader>
+              <TableBody>
+                {filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-sm text-muted-foreground">
+                      No clients match that search.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+                ) : (
+                  filtered.map(({ business: b, sub, site, mrr: m, ltv, monthsActive }) => (
+                    <TableRow key={b.id}>
+                      <TableCell>
+                        <p className="font-medium">
+                          {b.name}
+                          {b.suspended ? (
+                            <Badge variant="destructive" className="ml-2">
+                              Suspended
+                            </Badge>
+                          ) : null}
+                          {!b.onboarding_completed ? (
+                            <Badge variant="secondary" className="ml-2">
+                              Setting up
+                            </Badge>
+                          ) : null}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {[b.city, b.state].filter(Boolean).join(", ") || "—"} · {b.email ?? "—"}
+                        </p>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {sub ? (
+                          <>
+                            {planById.get(sub.plan_id)?.name ?? sub.plan_id}
+                            <Badge
+                              variant={
+                                sub.status === "past_due" || sub.status === "canceled"
+                                  ? "destructive"
+                                  : "secondary"
+                              }
+                              className="ml-2"
+                            >
+                              {sub.cancel_at_period_end ? "cancelling" : sub.status}
+                            </Badge>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground">No plan</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {site ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant={site.status === "published" ? "default" : "secondary"}>
+                              {site.status}
+                            </Badge>
+                            {site.status === "published" ? (
+                              <a
+                                className="text-xs underline"
+                                href={`/${b.slug}`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                view
+                              </a>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">Not started</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right text-sm">{m ? money(m) : "—"}</TableCell>
+                      <TableCell className="text-right text-sm">
+                        {ltv ? (
+                          <span title={`${monthsActive} month(s) billed`}>{money(ltv)}</span>
+                        ) : (
+                          "—"
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                        {sub?.current_period_end
+                          ? new Date(sub.current_period_end).toLocaleDateString()
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-right text-sm">
+                        {leadsByBusiness.get(b.id) ?? 0}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          {site ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={setSiteStatus.isPending}
+                              onClick={() =>
+                                setSiteStatus.mutate({
+                                  id: site.id,
+                                  status:
+                                    site.status === "published" ? "unpublished" : "published",
+                                })
+                              }
+                            >
+                              {site.status === "published" ? "Take offline" : "Put live"}
+                            </Button>
+                          ) : null}
+                          <Button
+                            size="sm"
+                            variant={b.suspended ? "outline" : "ghost"}
+                            disabled={setSuspended.isPending}
+                            onClick={() =>
+                              setSuspended.mutate({ id: b.id, suspended: !b.suspended })
+                            }
+                          >
+                            {b.suspended ? "Restore" : "Suspend"}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-sm font-semibold">Upcoming renewals</h2>
-          {renewals.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">No renewals scheduled yet.</p>
-          ) : (
-            <ul className="mt-3 space-y-2 text-sm">
-              {renewals.map((r) => {
-                const days = Math.round((r.renewsAt.getTime() - now) / (1000 * 60 * 60 * 24));
-                return (
-                  <li key={r.business.id} className="flex items-center gap-2">
-                    <span className="truncate font-medium">{r.business.name}</span>
-                    <span className="text-muted-foreground">
-                      {planById.get(r.sub!.plan_id)?.name ?? r.sub!.plan_id}
+        <TabsContent value="renewals">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-sm font-semibold">Upcoming renewals</h2>
+            {renewals.length === 0 ? (
+              <p className="mt-2 text-sm text-muted-foreground">No renewals scheduled yet.</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {renewals.map((r) => {
+                  const days = Math.round((r.renewsAt.getTime() - now) / (1000 * 60 * 60 * 24));
+                  return (
+                    <li key={r.business.id} className="flex flex-wrap items-center gap-2">
+                      <span className="truncate font-medium">{r.business.name}</span>
+                      <span className="text-muted-foreground">
+                        {planById.get(r.sub!.plan_id)?.name ?? r.sub!.plan_id}
+                      </span>
+                      <span className="ml-auto whitespace-nowrap text-muted-foreground">
+                        {r.renewsAt.toLocaleDateString()}
+                        {days >= 0 ? ` · in ${days}d` : " · overdue"}
+                      </span>
+                      {r.sub!.cancel_at_period_end ? (
+                        <Badge variant="destructive">Ending</Badge>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            {pastDue.length > 0 ? (
+              <p className="mt-4 rounded-md bg-destructive/10 p-3 text-xs text-destructive">
+                {pastDue.length} client(s) have a failed payment — chase these first.
+              </p>
+            ) : null}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="support">
+          <div className="space-y-3">
+            {data.tickets.length === 0 ? (
+              <p className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+                No tickets yet.
+              </p>
+            ) : (
+              data.tickets.map((t) => (
+                <div key={t.id} className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium">{t.subject}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {businessById.get(t.business_id)?.name ?? ""}
                     </span>
-                    <span className="ml-auto whitespace-nowrap text-muted-foreground">
-                      {r.renewsAt.toLocaleDateString()}
-                      {days >= 0 ? ` · in ${days}d` : " · overdue"}
-                    </span>
-                    {r.sub!.cancel_at_period_end ? <Badge variant="destructive">Ending</Badge> : null}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {pastDue.length > 0 ? (
-            <p className="mt-4 rounded-md bg-destructive/10 p-3 text-xs text-destructive">
-              {pastDue.length} client(s) have a failed payment — chase these first.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-sm font-semibold">Support tickets</h2>
-          {data.tickets.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">No tickets yet.</p>
-          ) : (
-            <ul className="mt-3 space-y-2 text-sm">
-              {data.tickets.slice(0, 12).map((t) => (
-                <li key={t.id} className="flex items-center gap-2">
-                  <span className="truncate font-medium">{t.subject}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {businessById.get(t.business_id)?.name ?? ""}
-                  </span>
-                  {t.priority === "priority" ? <Badge>Priority</Badge> : null}
-                  <Badge variant="secondary" className="ml-auto">
-                    {t.status}
-                  </Badge>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold">New enquiries</h2>
-        {data.messages.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">No enquiries yet.</p>
-        ) : (
-          <ul className="mt-3 space-y-3 text-sm">
-            {data.messages.map((m) => (
-              <li key={m.id} className="rounded-lg border border-border p-3">
-                <p className="font-medium">
-                  {m.name} {m.business_name ? `— ${m.business_name}` : ""}
-                  {!m.handled ? (
-                    <Badge variant="secondary" className="ml-2">
-                      New
+                    {t.priority === "priority" ? <Badge>Priority</Badge> : null}
+                    <Badge variant="secondary" className="ml-auto">
+                      {t.status}
                     </Badge>
-                  ) : null}
-                </p>
-                <p className="text-muted-foreground">{m.email}</p>
-                <p className="mt-1.5">{m.message}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  </div>
+                  <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{t.body}</p>
+                  {openTicket === t.id ? (
+                    <div className="mt-3 space-y-2">
+                      <Textarea
+                        rows={4}
+                        placeholder="Write your reply…"
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          disabled={sendReply.isPending}
+                          onClick={() =>
+                            sendReply.mutate({ ticketId: t.id, businessId: t.business_id })
+                          }
+                        >
+                          Send reply
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setOpenTicket(null)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setOpenTicket(t.id);
+                          setReply("");
+                        }}
+                      >
+                        Reply
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          setTicketStatus.mutate({
+                            id: t.id,
+                            status: t.status === "resolved" ? "open" : "resolved",
+                          })
+                        }
+                      >
+                        {t.status === "resolved" ? "Reopen" : "Mark resolved"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="enquiries">
+          <div className="space-y-3">
+            {data.messages.length === 0 ? (
+              <p className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+                No enquiries yet.
+              </p>
+            ) : (
+              data.messages.map((m) => (
+                <div key={m.id} className="rounded-xl border border-border bg-card p-4 text-sm">
+                  <p className="font-medium">
+                    {m.name} {m.business_name ? `— ${m.business_name}` : ""}
+                    {!m.handled ? (
+                      <Badge variant="secondary" className="ml-2">
+                        New
+                      </Badge>
+                    ) : null}
+                  </p>
+                  <p className="text-muted-foreground">{m.email}</p>
+                  <p className="mt-1.5 whitespace-pre-line">{m.message}</p>
+                  <div className="mt-3 flex gap-2">
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`mailto:${m.email}`}>Email back</a>
+                    </Button>
+                    {!m.handled ? (
+                      <Button size="sm" variant="ghost" onClick={() => markHandled.mutate(m.id)}>
+                        Mark handled
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </>
   );
 }

@@ -78,6 +78,7 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
         services={site.services}
         areas={site.service_areas}
         hours={site.hours}
+        reviews={site.reviews ?? []}
         onSubmitLead={async (values) => {
           await send({ data: { slug, ...values } });
         }}
