@@ -111,8 +111,78 @@ function AdminEmailsPage() {
         </div>
       ) : null}
 
+      <GmailLogSection />
       <EmailLogSection />
     </div>
+  );
+}
+
+/** Everything sent from the connected Gmail account (lead alerts, notices). */
+function GmailLogSection() {
+  const sent = useQuery({
+    queryKey: ["sent-emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sent_emails")
+        .select("id, recipient, subject, purpose, status, error, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Sent from your Gmail</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Lead alerts and notices the platform sent from your connected Google account.
+        </p>
+      </CardHeader>
+      <CardContent>
+        {sent.isLoading ? <LoadingBlock rows={3} /> : null}
+        {sent.isError ? <ErrorBlock message="Could not load these emails." /> : null}
+        {sent.data && sent.data.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Nothing sent yet. The first website enquiry will show up here.
+          </p>
+        ) : null}
+        {sent.data && sent.data.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="py-2 pr-4 font-semibold">When</th>
+                  <th className="py-2 pr-4 font-semibold">To</th>
+                  <th className="py-2 pr-4 font-semibold">Subject</th>
+                  <th className="py-2 font-semibold">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sent.data.map((row) => (
+                  <tr key={row.id} className="border-b last:border-0">
+                    <td className="whitespace-nowrap py-2 pr-4 text-muted-foreground">
+                      {new Date(row.created_at).toLocaleString()}
+                    </td>
+                    <td className="py-2 pr-4">{row.recipient}</td>
+                    <td className="py-2 pr-4">{row.subject}</td>
+                    <td className="py-2">
+                      <Badge variant={row.status === "sent" ? "secondary" : "destructive"}>
+                        {row.status === "sent" ? "sent" : "failed"}
+                      </Badge>
+                      {row.error ? (
+                        <span className="ml-2 text-xs text-muted-foreground">{row.error}</span>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
 
