@@ -1,24 +1,27 @@
-import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { toast } from "sonner";
+import { ArrowLeft, Check, Eye, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace, workspaceQueryKey } from "@/hooks/useWorkspace";
-import { LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ImageUpload } from "@/components/app/ImageUpload";
-import { PreviewFrame } from "@/components/app/PreviewFrame";
+import { BrowserPreview } from "@/components/app/BrowserPreview";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
+import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
 import { cn } from "@/lib/utils";
 
 const DRAFT_KEY = "ww-onboarding-draft";
+const PLAN_KEY = "ww-onboarding-plan";
 
 type Draft = {
   niche: string;
@@ -34,6 +37,7 @@ type Draft = {
   primary_color: string;
   logo_url: string | null;
   google_url: string;
+  plan: string;
 };
 
 const EMPTY: Draft = {
@@ -50,9 +54,10 @@ const EMPTY: Draft = {
   primary_color: "#1f6feb",
   logo_url: null,
   google_url: "",
+  plan: "seo",
 };
 
-const DEMO: Omit<Draft, "niche"> = {
+const DEMO: Omit<Draft, "niche" | "plan"> = {
   name: "Sparkle & Shine Cleaning Co.",
   primary_service: "House cleaning",
   description:
@@ -68,11 +73,17 @@ const DEMO: Omit<Draft, "niche"> = {
   google_url: "",
 };
 
-export const Route = createFileRoute("/_authenticated/onboarding")({
+export const Route = createFileRoute("/onboarding")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/auth" });
+    return { user: data.user };
+  },
   head: () => ({
     meta: [
-      { title: "Set up your business — WebWarheads" },
-      { name: "description", content: "Tell WebWarheads about your business." },
+      { title: "Set up your website — WebWarheads" },
+      { name: "description", content: "Answer a few questions and watch your website build itself." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -89,7 +100,17 @@ function slugify(value: string) {
   );
 }
 
-/** One question per screen. `key` drives validation and the field shown. */
+type StageKey = "trade" | "business" | "services" | "look" | "reviews" | "plan";
+
+const STAGES: { key: StageKey; label: string }[] = [
+  { key: "trade", label: "Trade" },
+  { key: "business", label: "Business" },
+  { key: "services", label: "Services" },
+  { key: "look", label: "Look" },
+  { key: "reviews", label: "Reviews" },
+  { key: "plan", label: "Plan" },
+];
+
 type StepKey =
   | "niche"
   | "name"
@@ -102,26 +123,28 @@ type StepKey =
   | "areas"
   | "primary_color"
   | "logo"
-  | "reviews";
+  | "reviews"
+  | "plan";
 
 type Step = {
   key: StepKey;
+  stage: StageKey;
   question: string;
   helper: string;
-  /** Validated before moving on. Undefined means the step is optional. */
   validate?: (draft: Draft) => string | null;
-  /** The business record is created once this step is answered. */
   createsBusiness?: boolean;
 };
 
 const STEPS: Step[] = [
   {
     key: "niche",
+    stage: "trade",
     question: "What kind of work do you do?",
     helper: "Each trade has its own approved design, with professional photos already in place.",
   },
   {
     key: "name",
+    stage: "business",
     question: "What's your business called?",
     helper: "This is the name customers will see at the top of your website.",
     validate: (d) =>
@@ -131,6 +154,7 @@ const STEPS: Step[] = [
   },
   {
     key: "primary_service",
+    stage: "business",
     question: "What's the main job you get hired for?",
     helper: "Just the one you do most. You can add the rest in a moment.",
     validate: (d) =>
@@ -140,11 +164,13 @@ const STEPS: Step[] = [
   },
   {
     key: "description",
+    stage: "business",
     question: "In a sentence or two, why should someone pick you?",
     helper: "Skip it if you're not sure — we'll write something sensible for you.",
   },
   {
     key: "phone",
+    stage: "business",
     question: "What number should customers call?",
     helper: "It shows on every page and on the call button.",
     validate: (d) =>
@@ -152,12 +178,15 @@ const STEPS: Step[] = [
   },
   {
     key: "email",
+    stage: "business",
     question: "Where should enquiries land?",
     helper: "We send every website enquiry straight to this inbox.",
-    validate: (d) => (z.string().email().safeParse(d.email.trim()).success ? null : "Enter a valid email"),
+    validate: (d) =>
+      z.string().email().safeParse(d.email.trim()).success ? null : "Enter a valid email",
   },
   {
     key: "city",
+    stage: "business",
     question: "Which town or city are you based in?",
     helper: "This is what tells Google where you work.",
     validate: (d) => (d.city.trim().length >= 2 ? null : "Enter your main city"),
@@ -165,30 +194,43 @@ const STEPS: Step[] = [
   },
   {
     key: "services",
+    stage: "services",
     question: "What jobs do you take on?",
     helper: "One per line. Four or five is plenty to start with.",
   },
   {
     key: "areas",
+    stage: "services",
     question: "Which other towns do you cover?",
     helper: "Separate them with commas. Leave it empty if you only work in one place.",
   },
   {
     key: "primary_color",
+    stage: "look",
     question: "Pick your main colour",
     helper: "Buttons, links and the contact band use it. Match your van or your logo.",
   },
   {
     key: "logo",
+    stage: "look",
     question: "Got a logo?",
     helper: "A see-through PNG looks best. No logo? We'll use your business name instead.",
   },
   {
     key: "reviews",
+    stage: "reviews",
     question: "Add a few happy customers",
     helper: "Reviews are the single biggest reason people call. Add them now or later.",
   },
+  {
+    key: "plan",
+    stage: "plan",
+    question: "Which plan suits you?",
+    helper: "Nothing is charged now — you only pay when you're ready to go live.",
+  },
 ];
+
+const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172a"];
 
 function OnboardingPage() {
   const navigate = useNavigate();
@@ -220,22 +262,35 @@ function OnboardingPage() {
     }
   }, [draft, restored]);
 
-  if (isLoading) return <LoadingBlock rows={4} />;
+  const step = STEPS[index]!;
+  const preview = useMemo(() => previewContent(draft), [draft]);
+  const stageIndex = STAGES.findIndex((s) => s.key === step.stage);
+  const isLast = index === STEPS.length - 1;
+  const address = `webwarheads.com/${draft.name ? slugify(draft.name) : "your-business"}`;
 
-  if (workspace?.business && !businessId) {
+  if (isLoading) {
     return (
-      <>
-        <PageHeader
-          title="Business already set up"
-          description="You can change any of these details from the Business page."
-        />
-        <Button onClick={() => navigate({ to: "/business" })}>Go to business details</Button>
-      </>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
-  const step = STEPS[index]!;
-  const progress = Math.round(((index + 1) / STEPS.length) * 100);
+  if (workspace?.business && !businessId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <div className="max-w-sm text-center">
+          <h1 className="text-2xl font-semibold">Your business is already set up</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            You can change any of these details whenever you like.
+          </p>
+          <Button className="mt-6" onClick={() => navigate({ to: "/website" })}>
+            Go to my website
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
@@ -342,7 +397,7 @@ function OnboardingPage() {
       if (!id) return;
     }
     if (businessId) await persistStep(step.key, businessId);
-    if (index === STEPS.length - 1) {
+    if (isLast) {
       await finish();
       return;
     }
@@ -400,6 +455,7 @@ function OnboardingPage() {
 
     try {
       localStorage.removeItem(DRAFT_KEY);
+      localStorage.setItem(PLAN_KEY, draft.plan);
     } catch {
       /* ignore */
     }
@@ -409,36 +465,104 @@ function OnboardingPage() {
     void navigate({ to: "/website" });
   }
 
-  const preview = previewContent(draft);
-  const isLast = index === STEPS.length - 1;
+  const previewNode = (
+    <BrowserPreview address={address}>
+      <LocalBusinessTemplate
+        business={{
+          name: draft.name || "Your business name",
+          tagline: null,
+          phone: draft.phone || null,
+          email: draft.email || null,
+          city: draft.city || null,
+          state: draft.state || null,
+          address_line1: null,
+          postal_code: null,
+          logo_url: draft.logo_url,
+        }}
+        content={preview}
+        services={draft.services
+          .split("\n")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((name, i) => ({ id: String(i), name, description: null, price_note: null }))}
+        areas={[draft.city, ...draft.areas.split(",")]
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((city, i) => ({ id: String(i), city, state: draft.state || null }))}
+        hours={[]}
+        previewOnly
+      />
+    </BrowserPreview>
+  );
 
   return (
-    <>
-      <PageHeader
-        title="Let's build your website"
-        description="One question at a time. Everything you answer appears on the right straight away — and it stays free until you publish."
-      />
+    <div className="min-h-screen bg-background">
+      {/* Progress rail */}
+      <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Exit</span>
+          </Link>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
-        <div>
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>
-                Question {index + 1} of {STEPS.length}
-              </span>
-              <span>{progress}% done</span>
-            </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-accent transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+          <ol className="flex flex-1 items-center gap-1.5 sm:gap-3">
+            {STAGES.map((stage, i) => {
+              const done = i < stageIndex;
+              const active = i === stageIndex;
+              return (
+                <li key={stage.key} className="flex min-w-0 flex-1 items-center gap-2">
+                  <span
+                    className={cn(
+                      "h-1.5 flex-1 rounded-full transition-colors duration-500",
+                      done || active ? "bg-accent" : "bg-muted",
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "hidden shrink-0 text-xs font-medium sm:inline",
+                      active
+                        ? "text-foreground"
+                        : done
+                          ? "text-muted-foreground"
+                          : "text-muted-foreground/60",
+                    )}
+                  >
+                    {stage.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button size="sm" variant="outline" className="gap-1.5">
+                  <Eye className="h-4 w-4" />
+                  See my site
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-4">
+                {previewNode}
+              </SheetContent>
+            </Sheet>
           </div>
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:py-16">
+        {/* Question column */}
+        <div className="mx-auto w-full max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+            Step {index + 1} of {STEPS.length}
+          </p>
 
           <div
             key={step.key}
-            className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-border bg-card p-6 duration-300"
+            className="animate-in fade-in slide-in-from-bottom-3 duration-300"
             onKeyDown={(e) => {
               const target = e.target as HTMLElement;
               if (e.key === "Enter" && target.tagName !== "TEXTAREA" && !saving) {
@@ -447,33 +571,40 @@ function OnboardingPage() {
               }
             }}
           >
-            <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">{step.question}</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">{step.helper}</p>
+            <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              {step.question}
+            </h1>
+            <p className="mt-3 text-base text-muted-foreground">{step.helper}</p>
 
-            <div className="mt-5 space-y-4">
+            <div className="mt-8 space-y-5">
               {step.key === "niche" ? (
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {TEMPLATE_PRESETS.map((p) => (
                     <button
                       key={p.templateId}
                       type="button"
                       onClick={() => set("niche", p.niche)}
                       className={cn(
-                        "overflow-hidden rounded-lg border text-left transition",
+                        "group relative overflow-hidden rounded-xl border text-left transition-all",
                         draft.niche === p.niche
-                          ? "border-primary ring-2 ring-primary/30"
-                          : "border-border hover:border-primary/50",
+                          ? "border-accent ring-2 ring-accent/30"
+                          : "border-border hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
                       )}
                     >
                       <img
                         src={p.images.hero}
                         alt={`${p.industryLabel} website design`}
-                        className="h-24 w-full object-cover"
+                        className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                         loading="lazy"
                       />
-                      <span className="block p-3">
-                        <span className="block text-sm font-medium">{p.industryLabel}</span>
-                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {draft.niche === p.niche ? (
+                        <span className="absolute right-3 top-3 rounded-full bg-accent p-1 text-accent-foreground">
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                      ) : null}
+                      <span className="block p-4">
+                        <span className="block text-sm font-semibold">{p.industryLabel}</span>
+                        <span className="mt-1 block text-xs leading-5 text-muted-foreground">
                           {p.description}
                         </span>
                       </span>
@@ -486,32 +617,32 @@ function OnboardingPage() {
                 <>
                   <Input
                     autoFocus
+                    className="h-14 text-lg"
                     value={draft.name}
                     maxLength={120}
                     placeholder="e.g. Sparkle & Shine Cleaning Co."
                     onChange={(e) => set("name", e.target.value)}
                   />
-                  <div className="rounded-lg border border-dashed border-border p-4">
-                    <p className="text-sm font-medium">Just having a look?</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Fill everything with an example business so you can see a finished site.
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
-                    >
-                      Use example details
-                    </Button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche, plan: d.plan }))}
+                    className="flex w-full items-center gap-3 rounded-xl border border-dashed border-border p-4 text-left transition-colors hover:border-accent/60 hover:bg-accent/5"
+                  >
+                    <Sparkles className="h-4 w-4 shrink-0 text-accent" />
+                    <span>
+                      <span className="block text-sm font-medium">Just having a look?</span>
+                      <span className="block text-xs text-muted-foreground">
+                        Fill everything with an example business and see a finished site.
+                      </span>
+                    </span>
+                  </button>
                 </>
               ) : null}
 
               {step.key === "primary_service" ? (
                 <Input
                   autoFocus
+                  className="h-14 text-lg"
                   value={draft.primary_service}
                   maxLength={120}
                   placeholder={presetFor(draft.niche).copy.service}
@@ -522,8 +653,9 @@ function OnboardingPage() {
               {step.key === "description" ? (
                 <Textarea
                   autoFocus
-                  rows={4}
+                  rows={5}
                   maxLength={600}
+                  className="text-base"
                   value={draft.description}
                   placeholder="Family-run, same team every visit, satisfaction guaranteed…"
                   onChange={(e) => set("description", e.target.value)}
@@ -533,6 +665,7 @@ function OnboardingPage() {
               {step.key === "phone" ? (
                 <Input
                   autoFocus
+                  className="h-14 text-lg"
                   value={draft.phone}
                   maxLength={30}
                   placeholder="(704) 555-0142"
@@ -544,6 +677,7 @@ function OnboardingPage() {
                 <Input
                   autoFocus
                   type="email"
+                  className="h-14 text-lg"
                   value={draft.email}
                   maxLength={255}
                   placeholder="you@yourbusiness.com"
@@ -557,7 +691,7 @@ function OnboardingPage() {
                     <Label>City or town</Label>
                     <Input
                       autoFocus
-                      className="mt-1.5"
+                      className="mt-1.5 h-12"
                       value={draft.city}
                       maxLength={80}
                       onChange={(e) => set("city", e.target.value)}
@@ -566,7 +700,7 @@ function OnboardingPage() {
                   <div>
                     <Label>State / region</Label>
                     <Input
-                      className="mt-1.5"
+                      className="mt-1.5 h-12"
                       value={draft.state}
                       maxLength={40}
                       onChange={(e) => set("state", e.target.value)}
@@ -579,6 +713,7 @@ function OnboardingPage() {
                 <Textarea
                   autoFocus
                   rows={6}
+                  className="text-base"
                   value={draft.services}
                   placeholder={"Regular house cleaning\nDeep cleaning\nMove-out cleaning"}
                   onChange={(e) => set("services", e.target.value)}
@@ -588,6 +723,7 @@ function OnboardingPage() {
               {step.key === "areas" ? (
                 <Input
                   autoFocus
+                  className="h-14 text-lg"
                   value={draft.areas}
                   placeholder="Matthews, Huntersville, Concord"
                   onChange={(e) => set("areas", e.target.value)}
@@ -595,18 +731,38 @@ function OnboardingPage() {
               ) : null}
 
               {step.key === "primary_color" ? (
-                <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-                  <input
-                    type="color"
-                    aria-label="Main colour"
-                    value={draft.primary_color}
-                    onChange={(e) => set("primary_color", e.target.value)}
-                    className="h-10 w-14 shrink-0 cursor-pointer rounded border border-input bg-background"
-                  />
-                  <Input
-                    value={draft.primary_color}
-                    onChange={(e) => set("primary_color", e.target.value)}
-                  />
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-3">
+                    {SWATCHES.map((colour) => (
+                      <button
+                        key={colour}
+                        type="button"
+                        aria-label={`Use ${colour}`}
+                        onClick={() => set("primary_color", colour)}
+                        className={cn(
+                          "h-11 w-11 rounded-full border-2 transition-transform hover:scale-105",
+                          draft.primary_color.toLowerCase() === colour
+                            ? "border-foreground"
+                            : "border-transparent",
+                        )}
+                        style={{ backgroundColor: colour }}
+                      />
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+                    <input
+                      type="color"
+                      aria-label="Main colour"
+                      value={draft.primary_color}
+                      onChange={(e) => set("primary_color", e.target.value)}
+                      className="h-11 w-14 shrink-0 cursor-pointer rounded border border-input bg-background"
+                    />
+                    <Input
+                      className="h-11"
+                      value={draft.primary_color}
+                      onChange={(e) => set("primary_color", e.target.value)}
+                    />
+                  </div>
                 </div>
               ) : null}
 
@@ -630,10 +786,14 @@ function OnboardingPage() {
                 />
               ) : null}
 
+              {step.key === "plan" ? (
+                <PlanPicker value={draft.plan} onChange={(plan) => set("plan", plan)} />
+              ) : null}
+
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
 
-            <div className="mt-7 flex items-center justify-between">
+            <div className="mt-10 flex items-center justify-between">
               <Button
                 variant="ghost"
                 onClick={() => setIndex((i) => Math.max(0, i - 1))}
@@ -642,55 +802,115 @@ function OnboardingPage() {
                 Back
               </Button>
               <Button
+                size="lg"
                 onClick={() => void next()}
                 disabled={saving}
                 className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
               >
-                {saving ? "Saving…" : isLast ? "See my website" : "Continue"}
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                  </>
+                ) : isLast ? (
+                  "See my website"
+                ) : (
+                  "Continue"
+                )}
               </Button>
             </div>
           </div>
         </div>
 
+        {/* Preview column */}
         <div className="hidden lg:block">
-          <p className="mb-2 text-sm font-medium">Live preview</p>
-          <div className="overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-            <PreviewFrame width={1280} height={860}>
-              <LocalBusinessTemplate
-                business={{
-                  name: draft.name || "Your business name",
-                  tagline: null,
-                  phone: draft.phone || null,
-                  email: draft.email || null,
-                  city: draft.city || null,
-                  state: draft.state || null,
-                  address_line1: null,
-                  postal_code: null,
-                  logo_url: draft.logo_url,
-                }}
-                content={preview}
-                services={draft.services
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .map((name, i) => ({
-                    id: String(i),
-                    name,
-                    description: null,
-                    price_note: null,
-                  }))}
-                areas={[draft.city, ...draft.areas.split(",")]
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-                  .map((city, i) => ({ id: String(i), city, state: draft.state || null }))}
-                hours={[]}
-                previewOnly
-              />
-            </PreviewFrame>
+          <div className="sticky top-24">
+            <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Live preview
+            </p>
+            {previewNode}
           </div>
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+/** Plan selection only — payment happens later, when the site is published. */
+function PlanPicker({ value, onChange }: { value: string; onChange: (plan: string) => void }) {
+  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex rounded-lg border border-border bg-card p-1">
+        {(["monthly", "yearly"] as const).map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => setPeriod(p)}
+            className={cn(
+              "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+              period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+            )}
+          >
+            {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        {PLAN_COPY.map((plan) => {
+          const selected = value === plan.id;
+          return (
+            <button
+              key={plan.id}
+              type="button"
+              onClick={() => onChange(plan.id)}
+              className={cn(
+                "flex w-full items-start gap-4 rounded-xl border p-5 text-left transition-all",
+                selected
+                  ? "border-accent bg-accent/5 ring-2 ring-accent/25"
+                  : "border-border hover:border-accent/50",
+              )}
+            >
+              <span
+                className={cn(
+                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                  selected ? "border-accent bg-accent text-accent-foreground" : "border-border",
+                )}
+              >
+                {selected ? <Check className="h-3 w-3" /> : null}
+              </span>
+              <span className="flex-1">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="text-base font-semibold">{plan.name}</span>
+                  {plan.recommended ? (
+                    <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-foreground">
+                      Most popular
+                    </span>
+                  ) : null}
+                </span>
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
+                  {period === "yearly" ? " per year" : " per month"}
+                </span>
+                <span className="mt-3 block space-y-1.5">
+                  {plan.features.slice(0, 3).map((f) => (
+                    <span key={f} className="flex gap-2 text-sm text-muted-foreground">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                      {f}
+                    </span>
+                  ))}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        No card needed yet. You'll pay when you publish, and you can change plan any time.
+      </p>
+    </div>
   );
 }
 

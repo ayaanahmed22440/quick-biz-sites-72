@@ -13,9 +13,16 @@ type Props = {
   /** Where the customer should land after paying. */
   returnPath: string;
   featureCount?: number;
+  /** Which business is being paid for. Without it the earliest one is used. */
+  businessId?: string | null;
 };
 
-export function PlanChooser({ currentPlanId, returnPath, featureCount = 5 }: Props) {
+export function PlanChooser({
+  currentPlanId,
+  returnPath,
+  featureCount = 5,
+  businessId,
+}: Props) {
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
   const [pending, setPending] = useState<string | null>(null);
   const checkout = useServerFn(startCheckout);
@@ -23,7 +30,9 @@ export function PlanChooser({ currentPlanId, returnPath, featureCount = 5 }: Pro
   async function choose(planId: string) {
     setPending(planId);
     try {
-      const result = await checkout({ data: { planId, returnPath } });
+      const result = await checkout({
+        data: { planId, returnPath, ...(businessId ? { businessId } : {}) },
+      });
       window.location.href = result.url;
     } catch (error) {
       setPending(null);
