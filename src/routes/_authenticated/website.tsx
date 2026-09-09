@@ -61,6 +61,7 @@ type Loaded = {
     primary_color: string;
     primary_service: string | null;
     slug: string;
+    niche: string;
   };
 };
 
