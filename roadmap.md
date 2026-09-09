@@ -29,7 +29,7 @@
 - App-wide dark mode (light / dark / system)
 
 ## Open (blocked or awaiting input)
-- Whop webhook must be pointed at https://webwarheads.com/api/public/whop-webhook
+- Whop webhook: https://webwarheads.com/api/public/whop-webhook (membership.activated, membership.deactivated, membership.cancel_at_period_end_changed, payment.succeeded, payment.failed)
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
