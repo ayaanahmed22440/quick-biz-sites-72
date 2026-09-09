@@ -24,6 +24,8 @@ import {
   type SiteContent,
 } from "@/lib/site-content";
 import { presetFor } from "@/lib/template-registry";
+import { ImageUpload } from "@/components/app/ImageUpload";
+import { ReviewsEditor, useBusinessReviews } from "@/components/website/ReviewsEditor";
 
 const PREVIEW_WIDTHS = { desktop: "100%", tablet: "820px", mobile: "390px" } as const;
 type DeviceKey = keyof typeof PREVIEW_WIDTHS;
@@ -267,6 +269,15 @@ function WebsitePage() {
       <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <div className="space-y-6">
           <Section title="Your brand">
+            <ImageUpload
+              businessId={businessId!}
+              label="Your logo"
+              hint="A PNG with a see-through background looks best. It shows at the top of every page."
+              aspect="square"
+              kind="logo"
+              value={draft.brand.logoUrl}
+              onChange={(url) => update((c) => ({ ...c, brand: { ...c.brand, logoUrl: url } }))}
+            />
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
               <input
                 type="color"
