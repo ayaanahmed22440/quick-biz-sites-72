@@ -42,6 +42,14 @@ export type PublishedSite = {
     closes_at: string | null;
     is_closed: boolean;
   }[];
+  reviews?: {
+    id: string;
+    author_name: string;
+    location: string | null;
+    rating: number | null;
+    quote: string;
+    source: string | null;
+  }[];
   seo: {
     meta_title: string | null;
     meta_description: string | null;
