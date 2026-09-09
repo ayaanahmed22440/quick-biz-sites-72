@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -196,7 +196,7 @@ function WebsitePage() {
     },
     onSuccess: (_data, variables) => {
       setDirty(false);
-      toast.success(variables.publish ? "Your website is live" : "Draft saved");
+      if (variables.publish) toast.success("Your website is live");
       void queryClient.invalidateQueries({ queryKey: ["website-editor", businessId] });
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Could not save"),
