@@ -137,6 +137,7 @@ function WebsitePage() {
         primaryService: business.primary_service,
         primaryColor: business.primary_color,
         logoUrl: business.logo_url,
+        niche: business.niche,
       });
 
       return {
