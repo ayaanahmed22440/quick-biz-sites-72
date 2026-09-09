@@ -20,6 +20,8 @@ import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTempl
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
 import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
+import { startCheckout } from "@/lib/billing.functions";
+
 import { cn } from "@/lib/utils";
 
 const DRAFT_KEY = "ww-onboarding-draft";
