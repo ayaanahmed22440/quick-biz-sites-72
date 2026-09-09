@@ -121,6 +121,19 @@ function AdminPage() {
     onError: () => toast.error("That change didn't save"),
   });
 
+  const deleteSite = useMutation({
+    mutationFn: async (websiteId: string) => {
+      await supabase.from("website_customizations").delete().eq("website_id", websiteId);
+      const { error } = await supabase.from("websites").delete().eq("id", websiteId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      void refresh();
+      toast.success("Website deleted");
+    },
+    onError: () => toast.error("Could not delete that website"),
+  });
+
   const setTicketStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: "open" | "resolved" }) => {
       const { error } = await supabase.from("support_tickets").update({ status }).eq("id", id);
@@ -424,6 +437,11 @@ function AdminPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap justify-end gap-1.5">
+                          <Button size="sm" variant="secondary" asChild>
+                            <Link to="/admin-site/$businessId" params={{ businessId: b.id }}>
+                              Edit site
+                            </Link>
+                          </Button>
                           {site ? (
                             <Button
                               size="sm"
@@ -438,6 +456,25 @@ function AdminPage() {
                               }
                             >
                               {site.status === "published" ? "Take offline" : "Put live"}
+                            </Button>
+                          ) : null}
+                          {site ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive"
+                              disabled={deleteSite.isPending}
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `Delete the website for ${b.name}? This cannot be undone.`,
+                                  )
+                                ) {
+                                  deleteSite.mutate(site.id);
+                                }
+                              }}
+                            >
+                              Delete site
                             </Button>
                           ) : null}
                           <Button

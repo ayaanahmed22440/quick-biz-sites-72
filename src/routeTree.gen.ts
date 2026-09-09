@@ -21,6 +21,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminChatRouteImport } from './routes/_authenticated/admin-chat'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin-team'
 import { Route as AuthenticatedAdminTemplatesRouteImport } from './routes/_authenticated/admin-templates'
@@ -39,6 +40,7 @@ import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_authenticated/admin-site.$businessId'
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
@@ -103,6 +105,11 @@ const TermsRoute = TermsRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminChatRoute = AuthenticatedAdminChatRouteImport.update({
+  id: '/admin-chat',
+  path: '/admin-chat',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminEmailsRoute =
@@ -198,6 +205,12 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSiteBusinessIdRoute =
+  AuthenticatedAdminSiteBusinessIdRouteImport.update({
+    id: '/admin-site/$businessId',
+    path: '/admin-site/$businessId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedBillingReturnRoute =
   AuthenticatedBillingReturnRouteImport.update({
     id: '/billing_/return',
@@ -242,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
   '/admin-templates': typeof AuthenticatedAdminTemplatesRoute
@@ -260,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -279,6 +294,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
   '/admin-templates': typeof AuthenticatedAdminTemplatesRoute
@@ -297,6 +313,7 @@ export interface FileRoutesByTo {
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -318,6 +335,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-chat': typeof AuthenticatedAdminChatRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-team': typeof AuthenticatedAdminTeamRoute
   '/_authenticated/admin-templates': typeof AuthenticatedAdminTemplatesRoute
@@ -336,6 +354,7 @@ export interface FileRoutesById {
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/s/$slug': typeof SSlugRoute
+  '/_authenticated/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -357,6 +376,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/terms'
     | '/admin'
+    | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
     | '/admin-templates'
@@ -375,6 +395,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
@@ -394,6 +415,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/terms'
     | '/admin'
+    | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
     | '/admin-templates'
@@ -412,6 +434,7 @@ export interface FileRouteTypes {
     | '/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
@@ -432,6 +455,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/terms'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-chat'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-team'
     | '/_authenticated/admin-templates'
@@ -450,6 +474,7 @@ export interface FileRouteTypes {
     | '/_authenticated/website'
     | '/auth/callback'
     | '/s/$slug'
+    | '/_authenticated/admin-site/$businessId'
     | '/_authenticated/billing_/return'
     | '/api/public/sitemap.xml'
     | '/api/public/whop-webhook'
@@ -562,6 +587,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-chat': {
+      id: '/_authenticated/admin-chat'
+      path: '/admin-chat'
+      fullPath: '/admin-chat'
+      preLoaderRoute: typeof AuthenticatedAdminChatRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-emails': {
@@ -690,6 +722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin-site/$businessId': {
+      id: '/_authenticated/admin-site/$businessId'
+      path: '/admin-site/$businessId'
+      fullPath: '/admin-site/$businessId'
+      preLoaderRoute: typeof AuthenticatedAdminSiteBusinessIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/billing_/return': {
       id: '/_authenticated/billing_/return'
       path: '/billing/return'
@@ -737,6 +776,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminChatRoute: typeof AuthenticatedAdminChatRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
   AuthenticatedAdminTemplatesRoute: typeof AuthenticatedAdminTemplatesRoute
@@ -753,11 +793,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWebsiteRoute: typeof AuthenticatedWebsiteRoute
+  AuthenticatedAdminSiteBusinessIdRoute: typeof AuthenticatedAdminSiteBusinessIdRoute
   AuthenticatedBillingReturnRoute: typeof AuthenticatedBillingReturnRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminChatRoute: AuthenticatedAdminChatRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
   AuthenticatedAdminTemplatesRoute: AuthenticatedAdminTemplatesRoute,
@@ -774,6 +816,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWebsiteRoute: AuthenticatedWebsiteRoute,
+  AuthenticatedAdminSiteBusinessIdRoute: AuthenticatedAdminSiteBusinessIdRoute,
   AuthenticatedBillingReturnRoute: AuthenticatedBillingReturnRoute,
 }
 

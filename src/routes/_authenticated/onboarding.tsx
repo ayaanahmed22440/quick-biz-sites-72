@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/app/ImageUpload";
+import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
@@ -19,55 +19,6 @@ import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-
 import { cn } from "@/lib/utils";
 
 const DRAFT_KEY = "ww-onboarding-draft";
-
-const DEMO: Omit<Draft, "niche"> = {
-  name: "Sparkle & Shine Cleaning Co.",
-  primary_service: "House cleaning",
-  description:
-    "A family-run cleaning team looking after homes and small offices, with the same cleaner every visit and a satisfaction guarantee.",
-  phone: "(704) 555-0142",
-  email: "hello@sparkleandshine.example",
-  city: "Charlotte",
-  state: "NC",
-  services: "Regular house cleaning\nDeep cleaning\nMove-in / move-out cleaning\nOffice cleaning",
-  areas: "Matthews, Huntersville, Concord, Pineville",
-  primary_color: "#1f6feb",
-  logo_url: null,
-  google_url: "",
-};
-
-export const Route = createFileRoute("/_authenticated/onboarding")({
-  head: () => ({
-    meta: [
-      { title: "Set up your business — WebWarheads" },
-      { name: "description", content: "Tell WebWarheads about your business." },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
-  component: OnboardingPage,
-});
-
-const detailsSchema = z.object({
-  name: z.string().trim().min(2, "Enter your business name").max(120),
-  primary_service: z.string().trim().min(2, "What is your main service?").max(120),
-  description: z.string().trim().max(600).optional(),
-});
-const contactSchema = z.object({
-  phone: z.string().trim().min(6, "Enter a contact phone number").max(30),
-  email: z.string().trim().email("Enter a valid email").max(255),
-  city: z.string().trim().min(2, "Enter your city").max(80),
-  state: z.string().trim().max(40).optional(),
-});
-
-function slugify(value: string) {
-  return (
-    value
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
-      .slice(0, 40) || "business"
-  );
-}
 
 type Draft = {
   niche: string;
@@ -101,20 +52,155 @@ const EMPTY: Draft = {
   google_url: "",
 };
 
-const STEPS = ["Your trade", "Your business", "Contact & areas", "Look & photos", "Reviews"];
+const DEMO: Omit<Draft, "niche"> = {
+  name: "Sparkle & Shine Cleaning Co.",
+  primary_service: "House cleaning",
+  description:
+    "A family-run cleaning team looking after homes and small offices, with the same cleaner every visit and a satisfaction guarantee.",
+  phone: "(704) 555-0142",
+  email: "hello@sparkleandshine.example",
+  city: "Charlotte",
+  state: "NC",
+  services: "Regular house cleaning\nDeep cleaning\nMove-in / move-out cleaning\nOffice cleaning",
+  areas: "Matthews, Huntersville, Concord, Pineville",
+  primary_color: "#1f6feb",
+  logo_url: null,
+  google_url: "",
+};
+
+export const Route = createFileRoute("/_authenticated/onboarding")({
+  head: () => ({
+    meta: [
+      { title: "Set up your business — WebWarheads" },
+      { name: "description", content: "Tell WebWarheads about your business." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
+  component: OnboardingPage,
+});
+
+function slugify(value: string) {
+  return (
+    value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 40) || "business"
+  );
+}
+
+/** One question per screen. `key` drives validation and the field shown. */
+type StepKey =
+  | "niche"
+  | "name"
+  | "primary_service"
+  | "description"
+  | "phone"
+  | "email"
+  | "city"
+  | "services"
+  | "areas"
+  | "primary_color"
+  | "logo"
+  | "reviews";
+
+type Step = {
+  key: StepKey;
+  question: string;
+  helper: string;
+  /** Validated before moving on. Undefined means the step is optional. */
+  validate?: (draft: Draft) => string | null;
+  /** The business record is created once this step is answered. */
+  createsBusiness?: boolean;
+};
+
+const STEPS: Step[] = [
+  {
+    key: "niche",
+    question: "What kind of work do you do?",
+    helper: "Each trade has its own approved design, with professional photos already in place.",
+  },
+  {
+    key: "name",
+    question: "What's your business called?",
+    helper: "This is the name customers will see at the top of your website.",
+    validate: (d) =>
+      z.string().trim().min(2).max(120).safeParse(d.name).success
+        ? null
+        : "Enter your business name",
+  },
+  {
+    key: "primary_service",
+    question: "What's the main job you get hired for?",
+    helper: "Just the one you do most. You can add the rest in a moment.",
+    validate: (d) =>
+      z.string().trim().min(2).max(120).safeParse(d.primary_service).success
+        ? null
+        : "Tell us your main service",
+  },
+  {
+    key: "description",
+    question: "In a sentence or two, why should someone pick you?",
+    helper: "Skip it if you're not sure — we'll write something sensible for you.",
+  },
+  {
+    key: "phone",
+    question: "What number should customers call?",
+    helper: "It shows on every page and on the call button.",
+    validate: (d) =>
+      d.phone.trim().length >= 6 ? null : "Enter a phone number customers can call",
+  },
+  {
+    key: "email",
+    question: "Where should enquiries land?",
+    helper: "We send every website enquiry straight to this inbox.",
+    validate: (d) => (z.string().email().safeParse(d.email.trim()).success ? null : "Enter a valid email"),
+  },
+  {
+    key: "city",
+    question: "Which town or city are you based in?",
+    helper: "This is what tells Google where you work.",
+    validate: (d) => (d.city.trim().length >= 2 ? null : "Enter your main city"),
+    createsBusiness: true,
+  },
+  {
+    key: "services",
+    question: "What jobs do you take on?",
+    helper: "One per line. Four or five is plenty to start with.",
+  },
+  {
+    key: "areas",
+    question: "Which other towns do you cover?",
+    helper: "Separate them with commas. Leave it empty if you only work in one place.",
+  },
+  {
+    key: "primary_color",
+    question: "Pick your main colour",
+    helper: "Buttons, links and the contact band use it. Match your van or your logo.",
+  },
+  {
+    key: "logo",
+    question: "Got a logo?",
+    helper: "A see-through PNG looks best. No logo? We'll use your business name instead.",
+  },
+  {
+    key: "reviews",
+    question: "Add a few happy customers",
+    helper: "Reviews are the single biggest reason people call. Add them now or later.",
+  },
+];
 
 function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: workspace, isLoading } = useWorkspace();
-  const [step, setStep] = useState(0);
+  const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<Draft>(EMPTY);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
 
-  // Bring back anything typed before, so a closed tab never loses the work.
   useEffect(() => {
     try {
       const stored = localStorage.getItem(DRAFT_KEY);
@@ -130,7 +216,7 @@ function OnboardingPage() {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     } catch {
-      /* storage full or blocked — the wizard still works */
+      /* storage blocked — the wizard still works */
     }
   }, [draft, restored]);
 
@@ -148,23 +234,14 @@ function OnboardingPage() {
     );
   }
 
+  const step = STEPS[index]!;
+  const progress = Math.round(((index + 1) / STEPS.length) * 100);
+
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
+    setError(null);
   }
 
-  function validate(schema: z.ZodTypeAny) {
-    const parsed = schema.safeParse(draft);
-    if (parsed.success) {
-      setErrors({});
-      return true;
-    }
-    const next: Record<string, string> = {};
-    for (const issue of parsed.error.issues) next[String(issue.path[0])] = issue.message;
-    setErrors(next);
-    return false;
-  }
-
-  /** Creates the business the first time it's needed, so photos have somewhere to live. */
   async function ensureBusiness(): Promise<string | null> {
     if (businessId) return businessId;
     setSaving(true);
@@ -177,7 +254,7 @@ function OnboardingPage() {
     }
 
     const slug = `${slugify(draft.name)}-${Math.random().toString(36).slice(2, 6)}`;
-    const { data: business, error } = await supabase
+    const { data: business, error: insertError } = await supabase
       .from("businesses")
       .insert({
         owner_id: userId,
@@ -196,7 +273,7 @@ function OnboardingPage() {
       .select("id")
       .single();
 
-    if (error || !business) {
+    if (insertError || !business) {
       setSaving(false);
       toast.error("We couldn't save that. Please try again.");
       return null;
@@ -206,36 +283,12 @@ function OnboardingPage() {
       .from("business_members")
       .insert({ business_id: business.id, user_id: userId, role: "owner" });
 
-    const services = draft.services
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 20);
-    if (services.length) {
-      await supabase
-        .from("services")
-        .insert(services.map((name, i) => ({ business_id: business.id, name, sort_order: i })));
-    }
-
-    const areas = draft.areas
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 25);
-    await supabase.from("service_areas").insert([
-      {
-        business_id: business.id,
-        city: draft.city.trim(),
-        state: draft.state.trim() || null,
-        is_primary: true,
-      },
-      ...areas.map((city) => ({
-        business_id: business.id,
-        city,
-        state: draft.state.trim() || null,
-        is_primary: false,
-      })),
-    ]);
+    await supabase.from("service_areas").insert({
+      business_id: business.id,
+      city: draft.city.trim(),
+      state: draft.state.trim() || null,
+      is_primary: true,
+    });
 
     setBusinessId(business.id);
     setSaving(false);
@@ -243,14 +296,57 @@ function OnboardingPage() {
     return business.id;
   }
 
+  /** Saves the answers that belong to a step once the business exists. */
+  async function persistStep(key: StepKey, id: string) {
+    if (key === "services") {
+      const services = draft.services
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 20);
+      await supabase.from("services").delete().eq("business_id", id);
+      if (services.length) {
+        await supabase
+          .from("services")
+          .insert(services.map((name, i) => ({ business_id: id, name, sort_order: i })));
+      }
+    }
+    if (key === "areas") {
+      const areas = draft.areas
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 25);
+      await supabase.from("service_areas").delete().eq("business_id", id).eq("is_primary", false);
+      if (areas.length) {
+        await supabase.from("service_areas").insert(
+          areas.map((city) => ({
+            business_id: id,
+            city,
+            state: draft.state.trim() || null,
+            is_primary: false,
+          })),
+        );
+      }
+    }
+  }
+
   async function next() {
-    if (step === 1 && !validate(detailsSchema)) return;
-    if (step === 2) {
-      if (!validate(contactSchema)) return;
+    const message = step.validate?.(draft) ?? null;
+    if (message) {
+      setError(message);
+      return;
+    }
+    if (step.createsBusiness) {
       const id = await ensureBusiness();
       if (!id) return;
     }
-    setStep((s) => Math.min(STEPS.length - 1, s + 1));
+    if (businessId) await persistStep(step.key, businessId);
+    if (index === STEPS.length - 1) {
+      await finish();
+      return;
+    }
+    setIndex((i) => Math.min(STEPS.length - 1, i + 1));
   }
 
   async function finish() {
@@ -314,172 +410,192 @@ function OnboardingPage() {
   }
 
   const preview = previewContent(draft);
+  const isLast = index === STEPS.length - 1;
 
   return (
     <>
       <PageHeader
-        title="Set up your website"
-        description="Five short steps. Everything you type shows up on the right straight away — and it's all free until you publish."
+        title="Let's build your website"
+        description="One question at a time. Everything you answer appears on the right straight away — and it stays free until you publish."
       />
 
-      <ol className="mb-6 flex flex-wrap gap-2 text-xs">
-        {STEPS.map((label, index) => (
-          <li
-            key={label}
-            className={cn(
-              "flex items-center gap-1.5 rounded-full border px-3 py-1.5",
-              index === step
-                ? "border-primary bg-primary/10 font-medium text-foreground"
-                : index < step
-                  ? "border-border text-muted-foreground"
-                  : "border-border/60 text-muted-foreground/70",
-            )}
-          >
-            {index < step ? <Check className="h-3 w-3" /> : <span>{index + 1}.</span>}
-            {label}
-          </li>
-        ))}
-      </ol>
-
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">
-        <div className="rounded-xl border border-border bg-card p-6">
-          {step === 0 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Pick your trade. Each one has its own approved design with professional photos
-                already in place — you can swap any of them later.
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {TEMPLATE_PRESETS.map((p) => (
-                  <button
-                    key={p.templateId}
-                    type="button"
-                    onClick={() => set("niche", p.niche)}
-                    className={cn(
-                      "overflow-hidden rounded-lg border text-left transition",
-                      draft.niche === p.niche
-                        ? "border-primary ring-2 ring-primary/30"
-                        : "border-border hover:border-primary/50",
-                    )}
-                  >
-                    <img
-                      src={p.images.hero}
-                      alt={`${p.industryLabel} website design`}
-                      className="h-24 w-full object-cover"
-                      loading="lazy"
-                    />
-                    <span className="block p-3">
-                      <span className="block text-sm font-medium">{p.industryLabel}</span>
-                      <span className="mt-0.5 block text-xs text-muted-foreground">
-                        {p.description}
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
+        <div>
+          <div className="mb-4">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>
+                Question {index + 1} of {STEPS.length}
+              </span>
+              <span>{progress}% done</span>
             </div>
-          ) : null}
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-accent transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
 
-          {step === 1 ? (
-            <div className="space-y-5">
-              <div className="rounded-lg border border-dashed border-border p-4">
-                <p className="text-sm font-medium">Just having a look?</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Fill everything with an example business so you can see a finished site. Change
-                  anything before you save.
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-3"
-                  onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
-                >
-                  Use example details
-                </Button>
-              </div>
-              <FieldRow label="Business name" error={errors["name"]}>
+          <div
+            key={step.key}
+            className="animate-in fade-in slide-in-from-bottom-2 rounded-xl border border-border bg-card p-6 duration-300"
+            onKeyDown={(e) => {
+              const target = e.target as HTMLElement;
+              if (e.key === "Enter" && target.tagName !== "TEXTAREA" && !saving) {
+                e.preventDefault();
+                void next();
+              }
+            }}
+          >
+            <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">{step.question}</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">{step.helper}</p>
+
+            <div className="mt-5 space-y-4">
+              {step.key === "niche" ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {TEMPLATE_PRESETS.map((p) => (
+                    <button
+                      key={p.templateId}
+                      type="button"
+                      onClick={() => set("niche", p.niche)}
+                      className={cn(
+                        "overflow-hidden rounded-lg border text-left transition",
+                        draft.niche === p.niche
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-border hover:border-primary/50",
+                      )}
+                    >
+                      <img
+                        src={p.images.hero}
+                        alt={`${p.industryLabel} website design`}
+                        className="h-24 w-full object-cover"
+                        loading="lazy"
+                      />
+                      <span className="block p-3">
+                        <span className="block text-sm font-medium">{p.industryLabel}</span>
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                          {p.description}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {step.key === "name" ? (
+                <>
+                  <Input
+                    autoFocus
+                    value={draft.name}
+                    maxLength={120}
+                    placeholder="e.g. Sparkle & Shine Cleaning Co."
+                    onChange={(e) => set("name", e.target.value)}
+                  />
+                  <div className="rounded-lg border border-dashed border-border p-4">
+                    <p className="text-sm font-medium">Just having a look?</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Fill everything with an example business so you can see a finished site.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
+                    >
+                      Use example details
+                    </Button>
+                  </div>
+                </>
+              ) : null}
+
+              {step.key === "primary_service" ? (
                 <Input
-                  value={draft.name}
-                  maxLength={120}
-                  onChange={(e) => set("name", e.target.value)}
-                />
-              </FieldRow>
-              <FieldRow label="Main service" error={errors["primary_service"]}>
-                <Input
-                  placeholder={presetFor(draft.niche).copy.service}
+                  autoFocus
                   value={draft.primary_service}
                   maxLength={120}
+                  placeholder={presetFor(draft.niche).copy.service}
                   onChange={(e) => set("primary_service", e.target.value)}
                 />
-              </FieldRow>
-              <FieldRow label="Describe your business in a sentence or two">
+              ) : null}
+
+              {step.key === "description" ? (
                 <Textarea
-                  rows={3}
+                  autoFocus
+                  rows={4}
                   maxLength={600}
                   value={draft.description}
+                  placeholder="Family-run, same team every visit, satisfaction guaranteed…"
                   onChange={(e) => set("description", e.target.value)}
                 />
-              </FieldRow>
-            </div>
-          ) : null}
+              ) : null}
 
-          {step === 2 ? (
-            <div className="space-y-5">
-              <div className="grid gap-5 sm:grid-cols-2">
-                <FieldRow label="Phone" error={errors["phone"]}>
-                  <Input
-                    value={draft.phone}
-                    maxLength={30}
-                    onChange={(e) => set("phone", e.target.value)}
-                  />
-                </FieldRow>
-                <FieldRow label="Business email" error={errors["email"]}>
-                  <Input
-                    type="email"
-                    value={draft.email}
-                    maxLength={255}
-                    onChange={(e) => set("email", e.target.value)}
-                  />
-                </FieldRow>
-                <FieldRow label="Main city" error={errors["city"]}>
-                  <Input
-                    value={draft.city}
-                    maxLength={80}
-                    onChange={(e) => set("city", e.target.value)}
-                  />
-                </FieldRow>
-                <FieldRow label="State / region">
-                  <Input
-                    value={draft.state}
-                    maxLength={40}
-                    onChange={(e) => set("state", e.target.value)}
-                  />
-                </FieldRow>
-              </div>
-              <FieldRow label="Your services — one per line">
+              {step.key === "phone" ? (
+                <Input
+                  autoFocus
+                  value={draft.phone}
+                  maxLength={30}
+                  placeholder="(704) 555-0142"
+                  onChange={(e) => set("phone", e.target.value)}
+                />
+              ) : null}
+
+              {step.key === "email" ? (
+                <Input
+                  autoFocus
+                  type="email"
+                  value={draft.email}
+                  maxLength={255}
+                  placeholder="you@yourbusiness.com"
+                  onChange={(e) => set("email", e.target.value)}
+                />
+              ) : null}
+
+              {step.key === "city" ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label>City or town</Label>
+                    <Input
+                      autoFocus
+                      className="mt-1.5"
+                      value={draft.city}
+                      maxLength={80}
+                      onChange={(e) => set("city", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>State / region</Label>
+                    <Input
+                      className="mt-1.5"
+                      value={draft.state}
+                      maxLength={40}
+                      onChange={(e) => set("state", e.target.value)}
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {step.key === "services" ? (
                 <Textarea
-                  rows={5}
-                  placeholder={"Regular house cleaning\nDeep cleaning\nMove-out cleaning"}
+                  autoFocus
+                  rows={6}
                   value={draft.services}
+                  placeholder={"Regular house cleaning\nDeep cleaning\nMove-out cleaning"}
                   onChange={(e) => set("services", e.target.value)}
                 />
-              </FieldRow>
-              <FieldRow label="Other towns you cover — separated by commas">
+              ) : null}
+
+              {step.key === "areas" ? (
                 <Input
-                  placeholder="Matthews, Huntersville, Concord"
+                  autoFocus
                   value={draft.areas}
+                  placeholder="Matthews, Huntersville, Concord"
                   onChange={(e) => set("areas", e.target.value)}
                 />
-              </FieldRow>
-            </div>
-          ) : null}
+              ) : null}
 
-          {step === 3 ? (
-            <div className="space-y-5">
-              <div>
-                <Label>Your main colour</Label>
-                <div className="mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+              {step.key === "primary_color" ? (
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
                   <input
                     type="color"
                     aria-label="Main colour"
@@ -492,64 +608,54 @@ function OnboardingPage() {
                     onChange={(e) => set("primary_color", e.target.value)}
                   />
                 </div>
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  Buttons, links and the contact band use this colour.
-                </p>
-              </div>
-              {businessId ? (
+              ) : null}
+
+              {step.key === "logo" && businessId ? (
                 <ImageUpload
                   businessId={businessId}
                   label="Your logo"
-                  hint="A PNG with a see-through background looks best. Skip it if you don't have one — we'll use your business name."
+                  hint="PNG with a see-through background works best."
                   aspect="square"
                   kind="logo"
                   value={draft.logo_url}
                   onChange={(url) => set("logo_url", url)}
                 />
               ) : null}
-              <p className="text-xs text-muted-foreground">
-                Your design already includes professional photos for your trade. You can upload your
-                own work photos on the next screen, once your site is open.
-              </p>
+
+              {step.key === "reviews" && businessId ? (
+                <ReviewsEditor
+                  businessId={businessId}
+                  googleUrl={draft.google_url}
+                  onGoogleUrlChange={(v) => set("google_url", v)}
+                />
+              ) : null}
+
+              {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
-          ) : null}
 
-          {step === 4 && businessId ? (
-            <ReviewsEditor
-              businessId={businessId}
-              googleUrl={draft.google_url}
-              onGoogleUrlChange={(v) => set("google_url", v)}
-            />
-          ) : null}
-
-          <div className="mt-7 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={step === 0 || saving}
-            >
-              Back
-            </Button>
-            {step < STEPS.length - 1 ? (
-              <Button onClick={() => void next()} disabled={saving}>
-                {saving ? "Saving…" : "Continue"}
-              </Button>
-            ) : (
+            <div className="mt-7 flex items-center justify-between">
               <Button
-                onClick={() => void finish()}
-                disabled={saving}
-                className="bg-accent text-accent-foreground hover:bg-accent/90"
+                variant="ghost"
+                onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                disabled={index === 0 || saving}
               >
-                {saving ? "Saving…" : "See my website"}
+                Back
               </Button>
-            )}
+              <Button
+                onClick={() => void next()}
+                disabled={saving}
+                className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+              >
+                {saving ? "Saving…" : isLast ? "See my website" : "Continue"}
+              </Button>
+            </div>
           </div>
         </div>
 
         <div className="hidden lg:block">
           <p className="mb-2 text-sm font-medium">Live preview</p>
           <div className="overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-            <div className="mx-auto max-h-[70vh] overflow-y-auto rounded-md bg-white shadow-sm">
+            <PreviewFrame width={1280} height={860}>
               <LocalBusinessTemplate
                 business={{
                   name: draft.name || "Your business name",
@@ -580,7 +686,7 @@ function OnboardingPage() {
                 hours={[]}
                 previewOnly
               />
-            </div>
+            </PreviewFrame>
           </div>
         </div>
       </div>
@@ -601,22 +707,4 @@ function previewContent(draft: Draft): SiteContent {
   content.reviews.googleUrl = draft.google_url;
   if (draft.description.trim()) content.about.body = draft.description.trim();
   return content;
-}
-
-function FieldRow({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string | undefined;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <Label>{label}</Label>
-      <div className="mt-1.5">{children}</div>
-      {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
-    </div>
-  );
 }

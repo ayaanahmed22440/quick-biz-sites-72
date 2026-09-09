@@ -12,6 +12,7 @@ import {
   LogOut,
   Mail,
   Menu,
+  MessageCircle,
   UserPlus,
   Search,
   Settings,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
+import { SupportChat } from "@/components/support/SupportChat";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { cn } from "@/lib/utils";
@@ -91,6 +93,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <Shield className="h-4 w-4" />
             Admin
+          </Link>
+          <Link
+            to="/admin-chat"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <MessageCircle className="h-4 w-4" />
+            Client chat
           </Link>
           <Link
             to="/admin-templates"
@@ -174,6 +185,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="mx-auto max-w-5xl space-y-8">{children}</div>
         </main>
       </div>
+
+      {/* Customers can reach the WebWarheads team from any page. */}
+      {!staffOnly && workspace?.business ? <SupportChat businessId={workspace.business.id} /> : null}
     </div>
   );
 }
