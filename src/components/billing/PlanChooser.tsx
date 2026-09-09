@@ -43,8 +43,9 @@ export function PlanChooser({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="inline-flex rounded-lg border border-border bg-card p-1">
+    <div className="@container space-y-4">
+      <div className="inline-flex max-w-full flex-wrap rounded-lg border border-border bg-card p-1">
+
         {(["monthly", "yearly"] as const).map((p) => (
           <button
             key={p}
@@ -60,7 +61,7 @@ export function PlanChooser({
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 @2xl:grid-cols-3">
         {PLAN_COPY.map((plan) => {
           const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
           const isCurrent = currentPlanId === planId;
