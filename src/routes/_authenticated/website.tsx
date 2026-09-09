@@ -582,7 +582,12 @@ function WebsitePage() {
             </div>
           </div>
           <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-muted/40 p-2 sm:p-3">
-            <PreviewFrame width={PREVIEW_WIDTHS[device]} height={900} className="min-w-0">
+            <PreviewFrame
+              width={PREVIEW_WIDTHS[device]}
+              height={PREVIEW_HEIGHTS[device]}
+              className="min-w-0"
+            >
+
               <LocalBusinessTemplate
                 business={site.data.business}
                 content={draft}
