@@ -31,7 +31,10 @@ import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { ReviewsEditor, useBusinessReviews } from "@/components/website/ReviewsEditor";
 
 const PREVIEW_WIDTHS = { desktop: 1280, tablet: 820, mobile: 390 } as const;
+/** Taller simulated screens for the wider devices, so the scaled frame fills the column. */
+const PREVIEW_HEIGHTS = { desktop: 2000, tablet: 1500, mobile: 780 } as const;
 type DeviceKey = keyof typeof PREVIEW_WIDTHS;
+
 
 export const Route = createFileRoute("/_authenticated/website")({
   head: () => ({
@@ -579,7 +582,12 @@ function WebsitePage() {
             </div>
           </div>
           <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-muted/40 p-2 sm:p-3">
-            <PreviewFrame width={PREVIEW_WIDTHS[device]} height={900} className="min-w-0">
+            <PreviewFrame
+              width={PREVIEW_WIDTHS[device]}
+              height={PREVIEW_HEIGHTS[device]}
+              className="min-w-0"
+            >
+
               <LocalBusinessTemplate
                 business={site.data.business}
                 content={draft}
