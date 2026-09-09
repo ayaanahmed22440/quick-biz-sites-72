@@ -21,6 +21,7 @@
 
 - Whop billing rebuilt: real server-side checkout, verified webhook, subscription sync, plan entitlements
 - Instant activation on payment — no admin approval anywhere in customer signup
+- LIVE TEST PASSED: real $37 checkout (coupon test123) → webhook verified → subscription flipped to basic/active automatically
 
 ## Next up
 - Step-by-step onboarding with live preview and autosave
@@ -29,7 +30,7 @@
 - App-wide dark mode (light / dark / system)
 
 ## Open (blocked or awaiting input)
-- Whop webhook: https://webwarheads.com/api/public/whop-webhook (membership.activated, membership.deactivated, membership.cancel_at_period_end_changed, payment.succeeded, payment.failed)
+- Whop webhook is LIVE and verified working: https://webwarheads.com/api/public/whop-webhook (membership.activated, membership.deactivated, membership.cancel_at_period_end_changed, payment.succeeded, payment.failed) — no action needed
 - Email from support@webwarheads.com: needs the sender domain set up (DNS)
 - Wildcard DNS for *.webwarheads.com subdomains
 - Media/logo upload: public file storage is blocked by workspace policy; logo is a web address for now
