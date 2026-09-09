@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getEmailPreviews } from "@/lib/email-previews.functions";
+import { getEmailLog } from "@/lib/email-logs.functions";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,6 +110,76 @@ function AdminEmailsPage() {
           </Card>
         </div>
       ) : null}
+
+      <EmailLogSection />
     </div>
+  );
+}
+
+function EmailLogSection() {
+  const fetchLog = useServerFn(getEmailLog);
+  const log = useQuery({ queryKey: ["email-log"], queryFn: () => fetchLog({}) });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Emails sent</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Every email the platform has sent recently, and what happened to it.
+        </p>
+      </CardHeader>
+      <CardContent>
+        {log.isLoading ? <LoadingBlock rows={3} /> : null}
+        {log.isError ? <ErrorBlock message="Could not load the email log." /> : null}
+        {log.data?.problem ? (
+          <p className="text-sm text-muted-foreground">{log.data.problem}</p>
+        ) : null}
+        {log.data && !log.data.problem && log.data.rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No emails have been sent yet. They appear here as soon as sending is switched on.
+          </p>
+        ) : null}
+        {log.data && log.data.rows.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                  <th className="py-2 pr-4 font-semibold">When</th>
+                  <th className="py-2 pr-4 font-semibold">To</th>
+                  <th className="py-2 pr-4 font-semibold">What happened</th>
+                  <th className="py-2 font-semibold">Detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {log.data.rows.map((row, i) => (
+                  <tr key={`${row.timestamp}-${i}`} className="border-b last:border-0">
+                    <td className="whitespace-nowrap py-2 pr-4 text-muted-foreground">
+                      {new Date(row.timestamp).toLocaleString()}
+                    </td>
+                    <td className="py-2 pr-4">{row.recipient}</td>
+                    <td className="py-2 pr-4">
+                      <Badge
+                        variant={
+                          row.event === "sent"
+                            ? "secondary"
+                            : row.event === "bounced" ||
+                                row.event === "complained" ||
+                                row.event === "rejected"
+                              ? "destructive"
+                              : "outline"
+                        }
+                      >
+                        {row.event}
+                      </Badge>
+                    </td>
+                    <td className="py-2 text-muted-foreground">{row.status ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }
