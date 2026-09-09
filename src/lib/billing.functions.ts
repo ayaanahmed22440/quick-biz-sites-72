@@ -24,12 +24,13 @@ export const startCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: business, error: businessError } = await supabase
-      .from("businesses")
-      .select("id, name")
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
+    // RLS keeps this scoped to businesses the caller belongs to, so an explicit
+    // id can be trusted once the row comes back.
+    let query = supabase.from("businesses").select("id, name");
+    query = data.businessId
+      ? query.eq("id", data.businessId)
+      : query.order("created_at", { ascending: true }).limit(1);
+    const { data: business, error: businessError } = await query.maybeSingle();
     if (businessError) throw new Error(businessError.message);
     if (!business) throw new Error("Add your business details before choosing a plan.");
 
