@@ -39,7 +39,7 @@
 - Google Business Profile, social posting, CRM: later phases
 - Analytics page: real visit/lead reporting
 
-## Template engine (done %Y-%m-%d)
+## Template engine (done 2026-09-09)
 - One shared renderer (LocalBusinessTemplate) drives all designs.
 - 7 approved presets: cleaning, landscaping, roofing, plumbing, renovation, construction, junk removal — each with starter photography, accent colour and hero layout variant.
 - Onboarding industry list now maps 1:1 to the presets; the editor and admin gallery both preview desktop/tablet/mobile.
