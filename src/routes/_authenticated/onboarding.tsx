@@ -17,17 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { INDUSTRY_OPTIONS } from "@/lib/template-registry";
 
-const NICHES = [
-  { value: "cleaning", label: "Cleaning company", ready: true },
-  { value: "landscaping", label: "Landscaping & lawn care", ready: false },
-  { value: "handyman", label: "Handyman & home repair", ready: false },
-  { value: "pest_control", label: "Pest control", ready: false },
-  { value: "plumbing", label: "Plumbing", ready: false },
-  { value: "electrical", label: "Electrical", ready: false },
-  { value: "hvac", label: "Heating & air", ready: false },
-  { value: "other", label: "Something else", ready: false },
-] as const;
+const NICHES = INDUSTRY_OPTIONS;
 
 const DEMO: Omit<Draft, "niche"> = {
   name: "Sparkle & Shine Cleaning Co.",
@@ -229,15 +221,15 @@ function OnboardingPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {NICHES.map((n) => (
-                    <SelectItem key={n.value} value={n.value} disabled={!n.ready}>
+                    <SelectItem key={n.value} value={n.value}>
                       {n.label}
-                      {n.ready ? "" : " — design coming soon"}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="mt-1.5 text-xs text-muted-foreground">
-                Cleaning designs are ready today. Other industries open as each design is approved.
+                Each industry has its own approved design, with professional photos already in
+                place. You can swap any photo or wording later.
               </p>
             </div>
             <div className="rounded-lg border border-dashed border-border p-4">

@@ -163,14 +163,60 @@ export type Database = {
           },
         ]
       }
+      business_reviews: {
+        Row: {
+          author_name: string
+          business_id: string
+          created_at: string
+          id: string
+          location: string | null
+          quote: string
+          rating: number
+          sort_order: number
+          source: string
+        }
+        Insert: {
+          author_name: string
+          business_id: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          quote: string
+          rating?: number
+          sort_order?: number
+          source?: string
+        }
+        Update: {
+          author_name?: string
+          business_id?: string
+          created_at?: string
+          id?: string
+          location?: string | null
+          quote?: string
+          rating?: number
+          sort_order?: number
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_reviews_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
+          accent_color: string | null
           address_line1: string | null
           city: string | null
           country: string
           created_at: string
           description: string | null
           email: string | null
+          hours_note: string | null
           id: string
           logo_url: string | null
           name: string
@@ -183,18 +229,21 @@ export type Database = {
           primary_service: string | null
           secondary_color: string
           slug: string
+          social_links: Json
           state: string | null
           suspended: boolean
           tagline: string | null
           updated_at: string
         }
         Insert: {
+          accent_color?: string | null
           address_line1?: string | null
           city?: string | null
           country?: string
           created_at?: string
           description?: string | null
           email?: string | null
+          hours_note?: string | null
           id?: string
           logo_url?: string | null
           name: string
@@ -207,18 +256,21 @@ export type Database = {
           primary_service?: string | null
           secondary_color?: string
           slug: string
+          social_links?: Json
           state?: string | null
           suspended?: boolean
           tagline?: string | null
           updated_at?: string
         }
         Update: {
+          accent_color?: string | null
           address_line1?: string | null
           city?: string | null
           country?: string
           created_at?: string
           description?: string | null
           email?: string | null
+          hours_note?: string | null
           id?: string
           logo_url?: string | null
           name?: string
@@ -231,6 +283,7 @@ export type Database = {
           primary_service?: string | null
           secondary_color?: string
           slug?: string
+          social_links?: Json
           state?: string | null
           suspended?: boolean
           tagline?: string | null
@@ -334,9 +387,12 @@ export type Database = {
           expires_at: string | null
           id: string
           kind: Database["public"]["Enums"]["domain_kind"]
+          last_checked_at: string | null
           ssl_active: boolean
+          ssl_status: string
           status: Database["public"]["Enums"]["domain_status"]
           updated_at: string
+          verification_token: string | null
         }
         Insert: {
           business_id: string
@@ -346,9 +402,12 @@ export type Database = {
           expires_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
+          last_checked_at?: string | null
           ssl_active?: boolean
+          ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
           updated_at?: string
+          verification_token?: string | null
         }
         Update: {
           business_id?: string
@@ -358,9 +417,12 @@ export type Database = {
           expires_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
+          last_checked_at?: string | null
           ssl_active?: boolean
+          ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
           updated_at?: string
+          verification_token?: string | null
         }
         Relationships: [
           {
@@ -371,6 +433,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      industries: {
+        Row: {
+          created_at: string
+          default_service: string
+          is_active: boolean
+          name: string
+          plural_label: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          default_service: string
+          is_active?: boolean
+          name: string
+          plural_label: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          default_service?: string
+          is_active?: boolean
+          name?: string
+          plural_label?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
       }
       integrations: {
         Row: {
@@ -468,25 +560,37 @@ export type Database = {
           alt_text: string | null
           business_id: string
           created_at: string
+          height: number | null
           id: string
           kind: string
+          sort_order: number
+          storage_path: string | null
           url: string
+          width: number | null
         }
         Insert: {
           alt_text?: string | null
           business_id: string
           created_at?: string
+          height?: number | null
           id?: string
           kind?: string
+          sort_order?: number
+          storage_path?: string | null
           url: string
+          width?: number | null
         }
         Update: {
           alt_text?: string | null
           business_id?: string
           created_at?: string
+          height?: number | null
           id?: string
           kind?: string
+          sort_order?: number
+          storage_path?: string | null
           url?: string
+          width?: number | null
         }
         Relationships: [
           {
@@ -1208,7 +1312,15 @@ export type Database = {
         | "error"
         | "not_configured"
       integration_status: "not_connected" | "pending" | "connected" | "error"
-      lead_status: "new" | "contacted" | "qualified" | "won" | "lost"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "won"
+        | "lost"
+        | "quote_sent"
+        | "booked"
+        | "completed"
       member_role: "owner" | "manager" | "editor"
       subscription_status:
         | "trialing"
@@ -1226,7 +1338,12 @@ export type Database = {
         | "archived"
       ticket_priority: "normal" | "priority"
       ticket_status: "open" | "pending" | "resolved" | "closed"
-      website_status: "draft" | "published" | "suspended"
+      website_status:
+        | "draft"
+        | "published"
+        | "suspended"
+        | "ready"
+        | "unpublished"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1364,7 +1481,16 @@ export const Constants = {
         "not_configured",
       ],
       integration_status: ["not_connected", "pending", "connected", "error"],
-      lead_status: ["new", "contacted", "qualified", "won", "lost"],
+      lead_status: [
+        "new",
+        "contacted",
+        "qualified",
+        "won",
+        "lost",
+        "quote_sent",
+        "booked",
+        "completed",
+      ],
       member_role: ["owner", "manager", "editor"],
       subscription_status: [
         "trialing",
@@ -1384,7 +1510,13 @@ export const Constants = {
       ],
       ticket_priority: ["normal", "priority"],
       ticket_status: ["open", "pending", "resolved", "closed"],
-      website_status: ["draft", "published", "suspended"],
+      website_status: [
+        "draft",
+        "published",
+        "suspended",
+        "ready",
+        "unpublished",
+      ],
     },
   },
 } as const

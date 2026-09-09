@@ -12,16 +12,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { PlanChooser } from "@/components/billing/PlanChooser";
 import {
-  CleaningTemplate01,
+  LocalBusinessTemplate,
   type TemplateArea,
   type TemplateHour,
   type TemplateService,
-} from "@/components/templates/CleaningTemplate01";
+} from "@/components/templates/LocalBusinessTemplate";
 import {
   defaultSiteContent,
   normaliseContent,
+  templateIdForNiche,
   type SiteContent,
 } from "@/lib/site-content";
+import { presetFor } from "@/lib/template-registry";
+
+const PREVIEW_WIDTHS = { desktop: "100%", tablet: "820px", mobile: "390px" } as const;
+type DeviceKey = keyof typeof PREVIEW_WIDTHS;
 
 export const Route = createFileRoute("/_authenticated/website")({
   head: () => ({
@@ -56,6 +61,7 @@ type Loaded = {
     primary_color: string;
     primary_service: string | null;
     slug: string;
+    niche: string;
   };
 };
 
@@ -66,6 +72,7 @@ function WebsitePage() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
+  const [device, setDevice] = useState<DeviceKey>("desktop");
 
   const site = useQuery({
     queryKey: ["website-editor", businessId],
@@ -76,7 +83,7 @@ function WebsitePage() {
       const { data: business, error: bErr } = await supabase
         .from("businesses")
         .select(
-          "name, tagline, phone, email, city, state, address_line1, postal_code, logo_url, primary_color, primary_service, slug",
+          "name, tagline, phone, email, city, state, address_line1, postal_code, logo_url, primary_color, primary_service, slug, niche",
         )
         .eq("id", id)
         .single();
@@ -93,7 +100,7 @@ function WebsitePage() {
         const { data: template } = await supabase
           .from("templates")
           .select("id")
-          .eq("slug", "cleaning-01")
+          .eq("slug", templateIdForNiche(business.niche))
           .maybeSingle();
         const { data: created, error: cErr } = await supabase
           .from("websites")
@@ -130,6 +137,7 @@ function WebsitePage() {
         primaryService: business.primary_service,
         primaryColor: business.primary_color,
         logoUrl: business.logo_url,
+        niche: business.niche,
       });
 
       return {
@@ -233,7 +241,7 @@ function WebsitePage() {
     <>
       <PageHeader
         title="Your website"
-        description="Cleaning Template 01 — an approved WebWarheads design filled with your own details. Nothing is generated at random."
+        description={`${presetFor(draft.templateId).name} — an approved WebWarheads design filled with your own details. Nothing is generated at random.`}
       />
 
       <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 sm:flex sm:justify-between">
@@ -284,6 +292,51 @@ function WebsitePage() {
               value={draft.brand.logoUrl ?? ""}
               placeholder="https://…"
               onChange={(v) => update((c) => ({ ...c, brand: { ...c.brand, logoUrl: v || null } }))}
+            />
+          </Section>
+
+          <Section title="Photos">
+            <p className="text-xs text-muted-foreground">
+              Your design comes with professional photos for your trade. Paste the web address of
+              your own photos to swap any of them.
+            </p>
+            <Field
+              label="Main photo"
+              value={draft.images.hero}
+              onChange={(v) =>
+                update((c) => ({ ...c, images: { ...c.images, hero: v || c.images.hero } }))
+              }
+            />
+            <Field
+              label="About photo"
+              value={draft.images.about}
+              onChange={(v) =>
+                update((c) => ({ ...c, images: { ...c.images, about: v || c.images.about } }))
+              }
+            />
+            {draft.images.gallery.map((src, index) => (
+              <Field
+                key={index}
+                label={`Gallery photo ${index + 1}`}
+                value={src}
+                onChange={(v) =>
+                  update((c) => {
+                    const gallery = [...c.images.gallery];
+                    gallery[index] = v;
+                    return { ...c, images: { ...c.images, gallery } };
+                  })
+                }
+              />
+            ))}
+            <Field
+              label="Gallery heading"
+              value={draft.gallery.heading}
+              onChange={(v) => update((c) => ({ ...c, gallery: { ...c.gallery, heading: v } }))}
+            />
+            <AreaField
+              label="Gallery intro"
+              value={draft.gallery.intro}
+              onChange={(v) => update((c) => ({ ...c, gallery: { ...c.gallery, intro: v } }))}
             />
           </Section>
 
@@ -435,10 +488,27 @@ function WebsitePage() {
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium">Preview</p>
-          <div className="overflow-hidden rounded-lg border border-border">
-            <div className="max-h-[70vh] overflow-y-auto bg-white">
-              <CleaningTemplate01
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p className="text-sm font-medium">Preview</p>
+            <div className="ml-auto flex gap-1.5">
+              {(Object.keys(PREVIEW_WIDTHS) as DeviceKey[]).map((key) => (
+                <Button
+                  key={key}
+                  size="sm"
+                  variant={device === key ? "default" : "outline"}
+                  onClick={() => setDevice(key)}
+                >
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
+            <div
+              className="mx-auto max-h-[70vh] overflow-y-auto rounded-md bg-white shadow-sm"
+              style={{ width: PREVIEW_WIDTHS[device], maxWidth: "100%" }}
+            >
+              <LocalBusinessTemplate
                 business={site.data.business}
                 content={draft}
                 services={site.data.services}

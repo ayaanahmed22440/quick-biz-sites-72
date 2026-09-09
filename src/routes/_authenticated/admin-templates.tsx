@@ -6,8 +6,9 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CleaningTemplate01 } from "@/components/templates/CleaningTemplate01";
+import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent } from "@/lib/site-content";
+import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 
 export const Route = createFileRoute("/_authenticated/admin-templates")({
   head: () => ({
@@ -84,13 +85,11 @@ const WIDTHS = {
 
 type DeviceKey = keyof typeof WIDTHS;
 
-const RENDERABLE: Record<string, true> = { "cleaning-01": true };
-
 function AdminTemplatesPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
-  const [accent, setAccent] = useState("#1f6feb");
+  const [accent, setAccent] = useState<string | null>(null);
 
   const templates = useQuery({
     queryKey: ["admin-template-gallery"],
@@ -105,15 +104,18 @@ function AdminTemplatesPage() {
     },
   });
 
+  const selectedPreset = TEMPLATE_PRESETS.find((p) => p.templateId === activeSlug) ?? null;
+
   const content = useMemo(
     () =>
       defaultSiteContent({
         businessName: SAMPLE_BUSINESS.name,
         city: SAMPLE_BUSINESS.city,
-        primaryService: "cleaning",
-        primaryColor: accent,
+        primaryService: selectedPreset?.copy.service ?? "cleaning",
+        primaryColor: accent ?? selectedPreset?.accent ?? null,
+        templateId: selectedPreset?.templateId ?? null,
       }),
-    [accent],
+    [accent, selectedPreset],
   );
 
   if (isLoading) return <LoadingBlock rows={4} />;
@@ -135,8 +137,11 @@ function AdminTemplatesPage() {
   if (templates.isLoading) return <LoadingBlock rows={4} />;
   if (templates.isError) return <ErrorBlock />;
 
-  const list = templates.data ?? [];
-  const selected = list.find((t) => t.slug === activeSlug) ?? null;
+  const dbRows = templates.data ?? [];
+  const list = TEMPLATE_PRESETS.map((p) => ({
+    ...p,
+    status: dbRows.find((row) => row.slug === p.templateId)?.status ?? "approved",
+  }));
 
   return (
     <>
@@ -146,48 +151,41 @@ function AdminTemplatesPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {list.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
-            No templates have been added yet.
-          </div>
-        ) : (
-          list.map((t) => {
-            const canPreview = Boolean(RENDERABLE[t.slug]);
-            return (
-              <div key={t.id} className="flex flex-col rounded-xl border border-border bg-card p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-sm font-semibold">{t.name}</h2>
-                    <p className="text-xs text-muted-foreground">{t.niche}</p>
-                  </div>
-                  <Badge variant="secondary">{t.status}</Badge>
-                </div>
-                {t.description ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
-                ) : null}
-                <div className="mt-4 flex-1" />
-                <Button
-                  className="mt-4"
-                  variant={activeSlug === t.slug ? "default" : "outline"}
-                  disabled={!canPreview}
-                  onClick={() => setActiveSlug(t.slug)}
-                >
-                  {canPreview
-                    ? activeSlug === t.slug
-                      ? "Previewing"
-                      : "Preview"
-                    : "Preview coming soon"}
-                </Button>
+        {list.map((t) => (
+          <div key={t.templateId} className="flex flex-col rounded-xl border border-border bg-card p-5">
+            <img
+              src={t.images.hero}
+              alt=""
+              loading="lazy"
+              className="mb-4 h-32 w-full rounded-lg object-cover"
+            />
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold">{t.name}</h2>
+                <p className="text-xs text-muted-foreground">{t.industryLabel}</p>
               </div>
-            );
-          })
-        )}
+              <Badge variant="secondary">{t.status}</Badge>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
+            <div className="mt-4 flex-1" />
+            <Button
+              className="mt-4"
+              variant={activeSlug === t.templateId ? "default" : "outline"}
+              onClick={() => {
+                setActiveSlug(t.templateId);
+                setAccent(null);
+              }}
+            >
+              {activeSlug === t.templateId ? "Previewing" : "Preview"}
+            </Button>
+          </div>
+        ))}
       </div>
 
-      {selected && RENDERABLE[selected.slug] ? (
+      {selectedPreset ? (
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-sm font-semibold">{selected.name} preview</h2>
+            <h2 className="text-sm font-semibold">{selectedPreset.name} preview</h2>
             <div className="ml-auto flex items-center gap-2">
               {(Object.keys(WIDTHS) as DeviceKey[]).map((key) => (
                 <Button
@@ -203,7 +201,7 @@ function AdminTemplatesPage() {
                 Accent
                 <input
                   type="color"
-                  value={accent}
+                  value={accent ?? selectedPreset.accent}
                   onChange={(e) => setAccent(e.target.value)}
                   className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent"
                 />
@@ -216,7 +214,7 @@ function AdminTemplatesPage() {
               className="mx-auto max-h-[75vh] overflow-y-auto rounded-md bg-white shadow-sm"
               style={{ width: WIDTHS[device], maxWidth: "100%" }}
             >
-              <CleaningTemplate01
+              <LocalBusinessTemplate
                 business={SAMPLE_BUSINESS}
                 content={content}
                 services={SAMPLE_SERVICES}
