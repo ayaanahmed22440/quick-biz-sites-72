@@ -298,42 +298,51 @@ function WebsitePage() {
             <p className="text-xs text-muted-foreground">
               Pick the main colour from your own logo. Buttons, links and the contact band use it.
             </p>
-            <Field
-              label="Logo image address"
-              value={draft.brand.logoUrl ?? ""}
-              placeholder="https://…"
-              onChange={(v) => update((c) => ({ ...c, brand: { ...c.brand, logoUrl: v || null } }))}
-            />
           </Section>
 
           <Section title="Photos">
             <p className="text-xs text-muted-foreground">
-              Your design comes with professional photos for your trade. Paste the web address of
-              your own photos to swap any of them.
+              Your design already comes with professional photos for your trade. Upload your own
+              whenever you like — your work always sells better than a stock photo.
             </p>
-            <Field
+            <ImageUpload
+              businessId={businessId!}
               label="Main photo"
+              hint="The big picture at the top of your website."
               value={draft.images.hero}
-              onChange={(v) =>
-                update((c) => ({ ...c, images: { ...c.images, hero: v || c.images.hero } }))
+              kind="hero"
+              onChange={(url) =>
+                update((c) => ({
+                  ...c,
+                  images: { ...c.images, hero: url ?? presetFor(c.templateId).images.hero },
+                }))
               }
             />
-            <Field
+            <ImageUpload
+              businessId={businessId!}
               label="About photo"
+              hint="Shown beside your story. A photo of you or the team works well."
               value={draft.images.about}
-              onChange={(v) =>
-                update((c) => ({ ...c, images: { ...c.images, about: v || c.images.about } }))
+              kind="about"
+              onChange={(url) =>
+                update((c) => ({
+                  ...c,
+                  images: { ...c.images, about: url ?? presetFor(c.templateId).images.about },
+                }))
               }
             />
             {draft.images.gallery.map((src, index) => (
-              <Field
+              <ImageUpload
                 key={index}
+                businessId={businessId!}
                 label={`Gallery photo ${index + 1}`}
                 value={src}
-                onChange={(v) =>
+                kind={`gallery-${index + 1}`}
+                onChange={(url) =>
                   update((c) => {
                     const gallery = [...c.images.gallery];
-                    gallery[index] = v;
+                    gallery[index] =
+                      url ?? presetFor(c.templateId).images.gallery[index] ?? gallery[index]!;
                     return { ...c, images: { ...c.images, gallery } };
                   })
                 }
