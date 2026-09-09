@@ -5,6 +5,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const startCheckoutInput = z.object({
   planId: z.string().min(2).max(40),
   returnPath: z.string().max(200).optional(),
+  /** Which business is being paid for. Defaults to the caller's first business. */
+  businessId: z.string().uuid().optional(),
 });
 
 function safeReturnPath(path: string | undefined): string {
