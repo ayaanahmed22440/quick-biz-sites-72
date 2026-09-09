@@ -561,9 +561,6 @@ function OnboardingPage() {
                   address_line1: null,
                   postal_code: null,
                   logo_url: draft.logo_url,
-                  primary_color: draft.primary_color,
-                  primary_service: draft.primary_service || null,
-                  slug: "preview",
                 }}
                 content={preview}
                 services={draft.services
