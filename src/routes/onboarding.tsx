@@ -842,9 +842,17 @@ function OnboardingPage() {
   );
 }
 
-/** Plan selection only — payment happens later, when the site is published. */
+/** Plan selection. The chosen plan is taken to checkout when the step is confirmed. */
 function PlanPicker({ value, onChange }: { value: string; onChange: (plan: string) => void }) {
-  const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
+  const [period, setPeriod] = useState<"monthly" | "yearly">(
+    value.endsWith("_yearly") ? "yearly" : "monthly",
+  );
+  const baseId = value.replace(/_yearly$/, "");
+
+  function pick(nextPeriod: "monthly" | "yearly", base: string) {
+    setPeriod(nextPeriod);
+    onChange(nextPeriod === "yearly" ? `${base}_yearly` : base);
+  }
 
   return (
     <div className="space-y-6">
@@ -854,9 +862,9 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
             <button
               key={p}
               type="button"
-              onClick={() => setPeriod(p)}
+              onClick={() => pick(p, baseId)}
               className={cn(
-                "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:px-4 sm:text-sm",
                 period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
               )}
             >
@@ -866,19 +874,19 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 pt-3 sm:grid-cols-2 lg:grid-cols-3">
         {PLAN_COPY.map((plan) => {
-          const selected = value === plan.id;
+          const selected = baseId === plan.id;
           return (
             <button
               key={plan.id}
               type="button"
-              onClick={() => onChange(plan.id)}
+              onClick={() => pick(period, plan.id)}
               className={cn(
-                "relative flex w-full flex-col rounded-2xl border bg-card p-6 text-left transition-all",
+                "relative flex w-full min-w-0 flex-col rounded-2xl border bg-card p-5 text-left transition-all sm:p-6",
                 selected
                   ? "border-accent shadow-lg ring-2 ring-accent/30"
-                  : "border-border hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
+                  : "border-border hover:border-accent/50 hover:shadow-md",
               )}
             >
               {plan.recommended ? (
@@ -887,7 +895,7 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
                 </span>
               ) : null}
               <span className="flex items-center justify-between gap-2">
-                <span className="text-base font-semibold">{plan.name}</span>
+                <span className="truncate text-base font-semibold">{plan.name}</span>
                 <span
                   className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
@@ -917,11 +925,12 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
-        No card needed yet. You'll pay when you publish, and you can change plan any time.
+        Secure payment by Whop. Cancel any time — or skip and pay later when you publish.
       </p>
     </div>
   );
 }
+
 
 function previewContent(draft: Draft): SiteContent {
   const content = defaultSiteContent({
