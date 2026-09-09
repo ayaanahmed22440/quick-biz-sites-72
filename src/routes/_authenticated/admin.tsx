@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteCustomer } from "@/lib/admin.functions";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import {
@@ -41,6 +43,7 @@ function money(cents: number) {
 function AdminPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const queryClient = useQueryClient();
+  const deleteCustomerFn = useServerFn(deleteCustomer);
   const [search, setSearch] = useState("");
   const [openTicket, setOpenTicket] = useState<string | null>(null);
   const [reply, setReply] = useState("");
@@ -132,6 +135,20 @@ function AdminPage() {
       toast.success("Website deleted");
     },
     onError: () => toast.error("Could not delete that website"),
+  });
+
+  const removeCustomer = useMutation({
+    mutationFn: (businessId: string) => deleteCustomerFn({ data: { businessId } }),
+    onSuccess: (result) => {
+      void refresh();
+      toast.success(
+        result.accountRemoved
+          ? "Customer and their sign-in account were deleted"
+          : "Customer data deleted",
+      );
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not delete that customer"),
   });
 
   const setTicketStatus = useMutation({
@@ -486,6 +503,25 @@ function AdminPage() {
                             }
                           >
                             {b.suspended ? "Restore" : "Suspend"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive"
+                            disabled={removeCustomer.isPending}
+                            onClick={() => {
+                              const typed = window.prompt(
+                                `This permanently deletes ${b.name} — website, media, leads, support history and their sign-in account. Type the business name to confirm.`,
+                              );
+                              if (typed === null) return;
+                              if (typed.trim().toLowerCase() !== b.name.trim().toLowerCase()) {
+                                toast.error("Name didn't match — nothing was deleted");
+                                return;
+                              }
+                              removeCustomer.mutate(b.id);
+                            }}
+                          >
+                            Delete customer
                           </Button>
                         </div>
                       </TableCell>

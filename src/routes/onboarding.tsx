@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
+
 import { useQueryClient } from "@tanstack/react-query";
 
 import { z } from "zod";
@@ -19,13 +19,11 @@ import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
-import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
-import { startCheckout } from "@/lib/billing.functions";
 
 import { cn } from "@/lib/utils";
 
 const DRAFT_KEY = "ww-onboarding-draft";
-const PLAN_KEY = "ww-onboarding-plan";
+
 
 type Draft = {
   niche: string;
@@ -41,7 +39,7 @@ type Draft = {
   primary_color: string;
   logo_url: string | null;
   google_url: string;
-  plan: string;
+  
 };
 
 const EMPTY: Draft = {
@@ -58,10 +56,10 @@ const EMPTY: Draft = {
   primary_color: "#1f6feb",
   logo_url: null,
   google_url: "",
-  plan: "seo",
+  
 };
 
-const DEMO: Omit<Draft, "niche" | "plan"> = {
+const DEMO: Omit<Draft, "niche"> = {
   name: "Sparkle & Shine Cleaning Co.",
   primary_service: "House cleaning",
   description:
@@ -104,7 +102,7 @@ function slugify(value: string) {
   );
 }
 
-type StageKey = "trade" | "business" | "services" | "look" | "reviews" | "plan";
+type StageKey = "trade" | "business" | "services" | "look" | "reviews";
 
 const STAGES: { key: StageKey; label: string }[] = [
   { key: "trade", label: "Trade" },
@@ -112,7 +110,6 @@ const STAGES: { key: StageKey; label: string }[] = [
   { key: "services", label: "Services" },
   { key: "look", label: "Look" },
   { key: "reviews", label: "Reviews" },
-  { key: "plan", label: "Plan" },
 ];
 
 type StepKey =
@@ -127,8 +124,7 @@ type StepKey =
   | "areas"
   | "primary_color"
   | "logo"
-  | "reviews"
-  | "plan";
+  | "reviews";
 
 type Step = {
   key: StepKey;
@@ -226,12 +222,6 @@ const STEPS: Step[] = [
     question: "Add a few happy customers",
     helper: "Reviews are the single biggest reason people call. Add them now or later.",
   },
-  {
-    key: "plan",
-    stage: "plan",
-    question: "Which plan suits you?",
-    helper: "Pick a plan and we'll take you straight to secure checkout — or skip and pay later.",
-  },
 ];
 
 const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172a"];
@@ -239,7 +229,7 @@ const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172
 function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const startCheckoutFn = useServerFn(startCheckout);
+  
   const { data: workspace, isLoading } = useWorkspace();
 
 
@@ -405,13 +395,13 @@ function OnboardingPage() {
     }
     if (businessId) await persistStep(step.key, businessId);
     if (isLast) {
-      await finish({ checkout: true });
+      await finish();
       return;
     }
     setIndex((i) => Math.min(STEPS.length - 1, i + 1));
   }
 
-  async function finish({ checkout }: { checkout: boolean }) {
+  async function finish() {
     const id = businessId ?? (await ensureBusiness());
     if (!id) return;
     setSaving(true);
@@ -463,30 +453,10 @@ function OnboardingPage() {
 
     try {
       localStorage.removeItem(DRAFT_KEY);
-      localStorage.setItem(PLAN_KEY, draft.plan);
     } catch {
       /* ignore */
     }
     await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
-
-    if (checkout && draft.plan) {
-      try {
-        const result = await startCheckoutFn({
-          data: { planId: draft.plan, returnPath: "/website", businessId: id },
-        });
-        window.location.href = result.url;
-        return;
-      } catch (checkoutError) {
-        setSaving(false);
-        toast.error(
-          checkoutError instanceof Error
-            ? checkoutError.message
-            : "We couldn't open checkout. Your website is saved — you can pay from the editor.",
-        );
-        void navigate({ to: "/website" });
-        return;
-      }
-    }
 
     setSaving(false);
     toast.success("Your website is ready to look at");
@@ -582,16 +552,9 @@ function OnboardingPage() {
         </div>
       </header>
 
-      <div
-        className={cn(
-          "mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:py-16",
-          step.key === "plan"
-            ? "lg:grid-cols-1"
-            : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]",
-        )}
-      >
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:py-16">
         {/* Question column */}
-        <div className={cn("mx-auto w-full", step.key === "plan" ? "max-w-5xl" : "max-w-xl")}>
+        <div className="mx-auto w-full max-w-xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
             Step {index + 1} of {STEPS.length}
           </p>
@@ -661,7 +624,7 @@ function OnboardingPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche, plan: d.plan }))}
+                    onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
                     className="flex w-full items-center gap-3 rounded-xl border border-dashed border-border p-4 text-left transition-colors hover:border-accent/60 hover:bg-accent/5"
                   >
                     <Sparkles className="h-4 w-4 shrink-0 text-accent" />
@@ -822,9 +785,6 @@ function OnboardingPage() {
                 />
               ) : null}
 
-              {step.key === "plan" ? (
-                <PlanPicker value={draft.plan} onChange={(plan) => set("plan", plan)} />
-              ) : null}
 
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
@@ -838,15 +798,6 @@ function OnboardingPage() {
                 Back
               </Button>
               <div className="flex flex-wrap items-center gap-2">
-                {isLast ? (
-                  <Button
-                    variant="ghost"
-                    disabled={saving}
-                    onClick={() => void finish({ checkout: false })}
-                  >
-                    Skip — pay later
-                  </Button>
-                ) : null}
                 <Button
                   size="lg"
                   onClick={() => void next()}
@@ -858,7 +809,7 @@ function OnboardingPage() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
                     </>
                   ) : isLast ? (
-                    "Continue to checkout"
+                    "See my website"
                   ) : (
                     "Continue"
                   )}
@@ -869,8 +820,8 @@ function OnboardingPage() {
           </div>
         </div>
 
-        {/* Preview column (hidden on the plan step, which uses the full width) */}
-        <div className={step.key === "plan" ? "hidden" : "hidden lg:block"}>
+        {/* Preview column */}
+        <div className="hidden lg:block">
           <div className="sticky top-24">
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
               Live preview
@@ -883,94 +834,6 @@ function OnboardingPage() {
   );
 }
 
-/** Plan selection. The chosen plan is taken to checkout when the step is confirmed. */
-function PlanPicker({ value, onChange }: { value: string; onChange: (plan: string) => void }) {
-  const [period, setPeriod] = useState<"monthly" | "yearly">(
-    value.endsWith("_yearly") ? "yearly" : "monthly",
-  );
-  const baseId = value.replace(/_yearly$/, "");
-
-  function pick(nextPeriod: "monthly" | "yearly", base: string) {
-    setPeriod(nextPeriod);
-    onChange(nextPeriod === "yearly" ? `${base}_yearly` : base);
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-center">
-        <div className="inline-flex rounded-lg border border-border bg-card p-1">
-          {(["monthly", "yearly"] as const).map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => pick(p, baseId)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:px-4 sm:text-sm",
-                period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-              )}
-            >
-              {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-4 pt-3 sm:grid-cols-2 lg:grid-cols-3">
-        {PLAN_COPY.map((plan) => {
-          const selected = baseId === plan.id;
-          return (
-            <button
-              key={plan.id}
-              type="button"
-              onClick={() => pick(period, plan.id)}
-              className={cn(
-                "relative flex w-full min-w-0 flex-col rounded-2xl border bg-card p-5 text-left transition-all sm:p-6",
-                selected
-                  ? "border-accent shadow-lg ring-2 ring-accent/30"
-                  : "border-border hover:border-accent/50 hover:shadow-md",
-              )}
-            >
-              {plan.recommended ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-3 py-1 text-[11px] font-semibold text-accent-foreground">
-                  Most popular
-                </span>
-              ) : null}
-              <span className="flex items-center justify-between gap-2">
-                <span className="truncate text-base font-semibold">{plan.name}</span>
-                <span
-                  className={cn(
-                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                    selected ? "border-accent bg-accent text-accent-foreground" : "border-border",
-                  )}
-                >
-                  {selected ? <Check className="h-3 w-3" /> : null}
-                </span>
-              </span>
-              <span className="mt-3 block text-3xl font-bold tracking-tight">
-                ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
-                <span className="text-sm font-normal text-muted-foreground">
-                  {period === "yearly" ? "/year" : "/month"}
-                </span>
-              </span>
-              <span className="mt-5 block space-y-2 border-t border-border pt-4">
-                {plan.features.slice(0, 4).map((f) => (
-                  <span key={f} className="flex gap-2 text-sm text-muted-foreground">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                    {f}
-                  </span>
-                ))}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Secure payment by Whop. Cancel any time — or skip and pay later when you publish.
-      </p>
-    </div>
-  );
-}
 
 
 function previewContent(draft: Draft): SiteContent {
