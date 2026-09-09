@@ -62,6 +62,12 @@ export type TemplatePreset = {
   };
 };
 
+/**
+ * New templates must be added here as data-only presets. The shared renderer
+ * owns typography, responsive sections and behavior so every design remains
+ * modular and compatible with the editor, previews and live customer sites.
+ */
+
 function preset(p: TemplatePreset): TemplatePreset {
   return p;
 }

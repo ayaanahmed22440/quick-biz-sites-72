@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { SiteContent } from "@/lib/site-content";
 import { presetFor } from "@/lib/template-registry";
+import { TEMPLATE_TYPOGRAPHY } from "@/lib/template-design-system";
 
 export type TemplateBusiness = {
   name: string;
@@ -65,7 +66,7 @@ export type LeadSubmit = (values: {
 }) => Promise<void>;
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const display = { fontFamily: "'Playfair Display', Georgia, serif" } as const;
+const display = { fontFamily: TEMPLATE_TYPOGRAPHY.displayFamily } as const;
 
 function formatTime(value: string | null) {
   if (!value) return "";
@@ -236,7 +237,11 @@ export function LocalBusinessTemplate({
   );
 
   return (
-    <div id="top" style={siteStyle} className="min-h-full bg-slate-50 font-['Outfit'] text-slate-950">
+    <div
+      id="top"
+      style={{ ...siteStyle, fontFamily: TEMPLATE_TYPOGRAPHY.bodyFamily }}
+      className="min-h-full bg-slate-50 text-slate-950"
+    >
       <div className="bg-slate-950 px-4 py-2.5 text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 text-xs font-medium sm:px-2">
           <p className="truncate">Proudly serving {place} and surrounding communities</p>

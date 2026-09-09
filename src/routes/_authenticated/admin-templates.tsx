@@ -16,6 +16,7 @@ import {
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
+import { previewDataFor } from "@/lib/template-preview-data";
 
 export const Route = createFileRoute("/_authenticated/admin-templates")({
   head: () => ({
@@ -30,59 +31,6 @@ export const Route = createFileRoute("/_authenticated/admin-templates")({
   }),
   component: AdminTemplatesPage,
 });
-
-const SAMPLE_BUSINESS = {
-  name: "Sparkle & Shine Cleaning Co.",
-  tagline: "Spotless homes, happy customers",
-  phone: "(555) 014-8822",
-  email: "hello@sparkleandshine.com",
-  city: "Austin",
-  state: "TX",
-  address_line1: "1200 Barton Springs Rd",
-  postal_code: "78704",
-  logo_url: null,
-};
-
-const SAMPLE_SERVICES = [
-  {
-    id: "s1",
-    name: "Regular home cleaning",
-    description: "Weekly or fortnightly clean of every room, top to bottom.",
-    price_note: "From $95 per visit",
-  },
-  {
-    id: "s2",
-    name: "Deep clean",
-    description: "Skirting boards, ovens, inside cupboards — the full reset.",
-    price_note: "From $220",
-  },
-  {
-    id: "s3",
-    name: "End of tenancy",
-    description: "Landlord-ready cleaning with a checklist you can hand over.",
-    price_note: "Quoted per property",
-  },
-  {
-    id: "s4",
-    name: "Office cleaning",
-    description: "Evening and weekend cleans for small offices and studios.",
-    price_note: "Monthly contracts",
-  },
-];
-
-const SAMPLE_AREAS = [
-  { id: "a1", city: "Austin", state: "TX" },
-  { id: "a2", city: "Round Rock", state: "TX" },
-  { id: "a3", city: "Cedar Park", state: "TX" },
-  { id: "a4", city: "Pflugerville", state: "TX" },
-];
-
-const SAMPLE_HOURS = [0, 1, 2, 3, 4, 5, 6].map((day) => ({
-  day_of_week: day,
-  opens_at: day === 0 ? null : "08:00",
-  closes_at: day === 0 ? null : day === 6 ? "14:00" : "18:00",
-  is_closed: day === 0,
-}));
 
 const WIDTHS = {
   desktop: "100%",
@@ -112,17 +60,18 @@ function AdminTemplatesPage() {
   });
 
   const selectedPreset = TEMPLATE_PRESETS.find((p) => p.templateId === activeSlug) ?? null;
+  const previewData = previewDataFor(selectedPreset?.niche ?? "cleaning");
 
   const content = useMemo(
     () =>
       defaultSiteContent({
-        businessName: SAMPLE_BUSINESS.name,
-        city: SAMPLE_BUSINESS.city,
+        businessName: previewData.business.name,
+        city: previewData.business.city,
         primaryService: selectedPreset?.copy.service ?? "cleaning",
         primaryColor: accent ?? selectedPreset?.accent ?? null,
         templateId: selectedPreset?.templateId ?? null,
       }),
-    [accent, selectedPreset],
+    [accent, previewData.business.city, previewData.business.name, selectedPreset],
   );
 
   if (isLoading) return <LoadingBlock rows={4} />;
@@ -231,11 +180,12 @@ function AdminTemplatesPage() {
                   style={{ width: WIDTHS[device], maxWidth: "100%" }}
                 >
                   <LocalBusinessTemplate
-                    business={SAMPLE_BUSINESS}
+                    business={previewData.business}
                     content={content}
-                    services={SAMPLE_SERVICES}
-                    areas={SAMPLE_AREAS}
-                    hours={SAMPLE_HOURS}
+                    services={previewData.services}
+                    areas={previewData.areas}
+                    hours={previewData.hours}
+                    reviews={previewData.reviews}
                     previewOnly
                   />
                 </div>

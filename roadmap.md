@@ -61,3 +61,5 @@
 - Replaced the short template layout with a long-form modular website system.
 - Added premium hero variants, trust proof, service modules, brand story, three-step process, project mosaic, reviews, service areas, quote conversion section, hours/contact and full footer.
 - Upgraded all seven industry presets with stronger positioning while preserving customer data, media, editor controls and lead capture.
+- Centralized template typography and visual rules so every future preset follows the same modular system.
+- Admin previews now use industry-specific businesses, services, locations and reviews instead of repeating the cleaning demo.
