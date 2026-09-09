@@ -70,9 +70,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "cleaning-01",
     niche: "cleaning",
-    name: "Cleaning 01 — Fresh Split",
+    name: "Cleaning — Bright Standard",
     industryLabel: "Cleaning company",
-    description: "Bright, trust-led layout with the quote form beside the headline.",
+    description: "Airy, premium home-service design with strong proof, project photography and a clear quote journey.",
     accent: "#1f6feb",
     layout: "split",
     images: { hero: cleaningHero, about: cleaningAbout, gallery: [cleaningG1, cleaningG2] },
@@ -92,9 +92,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "landscaping-01",
     niche: "landscaping",
-    name: "Landscaping 01 — Open Air",
+    name: "Landscaping — Living Outdoors",
     industryLabel: "Landscaping & lawn care",
-    description: "Full-width garden photography with a bold headline over the image.",
+    description: "Immersive garden photography and editorial project storytelling for design-led outdoor work.",
     accent: "#2f7d32",
     layout: "overlay",
     images: {
@@ -118,9 +118,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "roofing-01",
     niche: "roofing",
-    name: "Roofing 01 — Storm Ready",
+    name: "Roofing — Built Above",
     industryLabel: "Roofing",
-    description: "Strong, urgent layout built around emergency callouts and inspections.",
+    description: "Authoritative, project-led design balancing emergency response with long-term craftsmanship.",
     accent: "#b3341f",
     layout: "banner",
     images: { hero: roofingHero, about: roofingAbout, gallery: [roofingG1, roofingG2] },
@@ -140,9 +140,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "plumbing-01",
     niche: "plumbing",
-    name: "Plumbing 01 — Call Out",
+    name: "Plumbing — Precision Flow",
     industryLabel: "Plumbing",
-    description: "Phone-first layout for urgent jobs, with the quote form right at the top.",
+    description: "Crisp, service-first design for urgent callouts, premium installations and trusted local expertise.",
     accent: "#12608f",
     layout: "split",
     images: { hero: plumbingHero, about: plumbingAbout, gallery: [plumbingG1, plumbingG2] },
@@ -162,9 +162,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "renovation-01",
     niche: "renovation",
-    name: "Renovation 01 — Showcase",
+    name: "Renovation — Crafted Spaces",
     industryLabel: "Renovation & remodelling",
-    description: "Photo-led design that leads with finished rooms and a soft, premium feel.",
+    description: "Editorial interiors showcase with rich project imagery and a considered consultation journey.",
     accent: "#8a6a3a",
     layout: "overlay",
     images: {
@@ -188,9 +188,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "construction-01",
     niche: "construction",
-    name: "Construction 01 — Groundwork",
+    name: "Construction — Solid Ground",
     industryLabel: "Construction & building",
-    description: "Sturdy, contractor-grade layout with credentials up front.",
+    description: "Confident contractor design with credentials, delivery process and completed builds at the forefront.",
     accent: "#c98a12",
     layout: "banner",
     images: {
@@ -214,9 +214,9 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
     templateId: "junk-removal-01",
     niche: "junk_removal",
-    name: "Junk Removal 01 — Clear Out",
+    name: "Junk Removal — Clear Space",
     industryLabel: "Junk removal & hauling",
-    description: "Fast, friendly layout built around same-day pickups and simple pricing.",
+    description: "Energetic, straightforward design centred on fast pickups, responsible disposal and dramatic results.",
     accent: "#1f8f6a",
     layout: "split",
     images: { hero: junkHero, about: junkAbout, gallery: [junkG1, junkG2] },

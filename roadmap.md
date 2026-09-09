@@ -56,3 +56,8 @@
 - Google Business Profile automatic review import (needs Google API approval).
 - Light/dark/system mode.
 - Lead workflow email alerts.
+
+## Premium template rebuild (2026-09-09)
+- Replaced the short template layout with a long-form modular website system.
+- Added premium hero variants, trust proof, service modules, brand story, three-step process, project mosaic, reviews, service areas, quote conversion section, hours/contact and full footer.
+- Upgraded all seven industry presets with stronger positioning while preserving customer data, media, editor controls and lead capture.
