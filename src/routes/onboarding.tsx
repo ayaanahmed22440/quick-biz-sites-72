@@ -553,9 +553,16 @@ function OnboardingPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:py-16">
+      <div
+        className={cn(
+          "mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:py-16",
+          step.key === "plan"
+            ? "lg:grid-cols-1"
+            : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]",
+        )}
+      >
         {/* Question column */}
-        <div className="mx-auto w-full max-w-xl">
+        <div className={cn("mx-auto w-full", step.key === "plan" ? "max-w-5xl" : "max-w-xl")}>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
             Step {index + 1} of {STEPS.length}
           </p>
