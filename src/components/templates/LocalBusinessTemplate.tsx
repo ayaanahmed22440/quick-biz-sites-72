@@ -23,6 +23,15 @@ export type TemplateService = {
 
 export type TemplateArea = { id: string; city: string; state: string | null };
 
+export type TemplateReview = {
+  id: string;
+  author_name: string;
+  location: string | null;
+  rating: number | null;
+  quote: string;
+  source: string | null;
+};
+
 export type TemplateHour = {
   day_of_week: number;
   opens_at: string | null;
@@ -60,6 +69,7 @@ export function LocalBusinessTemplate({
   services,
   areas,
   hours,
+  reviews = [],
   onSubmitLead,
   previewOnly = false,
 }: {
@@ -68,6 +78,7 @@ export function LocalBusinessTemplate({
   services: TemplateService[];
   areas: TemplateArea[];
   hours: TemplateHour[];
+  reviews?: TemplateReview[];
   onSubmitLead?: LeadSubmit;
   previewOnly?: boolean;
 }) {
