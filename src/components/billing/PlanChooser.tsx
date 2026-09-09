@@ -61,7 +61,7 @@ export function PlanChooser({
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 @2xl:grid-cols-3">
         {PLAN_COPY.map((plan) => {
           const planId = period === "yearly" ? `${plan.id}_yearly` : plan.id;
           const isCurrent = currentPlanId === planId;
