@@ -34,15 +34,27 @@ async function fetchWorkspace(): Promise<Workspace | null> {
   const user = userData.user;
   if (!user) return null;
 
-  const [{ data: roles }, { data: profile }, { data: businesses }] = await Promise.all([
+  const [{ data: roles }, { data: profile }, { data: memberships }] = await Promise.all([
     supabase.from("user_roles").select("role").eq("user_id", user.id),
     supabase.from("profiles").select("full_name, email").eq("id", user.id).maybeSingle(),
-    supabase
-      .from("businesses")
-      .select("id, name, slug, city, state, phone, email, onboarding_completed")
-      .order("created_at", { ascending: true })
-      .limit(1),
+    supabase.from("business_members").select("business_id").eq("user_id", user.id),
   ]);
+
+  // Only the businesses this person actually owns or belongs to. Platform staff
+  // can read every tenant, so without this filter a team account would be shown
+  // somebody else's business.
+  const memberIds = (memberships ?? []).map((m) => m.business_id);
+  const ownFilter = [
+    `owner_id.eq.${user.id}`,
+    ...(memberIds.length ? [`id.in.(${memberIds.join(",")})`] : []),
+  ].join(",");
+
+  const { data: businesses } = await supabase
+    .from("businesses")
+    .select("id, name, slug, city, state, phone, email, onboarding_completed")
+    .or(ownFilter)
+    .order("created_at", { ascending: true })
+    .limit(1);
 
   const business = businesses?.[0] ?? null;
 

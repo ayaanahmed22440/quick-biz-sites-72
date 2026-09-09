@@ -55,9 +55,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     void navigate({ to: "/auth", replace: true });
   }
 
+  // A WebWarheads team account with no business of its own only ever needs the
+  // admin tools — the customer pages (Website, Billing, Leads…) don't apply.
+  const staffOnly = Boolean(workspace?.isStaff && !workspace?.business);
+
   const nav = (
     <nav className="flex flex-col gap-0.5">
-      {NAV.map(({ to, label, icon: Icon }) => (
+      {(staffOnly ? [] : NAV).map(({ to, label, icon: Icon }) => (
         <Link
           key={to}
           to={to}
@@ -71,7 +75,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       ))}
       {workspace?.isStaff ? (
         <>
-          <div className="mt-4 px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/45">
+          <div
+            className={cn(
+              "px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/45",
+              staffOnly ? "" : "mt-4",
+            )}
+          >
             WebWarheads
           </div>
           <Link

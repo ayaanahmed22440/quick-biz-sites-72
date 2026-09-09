@@ -26,6 +26,30 @@ function DashboardPage() {
   const business = data.business;
   const plan = planCopy(data.subscription?.plan_id);
 
+  // A WebWarheads team account has no website of its own — send them to the
+  // admin centre instead of the customer onboarding.
+  if (!business && data.isStaff) {
+    return (
+      <>
+        <PageHeader
+          title="WebWarheads team"
+          description="You're signed in with a team account."
+        />
+        <EmptyState
+          title="Head to the admin centre"
+          description="Revenue, clients, websites, templates and support all live in the admin area."
+          action={
+            <Button asChild>
+              <Link to="/admin">
+                Open admin <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          }
+        />
+      </>
+    );
+  }
+
   if (!business) {
     return (
       <>

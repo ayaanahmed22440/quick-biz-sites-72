@@ -6,6 +6,13 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
@@ -182,54 +189,61 @@ function AdminTemplatesPage() {
         ))}
       </div>
 
-      {selectedPreset ? (
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-sm font-semibold">{selectedPreset.name} preview</h2>
-            <div className="ml-auto flex items-center gap-2">
-              {(Object.keys(WIDTHS) as DeviceKey[]).map((key) => (
-                <Button
-                  key={key}
-                  size="sm"
-                  variant={device === key ? "default" : "outline"}
-                  onClick={() => setDevice(key)}
+      <Dialog open={Boolean(selectedPreset)} onOpenChange={(open) => (open ? null : setActiveSlug(null))}>
+        <DialogContent className="max-w-[min(1200px,96vw)] p-0">
+          {selectedPreset ? (
+            <>
+              <DialogHeader className="border-b border-border px-5 py-4">
+                <DialogTitle className="text-sm font-semibold">
+                  {selectedPreset.name} preview
+                </DialogTitle>
+                <DialogDescription className="text-xs">
+                  Sample details only — customer sites use their own business info, services and
+                  colours.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="flex flex-wrap items-center gap-2 px-5">
+                {(Object.keys(WIDTHS) as DeviceKey[]).map((key) => (
+                  <Button
+                    key={key}
+                    size="sm"
+                    variant={device === key ? "default" : "outline"}
+                    onClick={() => setDevice(key)}
+                  >
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </Button>
+                ))}
+                <label className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+                  Accent
+                  <input
+                    type="color"
+                    value={accent ?? selectedPreset.accent}
+                    onChange={(e) => setAccent(e.target.value)}
+                    className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent"
+                  />
+                </label>
+              </div>
+
+              <div className="m-5 mt-3 overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
+                <div
+                  className="mx-auto max-h-[70vh] overflow-y-auto rounded-md bg-white shadow-sm"
+                  style={{ width: WIDTHS[device], maxWidth: "100%" }}
                 >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Button>
-              ))}
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                Accent
-                <input
-                  type="color"
-                  value={accent ?? selectedPreset.accent}
-                  onChange={(e) => setAccent(e.target.value)}
-                  className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="mt-4 overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-            <div
-              className="mx-auto max-h-[75vh] overflow-y-auto rounded-md bg-white shadow-sm"
-              style={{ width: WIDTHS[device], maxWidth: "100%" }}
-            >
-              <LocalBusinessTemplate
-                business={SAMPLE_BUSINESS}
-                content={content}
-                services={SAMPLE_SERVICES}
-                areas={SAMPLE_AREAS}
-                hours={SAMPLE_HOURS}
-                previewOnly
-              />
-            </div>
-          </div>
-
-          <p className="mt-3 text-xs text-muted-foreground">
-            Sample details only — customer sites use their own business info, services and colours.
-          </p>
-        </div>
-      ) : null}
+                  <LocalBusinessTemplate
+                    business={SAMPLE_BUSINESS}
+                    content={content}
+                    services={SAMPLE_SERVICES}
+                    areas={SAMPLE_AREAS}
+                    hours={SAMPLE_HOURS}
+                    previewOnly
+                  />
+                </div>
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
