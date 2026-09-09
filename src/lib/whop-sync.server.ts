@@ -92,9 +92,12 @@ export async function syncMembership(
 }
 
 /** Re-reads a membership from Whop and syncs it (used as a webhook fallback). */
-export async function syncMembershipById(membershipId: string): Promise<string | null> {
+export async function syncMembershipById(
+  membershipId: string,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+): Promise<string | null> {
   const membership = await getWhopMembership(membershipId);
-  return syncMembership(membership);
+  return syncMembership(membership, options);
 }
 
 export async function markPaymentFailed(businessId: string): Promise<void> {
