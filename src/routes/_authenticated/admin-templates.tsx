@@ -201,7 +201,7 @@ function AdminTemplatesPage() {
                 Accent
                 <input
                   type="color"
-                  value={accent}
+                  value={accent ?? selectedPreset.accent}
                   onChange={(e) => setAccent(e.target.value)}
                   className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent"
                 />
@@ -214,7 +214,7 @@ function AdminTemplatesPage() {
               className="mx-auto max-h-[75vh] overflow-y-auto rounded-md bg-white shadow-sm"
               style={{ width: WIDTHS[device], maxWidth: "100%" }}
             >
-              <CleaningTemplate01
+              <LocalBusinessTemplate
                 business={SAMPLE_BUSINESS}
                 content={content}
                 services={SAMPLE_SERVICES}
