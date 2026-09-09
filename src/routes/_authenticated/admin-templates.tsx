@@ -6,8 +6,9 @@ import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CleaningTemplate01 } from "@/components/templates/CleaningTemplate01";
+import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent } from "@/lib/site-content";
+import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 
 export const Route = createFileRoute("/_authenticated/admin-templates")({
   head: () => ({
