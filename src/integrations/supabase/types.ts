@@ -709,6 +709,47 @@ export type Database = {
         }
         Relationships: []
       }
+      sent_emails: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          purpose: string
+          recipient: string
+          status: string
+          subject: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          purpose: string
+          recipient: string
+          status?: string
+          subject: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          purpose?: string
+          recipient?: string
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sent_emails_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seo_settings: {
         Row: {
           business_id: string
