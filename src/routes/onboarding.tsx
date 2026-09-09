@@ -398,16 +398,17 @@ function OnboardingPage() {
     }
     if (businessId) await persistStep(step.key, businessId);
     if (isLast) {
-      await finish();
+      await finish({ checkout: true });
       return;
     }
     setIndex((i) => Math.min(STEPS.length - 1, i + 1));
   }
 
-  async function finish() {
+  async function finish({ checkout }: { checkout: boolean }) {
     const id = businessId ?? (await ensureBusiness());
     if (!id) return;
     setSaving(true);
+
 
     await supabase
       .from("businesses")
