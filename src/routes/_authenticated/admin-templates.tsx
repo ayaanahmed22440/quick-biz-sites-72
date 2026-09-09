@@ -85,13 +85,11 @@ const WIDTHS = {
 
 type DeviceKey = keyof typeof WIDTHS;
 
-const RENDERABLE: Record<string, true> = { "cleaning-01": true };
-
 function AdminTemplatesPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
-  const [accent, setAccent] = useState("#1f6feb");
+  const [accent, setAccent] = useState<string | null>(null);
 
   const templates = useQuery({
     queryKey: ["admin-template-gallery"],
@@ -106,15 +104,18 @@ function AdminTemplatesPage() {
     },
   });
 
+  const selectedPreset = TEMPLATE_PRESETS.find((p) => p.templateId === activeSlug) ?? null;
+
   const content = useMemo(
     () =>
       defaultSiteContent({
         businessName: SAMPLE_BUSINESS.name,
         city: SAMPLE_BUSINESS.city,
-        primaryService: "cleaning",
-        primaryColor: accent,
+        primaryService: selectedPreset?.copy.service ?? "cleaning",
+        primaryColor: accent ?? selectedPreset?.accent ?? null,
+        templateId: selectedPreset?.templateId ?? null,
       }),
-    [accent],
+    [accent, selectedPreset],
   );
 
   if (isLoading) return <LoadingBlock rows={4} />;
