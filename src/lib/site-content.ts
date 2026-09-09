@@ -53,6 +53,12 @@ export type SiteContent = {
     responseNote: string;
     serviceQuestion: string;
   };
+  reviews: {
+    heading: string;
+    intro: string;
+    /** Public Google Business Profile / review link, shown as "See all reviews". */
+    googleUrl: string;
+  };
   contact: {
     heading: string;
     note: string;
@@ -114,6 +120,11 @@ export function defaultSiteContent(input: {
       responseNote: "We usually reply the same working day.",
       serviceQuestion: preset.copy.serviceQuestion,
     },
+    reviews: {
+      heading: "What our customers say",
+      intro: "Real words from people we've worked for.",
+      googleUrl: "",
+    },
     contact: {
       heading: "Contact us",
       note: "Prefer to talk? Call us and we'll answer any questions.",
@@ -154,6 +165,7 @@ export function normaliseContent(raw: unknown, fallback: SiteContent): SiteConte
     gallery: merge("gallery"),
     areas: merge("areas"),
     quote: merge("quote"),
+    reviews: merge("reviews"),
     contact: merge("contact"),
   };
 }
