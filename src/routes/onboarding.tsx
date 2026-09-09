@@ -829,7 +829,7 @@ function OnboardingPage() {
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
 
-            <div className="mt-10 flex items-center justify-between">
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
               <Button
                 variant="ghost"
                 onClick={() => setIndex((i) => Math.max(0, i - 1))}
@@ -837,23 +837,35 @@ function OnboardingPage() {
               >
                 Back
               </Button>
-              <Button
-                size="lg"
-                onClick={() => void next()}
-                disabled={saving}
-                className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
-                  </>
-                ) : isLast ? (
-                  "See my website"
-                ) : (
-                  "Continue"
-                )}
-              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {isLast ? (
+                  <Button
+                    variant="ghost"
+                    disabled={saving}
+                    onClick={() => void finish({ checkout: false })}
+                  >
+                    Skip — pay later
+                  </Button>
+                ) : null}
+                <Button
+                  size="lg"
+                  onClick={() => void next()}
+                  disabled={saving}
+                  className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                    </>
+                  ) : isLast ? (
+                    "Continue to checkout"
+                  ) : (
+                    "Continue"
+                  )}
+                </Button>
+              </div>
             </div>
+
           </div>
         </div>
 
