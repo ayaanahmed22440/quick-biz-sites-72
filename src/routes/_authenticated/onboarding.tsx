@@ -221,15 +221,15 @@ function OnboardingPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {NICHES.map((n) => (
-                    <SelectItem key={n.value} value={n.value} disabled={!n.ready}>
+                    <SelectItem key={n.value} value={n.value}>
                       {n.label}
-                      {n.ready ? "" : " — design coming soon"}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="mt-1.5 text-xs text-muted-foreground">
-                Cleaning designs are ready today. Other industries open as each design is approved.
+                Each industry has its own approved design, with professional photos already in
+                place. You can swap any photo or wording later.
               </p>
             </div>
             <div className="rounded-lg border border-dashed border-border p-4">
