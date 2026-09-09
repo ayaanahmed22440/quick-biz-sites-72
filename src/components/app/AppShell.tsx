@@ -75,7 +75,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       ))}
       {workspace?.isStaff ? (
         <>
-          <div className="mt-4 px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/45">
+          <div
+            className={cn(
+              "px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-sidebar-foreground/45",
+              staffOnly ? "" : "mt-4",
+            )}
+          >
             WebWarheads
           </div>
           <Link
