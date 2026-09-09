@@ -4,14 +4,26 @@
  * Templates are approved, human-reviewed designs. The customer never generates
  * a website; they fill in this content and pick their brand colour, and the
  * template renders it. Draft and published copies are stored separately.
+ *
+ * Business facts (name, phone, services, areas, hours) live in the database and
+ * are passed to the template separately — this file only holds the words and
+ * images the customer can edit.
  */
 
+import { presetFor, templateIdForNiche } from "@/lib/template-registry";
+
 export type SiteContent = {
-  templateId: "cleaning-01";
+  /** Which approved design renders this content. */
+  templateId: string;
   brand: {
     /** Hex colour, taken from the customer's own logo. */
     primaryColor: string;
     logoUrl: string | null;
+  };
+  images: {
+    hero: string;
+    about: string;
+    gallery: string[];
   };
   hero: {
     headline: string;
@@ -27,6 +39,10 @@ export type SiteContent = {
     heading: string;
     intro: string;
   };
+  gallery: {
+    heading: string;
+    intro: string;
+  };
   areas: {
     heading: string;
     intro: string;
@@ -35,6 +51,7 @@ export type SiteContent = {
     heading: string;
     intro: string;
     responseNote: string;
+    serviceQuestion: string;
   };
   contact: {
     heading: string;
@@ -50,38 +67,52 @@ export function defaultSiteContent(input: {
   primaryService?: string | null;
   primaryColor?: string | null;
   logoUrl?: string | null;
+  /** Business niche, or a template id directly. */
+  niche?: string | null;
+  templateId?: string | null;
 }): SiteContent {
+  const preset = presetFor(input.templateId ?? input.niche);
   const place = input.city?.trim() ? input.city.trim() : "your area";
-  const service = input.primaryService?.trim() ? input.primaryService.trim() : "cleaning";
+  const service = input.primaryService?.trim() ? input.primaryService.trim() : preset.copy.service;
 
   return {
-    templateId: "cleaning-01",
+    templateId: preset.templateId,
     brand: {
-      primaryColor: input.primaryColor || DEFAULT_PRIMARY_COLOR,
+      primaryColor: input.primaryColor || preset.accent || DEFAULT_PRIMARY_COLOR,
       logoUrl: input.logoUrl ?? null,
+    },
+    images: {
+      hero: preset.images.hero,
+      about: preset.images.about,
+      gallery: [...preset.images.gallery],
     },
     hero: {
       headline: `${service.charAt(0).toUpperCase()}${service.slice(1)} you can rely on in ${place}`,
-      subheadline: `${input.businessName} takes care of the cleaning so you don't have to. Tell us what you need and we'll come back with a straight price.`,
-      primaryCta: "Get a free quote",
-      trustPoints: ["Insured and vetted cleaners", "Clear fixed pricing", "Local, family-run team"],
+      subheadline: `${input.businessName} looks after the ${preset.copy.service} so you don't have to. Tell us what you need and we'll come back with a straight price.`,
+      primaryCta: preset.copy.cta,
+      trustPoints: [...preset.copy.trustPoints],
     },
     about: {
       heading: `About ${input.businessName}`,
-      body: `We're a ${place}-based cleaning team. Write a few honest sentences here about who you are, how long you've been cleaning, and what customers can expect when you turn up.`,
+      body: `We're a ${place}-based ${preset.copy.service} team. Write a few honest sentences here about who you are, how long you've been doing this, and what customers can expect when you turn up.`,
     },
     services: {
-      heading: "What we clean",
-      intro: "Every job is quoted properly. No surprise charges at the end.",
+      heading: preset.copy.servicesHeading,
+      intro: preset.copy.servicesIntro,
+    },
+    gallery: {
+      heading: preset.copy.galleryHeading,
+      intro: preset.copy.galleryIntro,
     },
     areas: {
       heading: "Areas we cover",
       intro: `We work across ${place} and the surrounding towns.`,
     },
     quote: {
-      heading: "Get your free quote",
-      intro: "Tell us what needs cleaning and when suits you. We'll reply with a price.",
+      heading: preset.copy.quoteHeading,
+      intro: preset.copy.quoteIntro,
       responseNote: "We usually reply the same working day.",
+      serviceQuestion: preset.copy.serviceQuestion,
     },
     contact: {
       heading: "Contact us",
@@ -91,25 +122,40 @@ export function defaultSiteContent(input: {
 }
 
 /** Merge stored JSON over defaults so older drafts never break rendering. */
-export function normaliseContent(
-  raw: unknown,
-  fallback: SiteContent,
-): SiteContent {
+export function normaliseContent(raw: unknown, fallback: SiteContent): SiteContent {
   if (!raw || typeof raw !== "object") return fallback;
-  const r = raw as Record<string, Record<string, unknown>>;
-  const pick = <K extends keyof SiteContent>(key: K): SiteContent[K] => ({
-    ...(fallback[key] as object),
-    ...((r[key as string] ?? {}) as object),
-  }) as SiteContent[K];
+  const r = raw as Record<string, unknown>;
+
+  const merge = <K extends keyof SiteContent>(key: K): SiteContent[K] =>
+    ({
+      ...(fallback[key] as object),
+      ...((r[key as string] && typeof r[key as string] === "object"
+        ? (r[key as string] as object)
+        : {}) as object),
+    }) as SiteContent[K];
+
+  const storedTemplate = typeof r["templateId"] === "string" ? (r["templateId"] as string) : null;
+  const images = merge("images");
 
   return {
-    templateId: "cleaning-01",
-    brand: pick("brand"),
-    hero: pick("hero"),
-    about: pick("about"),
-    services: pick("services"),
-    areas: pick("areas"),
-    quote: pick("quote"),
-    contact: pick("contact"),
+    templateId: presetFor(storedTemplate ?? fallback.templateId).templateId,
+    brand: merge("brand"),
+    images: {
+      hero: images.hero || fallback.images.hero,
+      about: images.about || fallback.images.about,
+      gallery:
+        Array.isArray(images.gallery) && images.gallery.length
+          ? images.gallery.filter((v) => typeof v === "string")
+          : fallback.images.gallery,
+    },
+    hero: merge("hero"),
+    about: merge("about"),
+    services: merge("services"),
+    gallery: merge("gallery"),
+    areas: merge("areas"),
+    quote: merge("quote"),
+    contact: merge("contact"),
   };
 }
+
+export { templateIdForNiche };
