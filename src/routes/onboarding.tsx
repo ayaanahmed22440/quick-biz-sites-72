@@ -230,7 +230,7 @@ const STEPS: Step[] = [
     key: "plan",
     stage: "plan",
     question: "Which plan suits you?",
-    helper: "Nothing is charged now — you only pay when you're ready to go live.",
+    helper: "Pick a plan and we'll take you straight to secure checkout — or skip and pay later.",
   },
 ];
 
