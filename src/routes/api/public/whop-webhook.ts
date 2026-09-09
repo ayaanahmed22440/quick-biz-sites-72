@@ -67,17 +67,31 @@ export const Route = createFileRoute("/api/public/whop-webhook")({
           const { syncMembership, syncMembershipById, markPaymentFailed, resolveMembershipOwner } =
             await import("@/lib/whop-sync.server");
 
+          // Whop's current membership events: activated, deactivated,
+          // cancel_at_period_end_changed, trial_ending_soon, plus legacy went_valid/went_invalid.
           if (eventType.startsWith("membership.")) {
-            const businessId = await syncMembership(data as never);
+            const ends =
+              eventType.endsWith("deactivated") ||
+              eventType.endsWith("went_invalid") ||
+              eventType.endsWith("expired");
+            const starts = eventType.endsWith("activated") || eventType.endsWith("went_valid");
+            const options = ends
+              ? ({ forceStatus: "canceled" } as const)
+              : starts
+                ? ({ forceStatus: "active" } as const)
+                : undefined;
+            const businessId = await syncMembership(data as never, options);
             await finish(businessId ? "processed" : "unmatched", businessId);
             return Response.json({ ok: true, matched: Boolean(businessId) });
           }
 
-          if (eventType === "payment.succeeded") {
+          if (eventType === "payment.succeeded" || eventType === "payment.authorized") {
             const membershipId =
               (typeof data["membership"] === "string" ? data["membership"] : null) ??
               (typeof data["membership_id"] === "string" ? data["membership_id"] : null);
-            const businessId = membershipId ? await syncMembershipById(membershipId) : null;
+            const businessId = membershipId
+              ? await syncMembershipById(membershipId, { forceStatus: "active" })
+              : null;
             await finish(businessId ? "processed" : "unmatched", businessId);
             return Response.json({ ok: true, matched: Boolean(businessId) });
           }

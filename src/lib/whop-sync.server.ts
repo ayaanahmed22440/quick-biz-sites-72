@@ -55,11 +55,14 @@ export async function resolveMembershipOwner(membership: WhopMembership): Promis
 }
 
 /** Upserts the subscription row for a membership. Returns the business it belongs to. */
-export async function syncMembership(membership: WhopMembership): Promise<string | null> {
+export async function syncMembership(
+  membership: WhopMembership,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+): Promise<string | null> {
   const owner = await resolveMembershipOwner(membership);
   if (!owner) return null;
 
-  const status = mapWhopStatus(membership.status, membership.valid);
+  const status = options?.forceStatus ?? mapWhopStatus(membership.status, membership.valid);
   const row = {
     business_id: owner.businessId,
     plan_id: owner.planId,
@@ -89,9 +92,12 @@ export async function syncMembership(membership: WhopMembership): Promise<string
 }
 
 /** Re-reads a membership from Whop and syncs it (used as a webhook fallback). */
-export async function syncMembershipById(membershipId: string): Promise<string | null> {
+export async function syncMembershipById(
+  membershipId: string,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+): Promise<string | null> {
   const membership = await getWhopMembership(membershipId);
-  return syncMembership(membership);
+  return syncMembership(membership, options);
 }
 
 export async function markPaymentFailed(businessId: string): Promise<void> {
