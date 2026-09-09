@@ -114,7 +114,7 @@ export const submitWebsiteLead = createServerFn({ method: "POST" })
             : "";
         await sendGmail({
           to: business.email,
-          replyTo: data.email || undefined,
+          ...(data.email ? { replyTo: data.email } : {}),
           purpose: "new_lead",
           businessId: business.id,
           subject: `New enquiry from ${data.name}`,

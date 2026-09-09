@@ -16,6 +16,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -33,7 +34,6 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDomainsRouteImport } from './routes/_authenticated/domains'
 import { Route as AuthenticatedLeadsRouteImport } from './routes/_authenticated/leads'
 import { Route as AuthenticatedMediaRouteImport } from './routes/_authenticated/media'
-import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedSeoRouteImport } from './routes/_authenticated/seo'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
@@ -80,6 +80,11 @@ const ContactRoute = ContactRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -170,11 +175,6 @@ const AuthenticatedMediaRoute = AuthenticatedMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedSeoRoute = AuthenticatedSeoRouteImport.update({
   id: '/seo',
   path: '/seo',
@@ -250,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -267,7 +268,6 @@ export interface FileRoutesByFullPath {
   '/domains': typeof AuthenticatedDomainsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/media': typeof AuthenticatedMediaRoute
-  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -289,6 +289,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -306,7 +307,6 @@ export interface FileRoutesByTo {
   '/domains': typeof AuthenticatedDomainsRoute
   '/leads': typeof AuthenticatedLeadsRoute
   '/media': typeof AuthenticatedMediaRoute
-  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/seo': typeof AuthenticatedSeoRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -330,6 +330,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -347,7 +348,6 @@ export interface FileRoutesById {
   '/_authenticated/domains': typeof AuthenticatedDomainsRoute
   '/_authenticated/leads': typeof AuthenticatedLeadsRoute
   '/_authenticated/media': typeof AuthenticatedMediaRoute
-  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/seo': typeof AuthenticatedSeoRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
@@ -371,6 +371,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/how-it-works'
+    | '/onboarding'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -388,7 +389,6 @@ export interface FileRouteTypes {
     | '/domains'
     | '/leads'
     | '/media'
-    | '/onboarding'
     | '/seo'
     | '/settings'
     | '/support'
@@ -410,6 +410,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/how-it-works'
+    | '/onboarding'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -427,7 +428,6 @@ export interface FileRouteTypes {
     | '/domains'
     | '/leads'
     | '/media'
-    | '/onboarding'
     | '/seo'
     | '/settings'
     | '/support'
@@ -450,6 +450,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/how-it-works'
+    | '/onboarding'
     | '/pricing'
     | '/privacy'
     | '/reset-password'
@@ -467,7 +468,6 @@ export interface FileRouteTypes {
     | '/_authenticated/domains'
     | '/_authenticated/leads'
     | '/_authenticated/media'
-    | '/_authenticated/onboarding'
     | '/_authenticated/seo'
     | '/_authenticated/settings'
     | '/_authenticated/support'
@@ -491,6 +491,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  OnboardingRoute: typeof OnboardingRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -552,6 +553,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -673,13 +681,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMediaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/onboarding': {
-      id: '/_authenticated/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/seo': {
       id: '/_authenticated/seo'
       path: '/seo'
@@ -788,7 +789,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDomainsRoute: typeof AuthenticatedDomainsRoute
   AuthenticatedLeadsRoute: typeof AuthenticatedLeadsRoute
   AuthenticatedMediaRoute: typeof AuthenticatedMediaRoute
-  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSeoRoute: typeof AuthenticatedSeoRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
@@ -811,7 +811,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDomainsRoute: AuthenticatedDomainsRoute,
   AuthenticatedLeadsRoute: AuthenticatedLeadsRoute,
   AuthenticatedMediaRoute: AuthenticatedMediaRoute,
-  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSeoRoute: AuthenticatedSeoRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
@@ -841,6 +840,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
+  OnboardingRoute: OnboardingRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
