@@ -847,24 +847,26 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
   const [period, setPeriod] = useState<"monthly" | "yearly">("monthly");
 
   return (
-    <div className="space-y-4">
-      <div className="inline-flex rounded-lg border border-border bg-card p-1">
-        {(["monthly", "yearly"] as const).map((p) => (
-          <button
-            key={p}
-            type="button"
-            onClick={() => setPeriod(p)}
-            className={cn(
-              "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
-              period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
-            )}
-          >
-            {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
-          </button>
-        ))}
+    <div className="space-y-6">
+      <div className="flex justify-center">
+        <div className="inline-flex rounded-lg border border-border bg-card p-1">
+          {(["monthly", "yearly"] as const).map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => setPeriod(p)}
+              className={cn(
+                "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
+                period === p ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+              )}
+            >
+              {p === "yearly" ? "Yearly — 2 months free" : "Monthly"}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {PLAN_COPY.map((plan) => {
           const selected = value === plan.id;
           return (
@@ -873,48 +875,48 @@ function PlanPicker({ value, onChange }: { value: string; onChange: (plan: strin
               type="button"
               onClick={() => onChange(plan.id)}
               className={cn(
-                "flex w-full items-start gap-4 rounded-xl border p-5 text-left transition-all",
+                "relative flex w-full flex-col rounded-2xl border bg-card p-6 text-left transition-all",
                 selected
-                  ? "border-accent bg-accent/5 ring-2 ring-accent/25"
-                  : "border-border hover:border-accent/50",
+                  ? "border-accent shadow-lg ring-2 ring-accent/30"
+                  : "border-border hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
               )}
             >
-              <span
-                className={cn(
-                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
-                  selected ? "border-accent bg-accent text-accent-foreground" : "border-border",
-                )}
-              >
-                {selected ? <Check className="h-3 w-3" /> : null}
+              {plan.recommended ? (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-3 py-1 text-[11px] font-semibold text-accent-foreground">
+                  Most popular
+                </span>
+              ) : null}
+              <span className="flex items-center justify-between gap-2">
+                <span className="text-base font-semibold">{plan.name}</span>
+                <span
+                  className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                    selected ? "border-accent bg-accent text-accent-foreground" : "border-border",
+                  )}
+                >
+                  {selected ? <Check className="h-3 w-3" /> : null}
+                </span>
               </span>
-              <span className="flex-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-base font-semibold">{plan.name}</span>
-                  {plan.recommended ? (
-                    <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-foreground">
-                      Most popular
-                    </span>
-                  ) : null}
+              <span className="mt-3 block text-3xl font-bold tracking-tight">
+                ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
+                <span className="text-sm font-normal text-muted-foreground">
+                  {period === "yearly" ? "/year" : "/month"}
                 </span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  ${period === "yearly" ? yearlyPrice(plan.price) : plan.price}
-                  {period === "yearly" ? " per year" : " per month"}
-                </span>
-                <span className="mt-3 block space-y-1.5">
-                  {plan.features.slice(0, 3).map((f) => (
-                    <span key={f} className="flex gap-2 text-sm text-muted-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                      {f}
-                    </span>
-                  ))}
-                </span>
+              </span>
+              <span className="mt-5 block space-y-2 border-t border-border pt-4">
+                {plan.features.slice(0, 4).map((f) => (
+                  <span key={f} className="flex gap-2 text-sm text-muted-foreground">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                    {f}
+                  </span>
+                ))}
               </span>
             </button>
           );
         })}
       </div>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-center text-xs text-muted-foreground">
         No card needed yet. You'll pay when you publish, and you can change plan any time.
       </p>
     </div>
