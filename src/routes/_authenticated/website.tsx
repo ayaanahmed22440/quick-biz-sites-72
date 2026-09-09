@@ -25,9 +25,10 @@ import {
 } from "@/lib/site-content";
 import { presetFor } from "@/lib/template-registry";
 import { ImageUpload } from "@/components/app/ImageUpload";
+import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { ReviewsEditor, useBusinessReviews } from "@/components/website/ReviewsEditor";
 
-const PREVIEW_WIDTHS = { desktop: "100%", tablet: "820px", mobile: "390px" } as const;
+const PREVIEW_WIDTHS = { desktop: 1280, tablet: 820, mobile: 390 } as const;
 type DeviceKey = keyof typeof PREVIEW_WIDTHS;
 
 export const Route = createFileRoute("/_authenticated/website")({
@@ -557,10 +558,7 @@ function WebsitePage() {
             </div>
           </div>
           <div className="overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-            <div
-              className="mx-auto max-h-[70vh] overflow-y-auto rounded-md bg-white shadow-sm"
-              style={{ width: PREVIEW_WIDTHS[device], maxWidth: "100%" }}
-            >
+            <PreviewFrame width={PREVIEW_WIDTHS[device]} height={900}>
               <LocalBusinessTemplate
                 business={site.data.business}
                 content={draft}
@@ -570,7 +568,7 @@ function WebsitePage() {
                 reviews={reviews.data ?? []}
                 previewOnly
               />
-            </div>
+            </PreviewFrame>
           </div>
         </div>
       </div>

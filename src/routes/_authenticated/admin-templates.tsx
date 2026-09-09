@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
+import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { defaultSiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 import { previewDataFor } from "@/lib/template-preview-data";
@@ -33,9 +34,9 @@ export const Route = createFileRoute("/_authenticated/admin-templates")({
 });
 
 const WIDTHS = {
-  desktop: "100%",
-  tablet: "820px",
-  mobile: "390px",
+  desktop: 1280,
+  tablet: 820,
+  mobile: 390,
 } as const;
 
 type DeviceKey = keyof typeof WIDTHS;
@@ -175,10 +176,7 @@ function AdminTemplatesPage() {
               </div>
 
               <div className="m-5 mt-3 overflow-hidden rounded-lg border border-border bg-muted/40 p-3">
-                <div
-                  className="mx-auto max-h-[70vh] overflow-y-auto rounded-md bg-white shadow-sm"
-                  style={{ width: WIDTHS[device], maxWidth: "100%" }}
-                >
+                <PreviewFrame width={WIDTHS[device]} height={820}>
                   <LocalBusinessTemplate
                     business={previewData.business}
                     content={content}
@@ -188,7 +186,7 @@ function AdminTemplatesPage() {
                     reviews={previewData.reviews}
                     previewOnly
                   />
-                </div>
+                </PreviewFrame>
               </div>
             </>
           ) : null}
