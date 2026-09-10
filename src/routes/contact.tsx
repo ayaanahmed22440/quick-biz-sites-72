@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { submitContactMessage } from "@/lib/contact.functions";
 
 const TITLE = "Contact WebWarheads";
 const DESCRIPTION =
@@ -56,19 +56,21 @@ function ContactPage() {
 
     setErrors({});
     setSubmitting(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      message: parsed.data.message,
-      business_name: parsed.data.business_name ?? null,
-    });
-    setSubmitting(false);
-
-    if (error) {
+    try {
+      await submitContactMessage({
+        data: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          message: parsed.data.message,
+          business_name: parsed.data.business_name ?? "",
+        },
+      });
+      setSent(true);
+    } catch {
       toast.error("We couldn't send that. Please try again.");
-      return;
+    } finally {
+      setSubmitting(false);
     }
-    setSent(true);
   }
 
   return (

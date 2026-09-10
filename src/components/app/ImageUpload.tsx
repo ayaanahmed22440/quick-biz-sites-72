@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const MAX_BYTES = 8 * 1024 * 1024;
-const ACCEPT = "image/png,image/jpeg,image/webp,image/svg+xml";
+// SVG is deliberately excluded: it can carry script and would be served from
+// our own domain.
+const ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
 
 /** Public address of a file stored in the private media bucket. */
 export function mediaUrl(path: string) {
@@ -38,8 +41,8 @@ export function ImageUpload({
   const [busy, setBusy] = useState(false);
 
   async function handleFile(file: File) {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please choose an image file.");
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Please choose a PNG, JPG or WebP image.");
       return;
     }
     if (file.size > MAX_BYTES) {

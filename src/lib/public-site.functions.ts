@@ -85,6 +85,23 @@ export const submitWebsiteLead = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
+    const { enforceRateLimit, callerKey } = await import("./rate-limit.server");
+    const caller = callerKey();
+    await enforceRateLimit({
+      bucket: "lead",
+      subject: caller,
+      limit: 10,
+      windowSeconds: 3600,
+      message: "Too many enquiries from this connection. Please try again later.",
+    });
+    await enforceRateLimit({
+      bucket: `lead:${data.slug}`,
+      subject: caller,
+      limit: 3,
+      windowSeconds: 900,
+      message: "You've already sent this business a message. Please try again later.",
+    });
+
     const supabase = publicClient();
     const args: Record<string, string> = { p_slug: data.slug, p_name: data.name };
     if (data.email) args["p_email"] = data.email;

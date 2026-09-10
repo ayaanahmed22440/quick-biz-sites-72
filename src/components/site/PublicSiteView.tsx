@@ -69,7 +69,14 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
       {schema ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          // Customer-entered text goes into this block, so angle brackets are
+          // escaped: nobody can close the script tag and inject markup.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(schema)
+              .replace(/</g, "\\u003c")
+              .replace(/>/g, "\\u003e")
+              .replace(/&/g, "\\u0026"),
+          }}
         />
       ) : null}
       <LocalBusinessTemplate
