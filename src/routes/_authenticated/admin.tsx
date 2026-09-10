@@ -59,6 +59,16 @@ function AdminPage() {
   const [search, setSearch] = useState("");
   const [openTicket, setOpenTicket] = useState<string | null>(null);
   const [reply, setReply] = useState("");
+  const notifyReplyFn = useServerFn(notifySupportReply);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string }[] | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
+
+  const toggleSelected = (id: string) =>
+    setSelected((current) =>
+      current.includes(id) ? current.filter((x) => x !== id) : [...current, id],
+    );
 
   const admin = useQuery({
     queryKey: ADMIN_KEY,
