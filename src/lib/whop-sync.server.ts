@@ -54,6 +54,47 @@ export async function resolveMembershipOwner(membership: WhopMembership): Promis
   return null;
 }
 
+/** Emails the owner (and the team) about a billing outcome. Never throws. */
+async function notifyBilling(
+  businessId: string,
+  outcome: "received" | "failed" | "ended",
+  planId?: string,
+) {
+  try {
+    const [{ data: business }, { data: plan }] = await Promise.all([
+      supabaseAdmin.from("businesses").select("id, name, email").eq("id", businessId).maybeSingle(),
+      planId
+        ? supabaseAdmin.from("plans").select("name").eq("id", planId).maybeSingle()
+        : Promise.resolve({ data: null as { name: string } | null }),
+    ]);
+    if (!business) return;
+    const planName = plan?.name ?? planId ?? "your plan";
+    const emails = await import("@/lib/emails.server");
+
+    if (business.email) {
+      if (outcome === "received") {
+        await emails.sendPaymentReceivedEmail({
+          to: business.email,
+          businessId,
+          planName,
+        });
+      } else if (outcome === "failed") {
+        await emails.sendPaymentFailedEmail({ to: business.email, businessId });
+      } else {
+        await emails.sendAccessPausedEmail({ to: business.email, businessId });
+      }
+    }
+    await emails.adminPaymentEvent({
+      businessId,
+      businessName: business.name,
+      outcome,
+      planName,
+    });
+  } catch (error) {
+    console.error("[billing email] failed", error);
+  }
+}
+
 /** Upserts the subscription row for a membership. Returns the business it belongs to. */
 export async function syncMembership(
   membership: WhopMembership,
