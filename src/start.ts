@@ -34,13 +34,13 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next, reque
   if (pathname.startsWith("/lovable/") || pathname.startsWith("/api/")) return next();
 
   setResponseHeaders({
-    "X-Content-Type-Options": "nosniff",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "X-Frame-Options": "SAMEORIGIN",
-    "Permissions-Policy":
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-frame-options": "SAMEORIGIN",
+    "permissions-policy":
       "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
-    "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "cross-origin-opener-policy": "same-origin-allow-popups",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
   });
 
   // Inline scripts/styles are required by the framework's hydration payload and
