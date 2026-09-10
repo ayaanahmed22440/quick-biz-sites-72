@@ -1,4 +1,5 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
+import { setResponseHeader, setResponseHeaders } from "@tanstack/react-start/server";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
@@ -61,8 +62,8 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next, reque
     "upgrade-insecure-requests",
   ].join("; ");
 
-  if (import.meta.env.PROD) response.headers.set("Content-Security-Policy", csp);
-  return response;
+  if (import.meta.env.PROD) setResponseHeader("Content-Security-Policy", csp);
+  return next();
 });
 
 // Start installs this automatically when src/start.ts is absent; defining the
