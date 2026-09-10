@@ -67,6 +67,8 @@ export async function sendGmail(opts: {
   subject: string;
   html: string;
   replyTo?: string;
+  /** Optional plain-text alternative; generated from the HTML when omitted. */
+  text?: string;
   /** Short machine label, e.g. "new_lead" — shown in the admin email log. */
   purpose: string;
   businessId?: string | null;
