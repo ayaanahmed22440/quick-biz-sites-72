@@ -10,7 +10,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const businessInput = z.object({ businessId: z.string().uuid() });
 
-async function loadBusiness(supabase: unknown, businessId: string) {
+async function loadBusiness(businessId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("businesses")
