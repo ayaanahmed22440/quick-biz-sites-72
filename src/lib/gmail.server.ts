@@ -15,15 +15,47 @@ const b64 = (value: string) =>
 const header = (value: string) =>
   /^[\x00-\x7F]*$/.test(value) ? value : `=?UTF-8?B?${b64(value)}?=`;
 
-function rawMessage(opts: { to: string; subject: string; html: string; replyTo?: string }) {
+/** Strips tags so every message carries a readable plain-text alternative. */
+export function htmlToText(html: string) {
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<\/(p|div|h1|h2|h3|li|tr)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function rawMessage(opts: {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+  text?: string;
+}) {
+  const boundary = `ww_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  const text = opts.text ?? htmlToText(opts.html);
   const lines = [
     `To: ${opts.to}`,
     `Subject: ${header(opts.subject)}`,
     ...(opts.replyTo ? [`Reply-To: ${opts.replyTo}`] : []),
     "MIME-Version: 1.0",
+    `Content-Type: multipart/alternative; boundary="${boundary}"`,
+    "",
+    `--${boundary}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    "",
+    text,
+    "",
+    `--${boundary}`,
     'Content-Type: text/html; charset="UTF-8"',
     "",
     opts.html,
+    "",
+    `--${boundary}--`,
+    "",
   ];
   return b64(lines.join("\r\n")).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
