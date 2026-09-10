@@ -197,6 +197,12 @@ function WebsitePage() {
           .update({ status: "published", published_at: new Date().toISOString() })
           .eq("id", site.data.websiteId);
         if (wErr) throw wErr;
+        // Congratulations email — never block going live on it.
+        try {
+          await notifyPublished({ data: { businessId } });
+        } catch (mailError) {
+          console.error("Publish email failed", mailError);
+        }
       }
 
       if (draft.brand.primaryColor !== site.data.business.primary_color ||
