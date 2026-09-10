@@ -587,17 +587,10 @@ function AdminPage() {
                             size="sm"
                             variant="ghost"
                             className="text-destructive"
-                            disabled={removeCustomer.isPending}
+                            disabled={removeCustomers.isPending}
                             onClick={() => {
-                              const typed = window.prompt(
-                                `This permanently deletes ${b.name} — website, media, leads, support history and their sign-in account. Type the business name to confirm.`,
-                              );
-                              if (typed === null) return;
-                              if (typed.trim().toLowerCase() !== b.name.trim().toLowerCase()) {
-                                toast.error("Name didn't match — nothing was deleted");
-                                return;
-                              }
-                              removeCustomer.mutate(b.id);
+                              setConfirmed(false);
+                              setPendingDelete([{ id: b.id, name: b.name }]);
                             }}
                           >
                             Delete customer
