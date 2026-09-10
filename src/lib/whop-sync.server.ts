@@ -137,6 +137,12 @@ export async function syncMembership(
     .eq("business_id", owner.businessId)
     .eq("status", "pending");
 
+  if (status === "active" && previous !== "active") {
+    await notifyBilling(owner.businessId, "received", owner.planId);
+  } else if (status === "canceled" && previous !== "canceled") {
+    await notifyBilling(owner.businessId, "ended", owner.planId);
+  }
+
   return owner.businessId;
 }
 
