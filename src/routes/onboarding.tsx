@@ -231,6 +231,7 @@ const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172
 function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const sendWelcome = useServerFn(notifyWelcome);
   
   const { data: workspace, isLoading } = useWorkspace();
 
