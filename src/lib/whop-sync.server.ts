@@ -160,4 +160,11 @@ export async function markPaymentFailed(businessId: string): Promise<void> {
     .from("subscriptions")
     .update({ status: "past_due", last_payment_failed_at: new Date().toISOString() })
     .eq("business_id", businessId);
+
+  const { data: sub } = await supabaseAdmin
+    .from("subscriptions")
+    .select("plan_id")
+    .eq("business_id", businessId)
+    .maybeSingle();
+  await notifyBilling(businessId, "failed", sub?.plan_id);
 }
