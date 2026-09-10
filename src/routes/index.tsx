@@ -1,6 +1,20 @@
 import { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Check, Globe, MessageSquare, Search, Wrench } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Globe2,
+  Image,
+  LayoutTemplate,
+  MessageSquareText,
+  Monitor,
+  Search,
+  Send,
+  Smartphone,
+  Sparkles,
+} from "lucide-react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PricingCards } from "@/components/site/PricingCards";
 import { Button } from "@/components/ui/button";
@@ -12,9 +26,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const TITLE = "WebWarheads — Websites for small & local businesses from $37/month";
+const TITLE = "WebWarheads — Local Business Websites from $37";
 const DESCRIPTION =
-  "Stop paying $1,500+ upfront for a website. WebWarheads builds, hosts and maintains your business website for $37/month — live in days, no developer needed.";
+  "Build, edit and publish a professional local-business website with hosting, leads and support included from $37/month.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,63 +37,104 @@ export const Route = createFileRoute("/")({
       { name: "description", content: DESCRIPTION },
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HomePage,
 });
 
-const STEPS = [
-  {
-    title: "Tell us about your business",
-    body: "Name, services, phone, the cities you cover. Five minutes, no technical questions.",
-  },
-  {
-    title: "Pick your template",
-    body: "Professionally built layouts for your trade. Your logo, your colours, your photos.",
-  },
-  {
-    title: "Publish and get leads",
-    body: "Hit publish, connect your domain, and contact form enquiries land in your dashboard.",
-  },
-];
-
-const INCLUDED = [
-  { icon: Globe, title: "Hosting, SSL and domain setup", body: "Handled for you. Nothing to configure, nothing extra to buy." },
-  { icon: Wrench, title: "An editor you'll actually use", body: "Change text, photos, services and hours. No code, nothing to break." },
-  { icon: Search, title: "Local SEO fundamentals", body: "Titles, meta, schema, sitemap and local keywords built from your real services and cities." },
-  { icon: MessageSquare, title: "Human help", body: "Message us for changes. On Growth, we make the edits for you." },
+const FEATURES = [
+  { icon: LayoutTemplate, title: "Start with a proven design", body: "Choose a polished layout built for service businesses, then make it yours." },
+  { icon: Image, title: "Edit without breaking anything", body: "Change services, photos, reviews and hours in one straightforward workspace." },
+  { icon: Send, title: "Turn visits into enquiries", body: "Built-in contact forms send every new lead to your dashboard and inbox." },
+  { icon: Search, title: "Get the local basics right", body: "Clean structure, metadata and service-area information are handled from the start." },
 ];
 
 const FAQS = [
-  {
-    q: "How is this cheaper than a web designer?",
-    a: "A designer builds one site and charges for the build, then hosting and maintenance separately. We built the templates once and run every site on the same platform, so you pay a monthly price instead of a large upfront invoice.",
-  },
-  {
-    q: "How fast can I be live?",
-    a: "Most businesses finish onboarding in under 30 minutes and publish the same day. Connecting your own domain can take a few extra hours while DNS updates.",
-  },
-  {
-    q: "Do I own my content?",
-    a: "Yes. Your business information, copy, photos and domain are yours. If you leave, you keep your domain and your content.",
-  },
-  {
-    q: "Do I need to understand hosting, DNS or SSL?",
-    a: "No. That is the whole point. You give us your business information and we handle the technical side.",
-  },
-  {
-    q: "Will you guarantee first place on Google?",
-    a: "No, and be careful with anyone who does. We build the SEO fundamentals properly — correct titles, structure, local keywords, schema and indexing — which is what actually gives you a chance to rank.",
-  },
-  {
-    q: "Can I cancel?",
-    a: "Yes, monthly. Cancel any time and your site stays online to the end of the billing period.",
-  },
+  ["Can I see my website before paying?", "Yes. Build the site, add your real details and preview the result first. Payment is only required when you publish."],
+  ["Do I need to know how to code?", "No. The editor only asks for the information your customers need, and the design stays protected."],
+  ["Can I use my own domain?", "Yes. Publish first, then follow the guided steps to connect a domain you already own."],
+  ["Can I cancel?", "Yes. Plans are monthly and you can cancel at any time. Your site remains available through the paid period."],
 ];
+
+function ProductPreview() {
+  return (
+    <div className="animate-product-rise relative mx-auto mt-16 max-w-6xl px-3 sm:px-6">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_28px_80px_-36px_color-mix(in_oklab,var(--color-navy)_42%,transparent)]">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-3 py-3 sm:flex sm:px-4">
+          <div className="flex shrink-0 gap-1.5" aria-hidden="true">
+            <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+            <span className="h-2.5 w-2.5 rounded-full bg-success" />
+          </div>
+          <div className="hidden min-w-0 flex-1 justify-center sm:flex">
+            <div className="w-full max-w-md truncate rounded-md border border-border bg-muted px-4 py-1.5 text-center text-xs text-muted-foreground">
+              webwarheads.com/your-business
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-1 rounded-md border border-border bg-muted p-1">
+            <span className="rounded-sm bg-background p-1.5 text-foreground shadow-xs"><Monitor className="h-3.5 w-3.5" /></span>
+            <span className="p-1.5 text-muted-foreground"><Smartphone className="h-3.5 w-3.5" /></span>
+          </div>
+        </div>
+
+        <div className="grid min-h-[430px] bg-muted/50 lg:grid-cols-[290px_minmax(0,1fr)]">
+          <aside className="hidden border-r border-border bg-card p-5 lg:block">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-foreground">Website editor</p>
+              <span className="flex items-center gap-1 text-[11px] font-semibold text-success"><CheckCircle2 className="h-3.5 w-3.5" /> Saved</span>
+            </div>
+            <div className="mt-6 space-y-2">
+              {["Business details", "Services", "Photos", "Reviews", "Contact & hours"].map((item, index) => (
+                <div key={item} className={`flex items-center justify-between rounded-md px-3 py-2.5 text-sm ${index === 1 ? "bg-secondary font-semibold text-foreground" : "text-muted-foreground"}`}>
+                  <span>{item}</span><ChevronRight className="h-4 w-4" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-7 border-t border-border pt-5">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Brand color</p>
+              <div className="mt-3 flex gap-2">
+                {["bg-accent", "bg-navy", "bg-success", "bg-warning"].map((color) => <span key={color} className={`h-7 w-7 rounded-full border-2 border-card shadow-sm ${color}`} />)}
+              </div>
+            </div>
+          </aside>
+
+          <div className="p-3 sm:p-6 lg:p-8">
+            <div className="mx-auto h-full max-w-4xl overflow-hidden rounded-lg border border-border bg-background shadow-lg">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <div className="font-bold text-foreground">Greenline<span className="text-success">.</span></div>
+                <div className="hidden gap-5 text-xs font-medium text-muted-foreground sm:flex"><span>Services</span><span>Our work</span><span>Contact</span></div>
+                <span className="rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground">Free estimate</span>
+              </div>
+              <div className="grid min-h-[330px] content-center gap-8 p-6 sm:p-10 md:grid-cols-[1.08fr_.92fr] md:items-center">
+                <div>
+                  <span className="text-xs font-bold uppercase text-success">Austin's local landscape team</span>
+                  <h2 className="mt-3 text-3xl font-bold leading-tight text-foreground sm:text-4xl">Outdoor spaces made for living.</h2>
+                  <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Thoughtful landscape design, dependable care and a team that keeps every project clear from day one.</p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <span className="rounded-md bg-success px-4 py-2 text-xs font-bold text-success-foreground">Request a quote</span>
+                    <span className="rounded-md border border-border px-4 py-2 text-xs font-bold text-foreground">See our work</span>
+                  </div>
+                </div>
+                <div className="hidden aspect-[4/3] overflow-hidden rounded-lg bg-success/10 p-3 md:block">
+                  <img src="/src/assets/templates/cleaning-gallery-1.jpg" alt="Landscaped outdoor area shown in a customer website preview" className="h-full w-full rounded-md object-cover" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 border-t border-border bg-muted/50 px-4 py-4 text-center">
+                {["Fast quotes", "Local team", "Quality work"].map((item) => <span key={item} className="text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">{item}</span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto h-8 w-[82%] rounded-b-full bg-navy/10 blur-xl" aria-hidden="true" />
+    </div>
+  );
+}
 
 function HomePage() {
   const navigate = useNavigate();
-
   useEffect(() => {
     const target = sessionStorage.getItem("ww:after-login");
     if (target !== "/admin" && target !== "/dashboard") return;
@@ -89,278 +144,117 @@ function HomePage() {
       void navigate({ to: target, replace: true });
     };
     void supabase.auth.getSession().then(({ data }) => forward(Boolean(data.session)));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      forward(Boolean(session));
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => forward(Boolean(session)));
     return () => listener.subscription.unsubscribe();
   }, [navigate]);
 
   return (
     <PublicLayout>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy text-navy-foreground">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent/20 blur-3xl"
-        />
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:grid-cols-2 lg:items-center">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-navy-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Built for local business owners
-            </p>
-            <h1 className="mt-5 text-[1.75rem] font-extrabold leading-[1.12] sm:text-4xl md:text-5xl lg:text-6xl">
-              Stop paying $1,500 for a website.{" "}
-              <span className="text-accent">Get yours live for $37.</span>
-            </h1>
-            <p className="mt-5 max-w-xl text-base text-navy-foreground/75 sm:text-lg">
-              You clean houses. You fix roofs. You do not want a three-week email thread about
-              hosting. Tell us about your business, pick a template, hit publish — we handle every
-              technical part of it.
-            </p>
-
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button
-                asChild
-                size="lg"
-                className="bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                <Link to="/auth" search={{ mode: "signup" }}>
-                  Get your website live
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-navy-foreground/25 bg-transparent text-navy-foreground hover:bg-navy-foreground/10 hover:text-navy-foreground"
-              >
-                <Link to="/how-it-works">See how it works</Link>
-              </Button>
-            </div>
-
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-navy-foreground/70">
-              {["Live in days", "Cancel anytime", "No setup fee", "Real human support"].map((i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-accent" />
-                  {i}
-                </li>
-              ))}
-            </ul>
+      <section className="overflow-hidden bg-background">
+        <div className="mx-auto max-w-5xl px-4 pb-4 pt-16 text-center sm:px-6 sm:pt-24">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-[11px] font-bold uppercase text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-accent" /> Built for local business owners
           </div>
-
-          {/* Cost comparison — plain, factual, no fake screenshots */}
-          <div className="rounded-xl border border-navy-foreground/15 bg-navy-muted/40 p-6 sm:p-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-navy-foreground/70">
-              What a website normally costs
-            </h2>
-            <dl className="mt-6 space-y-4 text-sm">
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
-                <dt className="text-navy-foreground/75">Freelance designer, one-off build</dt>
-                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$1,500 – $5,000</dd>
-              </div>
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
-                <dt className="text-navy-foreground/75">Hosting, SSL and maintenance</dt>
-                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$20 – $60/mo</dd>
-              </div>
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 border-b border-navy-foreground/10 pb-4">
-                <dt className="text-navy-foreground/75">Every text or photo change</dt>
-                <dd className="whitespace-nowrap text-base font-semibold sm:text-lg">$75 – $150/hr</dd>
-              </div>
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 pt-1">
-                <dt className="font-semibold text-navy-foreground">WebWarheads, all of it</dt>
-                <dd className="whitespace-nowrap text-xl font-extrabold text-accent sm:text-2xl">$37/mo</dd>
-              </div>
-            </dl>
-            <p className="mt-6 text-xs text-navy-foreground/55">
-              Comparison figures are typical US market rates for small business websites, shown for
-              context.
-            </p>
+          <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-bold leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
+            Your business deserves a website that <span className="text-accent">wins the local search.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
+            Build, preview and publish a professional website without hiring a developer. Everything you need, from <strong className="font-semibold text-foreground">$37 a month.</strong>
+          </p>
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg" className="h-12 bg-accent px-7 text-accent-foreground hover:bg-accent/90">
+              <Link to="/auth" search={{ mode: "signup" }}>Build my website free <ArrowRight /></Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="h-12 px-7">
+              <Link to="/how-it-works">See how it works</Link>
+            </Button>
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">No setup fee · Preview before you pay · Cancel anytime</p>
         </div>
+        <ProductPreview />
       </section>
 
-      {/* Promise strip */}
-      <div className="border-y border-border bg-foreground text-background">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] sm:text-xs">
-          {["No setup fee", "No contract", "No jargon", "Cancel anytime"].map((item, i) => (
-            <span key={item} className="flex items-center gap-6">
-              {i > 0 ? <span className="hidden h-1 w-1 rounded-full bg-accent sm:block" /> : null}
-              {item}
-            </span>
+      <section className="border-y border-border bg-navy text-navy-foreground">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
+          {["Website, hosting and SSL included", "Built to turn visitors into leads", "Your content and domain stay yours"].map((item) => (
+            <div key={item} className="flex items-center justify-center gap-2 text-sm font-semibold"><Check className="h-4 w-4 text-accent" />{item}</div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Who it's for */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            For businesses that want the phone to ring, not a design award
-          </h2>
+      <section className="bg-background py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold text-accent">ONE PLACE TO RUN YOUR SITE</p>
+            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">The website work, without the website headache.</h2>
+            <p className="mt-5 text-lg text-muted-foreground">Everything is designed around what a busy local owner actually needs to change and track.</p>
+          </div>
+          <div className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
+            {FEATURES.map(({ icon: Icon, title, body }) => (
+              <article key={title} className="bg-card p-7 sm:p-9">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-accent"><Icon className="h-5 w-5" /></div>
+                <h3 className="mt-6 text-xl font-bold text-foreground">{title}</h3>
+                <p className="mt-2 max-w-md leading-7 text-muted-foreground">{body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            We start with cleaning companies and are adding more trades. If your customers find you
-            by searching your service and your city, this is for you.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-2">
+      <section className="border-y border-border bg-muted/50 py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-sm font-bold text-accent">FROM IDEA TO LIVE</p>
+            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Three steps. No technical detour.</h2>
+          </div>
+          <ol className="mt-14 grid gap-8 md:grid-cols-3">
             {[
-              "Cleaning",
-              "Roofing",
-              "Landscaping",
-              "Plumbing",
-              "Painting",
-              "HVAC",
-              "Construction",
-              "Home services",
-            ].map((niche, i) => (
-              <span
-                key={niche}
-                className="rounded-md border border-border px-3 py-1.5 text-sm text-foreground"
-              >
-                {niche}
-                {i === 0 ? (
-                  <span className="ml-2 text-xs font-semibold text-accent">Available now</span>
-                ) : (
-                  <span className="ml-2 text-xs text-muted-foreground">Coming soon</span>
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What you get */}
-      <section className="border-b border-border bg-muted/40">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            Everything's in the $37 — here's the list
-          </h2>
-
-          <div className="mt-10 grid gap-8 sm:grid-cols-2">
-            {INCLUDED.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-navy text-navy-foreground">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            Three steps from nothing to live
-          </h2>
-          <ol className="mt-10 grid gap-8 md:grid-cols-3">
-            {STEPS.map((step, index) => (
-              <li key={step.title} className="border-t-2 border-accent pt-5">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Step {index + 1}
-                </span>
-                <h3 className="mt-2 text-lg font-semibold">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{step.body}</p>
+              ["01", "Tell us about the business", "Answer focused questions about your services, location and brand."],
+              ["02", "See the real website", "Choose a design and watch your details appear in a working preview."],
+              ["03", "Publish when you are ready", "Pick a plan only after you have seen the result, then go live."],
+            ].map(([number, title, body]) => (
+              <li key={number} className="border-t border-border pt-6">
+                <span className="font-mono text-sm font-bold text-accent">{number}</span>
+                <h3 className="mt-6 text-xl font-bold text-foreground">{title}</h3>
+                <p className="mt-3 leading-7 text-muted-foreground">{body}</p>
               </li>
             ))}
           </ol>
-          <Button asChild variant="link" className="mt-6 px-0 text-accent">
-            <Link to="/how-it-works">
-              See the full process <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="border-b border-border bg-muted/40">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="max-w-2xl">
-            <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-              Simple monthly pricing
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Every plan includes the website, hosting, SSL and support. Move up when you want to be
-              found locally or want us doing the work for you.
-            </p>
+      <section className="bg-background py-20 sm:py-28">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-bold text-accent">SIMPLE PRICING</p>
+            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Start at $37. Grow when it makes sense.</h2>
+            <p className="mt-5 text-lg text-muted-foreground">Every plan includes the website, editor, hosting and support. No setup fee.</p>
           </div>
-          <div className="mt-10">
-            <PricingCards compact />
-          </div>
-          <Button asChild variant="link" className="mt-6 px-0 text-accent">
-            <Link to="/pricing">
-              Compare plans in detail <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="mt-14"><PricingCards compact /></div>
+          <div className="mt-8 text-center"><Button asChild variant="link" className="text-accent"><Link to="/pricing">Compare every feature <ArrowRight /></Link></Button></div>
         </div>
       </section>
 
-      {/* Honest note */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
-            The part nobody puts on their homepage
-          </p>
-          <h2 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
-            What we won't do
-          </h2>
-          <div className="mt-6 space-y-4 border-l-2 border-accent pl-5 text-muted-foreground">
-            <p>
-              We won't promise you page one of Google. We won't invent testimonials for your
-              website. We won't sell you a redesign every eighteen months, and we won't charge you
-              $120 to change a phone number.
-            </p>
-            <p>
-              What we will do is give you a fast, correct, properly structured website for your
-              trade and your town, keep it online, and answer you when you message. That's the whole
-              business.
-            </p>
-            <p className="text-sm font-semibold text-foreground">— The WebWarheads team</p>
+      <section className="border-y border-border bg-muted/50 py-20">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 md:grid-cols-[.8fr_1.2fr] lg:px-8">
+          <div>
+            <p className="text-sm font-bold text-accent">STRAIGHT ANSWERS</p>
+            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">Know what you are getting.</h2>
+            <p className="mt-4 text-muted-foreground">No ranking promises, hidden build fees or technical runaround.</p>
           </div>
-        </div>
-      </section>
-
-
-      {/* FAQ */}
-      <section className="border-b border-border">
-        <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">Straight answers</h2>
-          <Accordion type="single" collapsible className="mt-8">
-            {FAQS.map((faq) => (
-              <AccordionItem key={faq.q} value={faq.q}>
-                <AccordionTrigger className="text-left text-base font-semibold">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground">{faq.a}</AccordionContent>
-              </AccordionItem>
-            ))}
+          <Accordion type="single" collapsible>
+            {FAQS.map(([q, a]) => <AccordionItem key={q} value={q}><AccordionTrigger className="text-left text-base font-bold">{q}</AccordionTrigger><AccordionContent className="leading-6 text-muted-foreground">{a}</AccordionContent></AccordionItem>)}
           </Accordion>
         </div>
       </section>
 
-      {/* Final CTA */}
       <section className="bg-navy text-navy-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-7 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
-            <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">Ready to stop putting this off?</h2>
-            <p className="mt-2 text-navy-foreground/75">
-              Create your account, answer a few questions about your business, publish.
-            </p>
+            <h2 className="text-3xl font-bold sm:text-4xl">See your business online today.</h2>
+            <p className="mt-3 text-navy-foreground/70">Build the preview free. Pay only when it is ready to publish.</p>
           </div>
-          <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              Get your website live
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+          <Button asChild size="lg" className="h-12 shrink-0 bg-accent px-7 text-accent-foreground hover:bg-accent/90"><Link to="/auth" search={{ mode: "signup" }}>Start building <ArrowRight /></Link></Button>
         </div>
       </section>
     </PublicLayout>
