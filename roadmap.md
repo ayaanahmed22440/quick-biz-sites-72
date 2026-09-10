@@ -64,3 +64,5 @@
 - Upgraded all seven industry presets with stronger positioning while preserving customer data, media, editor controls and lead capture.
 - Centralized template typography and visual rules so every future preset follows the same modular system.
 - Admin previews now use industry-specific businesses, services, locations and reviews instead of repeating the cleaning demo.
+
+- Security hardening pass: contact form moved server-side with throttling, lead submissions throttled, security headers + CSP, hardened media serving (no SVG), upload allowlist, robots.txt lockdown, cookie notice, escaped JSON-LD.
