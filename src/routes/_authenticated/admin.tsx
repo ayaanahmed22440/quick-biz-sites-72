@@ -20,6 +20,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { notifySupportReply } from "@/lib/notify.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -47,6 +59,16 @@ function AdminPage() {
   const [search, setSearch] = useState("");
   const [openTicket, setOpenTicket] = useState<string | null>(null);
   const [reply, setReply] = useState("");
+  const notifyReplyFn = useServerFn(notifySupportReply);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string }[] | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
+
+  const toggleSelected = (id: string) =>
+    setSelected((current) =>
+      current.includes(id) ? current.filter((x) => x !== id) : [...current, id],
+    );
 
   const admin = useQuery({
     queryKey: ADMIN_KEY,
@@ -137,18 +159,37 @@ function AdminPage() {
     onError: () => toast.error("Could not delete that website"),
   });
 
-  const removeCustomer = useMutation({
-    mutationFn: (businessId: string) => deleteCustomerFn({ data: { businessId } }),
-    onSuccess: (result) => {
-      void refresh();
-      toast.success(
-        result.accountRemoved
-          ? "Customer and their sign-in account were deleted"
-          : "Customer data deleted",
-      );
+  // Deletes one at a time so a single refusal (an admin account) doesn't stop the rest.
+  const removeCustomers = useMutation({
+    mutationFn: async (targets: { id: string; name: string }[]) => {
+      const failures: string[] = [];
+      let done = 0;
+      for (const target of targets) {
+        setProgress(`${done} of ${targets.length} removed…`);
+        try {
+          await deleteCustomerFn({ data: { businessId: target.id } });
+          done += 1;
+        } catch (error) {
+          failures.push(
+            `${target.name}: ${error instanceof Error ? error.message : "could not be deleted"}`,
+          );
+        }
+      }
+      setProgress(null);
+      return { done, failures };
     },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not delete that customer"),
+    onSuccess: ({ done, failures }) => {
+      setSelected([]);
+      setPendingDelete(null);
+      setConfirmed(false);
+      void refresh();
+      if (done) toast.success(`${done} customer${done === 1 ? "" : "s"} deleted`);
+      if (failures.length) toast.error(failures.join(" · "));
+    },
+    onError: (error) => {
+      setProgress(null);
+      toast.error(error instanceof Error ? error.message : "Could not delete those customers");
+    },
   });
 
   const setTicketStatus = useMutation({
@@ -171,6 +212,12 @@ function AdminPage() {
       });
       if (error) throw error;
       await supabase.from("support_tickets").update({ status: "pending" }).eq("id", ticketId);
+      // Email the customer too — a mail hiccup must not lose the reply.
+      try {
+        await notifyReplyFn({ data: { businessId, message: reply.trim().slice(0, 4000) } });
+      } catch (mailError) {
+        console.error("Support reply email failed", mailError);
+      }
     },
     onSuccess: () => {
       setReply("");
@@ -347,6 +394,22 @@ function AdminPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+            {selected.length ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  setConfirmed(false);
+                  setPendingDelete(
+                    filtered
+                      .filter((row) => selected.includes(row.business.id))
+                      .map((row) => ({ id: row.business.id, name: row.business.name })),
+                  );
+                }}
+              >
+                Delete selected ({selected.length})
+              </Button>
+            ) : null}
             <Link
               to="/admin-templates"
               className="ml-auto text-sm font-semibold text-primary underline-offset-4 hover:underline"
@@ -358,6 +421,15 @@ function AdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      aria-label="Select every client shown"
+                      checked={filtered.length > 0 && selected.length === filtered.length}
+                      onCheckedChange={(value) =>
+                        setSelected(value ? filtered.map((row) => row.business.id) : [])
+                      }
+                    />
+                  </TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead>Plan</TableHead>
                   <TableHead>Website</TableHead>
@@ -371,13 +443,20 @@ function AdminPage() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-sm text-muted-foreground">
+                    <TableCell colSpan={9} className="text-sm text-muted-foreground">
                       No clients match that search.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filtered.map(({ business: b, sub, site, mrr: m, ltv, monthsActive }) => (
                     <TableRow key={b.id}>
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Select ${b.name}`}
+                          checked={selected.includes(b.id)}
+                          onCheckedChange={() => toggleSelected(b.id)}
+                        />
+                      </TableCell>
                       <TableCell>
                         <p className="font-medium">
                           {b.name}
@@ -508,17 +587,10 @@ function AdminPage() {
                             size="sm"
                             variant="ghost"
                             className="text-destructive"
-                            disabled={removeCustomer.isPending}
+                            disabled={removeCustomers.isPending}
                             onClick={() => {
-                              const typed = window.prompt(
-                                `This permanently deletes ${b.name} — website, media, leads, support history and their sign-in account. Type the business name to confirm.`,
-                              );
-                              if (typed === null) return;
-                              if (typed.trim().toLowerCase() !== b.name.trim().toLowerCase()) {
-                                toast.error("Name didn't match — nothing was deleted");
-                                return;
-                              }
-                              removeCustomer.mutate(b.id);
+                              setConfirmed(false);
+                              setPendingDelete([{ id: b.id, name: b.name }]);
                             }}
                           >
                             Delete customer
@@ -531,6 +603,57 @@ function AdminPage() {
               </TableBody>
             </Table>
           </div>
+
+          <AlertDialog
+            open={Boolean(pendingDelete)}
+            onOpenChange={(open) => {
+              if (!open && !removeCustomers.isPending) {
+                setPendingDelete(null);
+                setConfirmed(false);
+              }
+            }}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Delete {pendingDelete?.length === 1 ? pendingDelete[0]?.name : `${pendingDelete?.length ?? 0} customers`}?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This permanently removes their website, images, leads, support history and
+                  sign-in account. Payment history is kept for your revenue figures. It cannot be
+                  undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              {pendingDelete && pendingDelete.length > 1 ? (
+                <ul className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border bg-muted/40 p-3 text-sm">
+                  {pendingDelete.map((target) => (
+                    <li key={target.id}>{target.name}</li>
+                  ))}
+                </ul>
+              ) : null}
+              <label className="flex items-start gap-2 text-sm">
+                <Checkbox
+                  checked={confirmed}
+                  onCheckedChange={(value) => setConfirmed(value === true)}
+                  aria-label="Confirm this permanent deletion"
+                />
+                <span>I understand this is permanent and cannot be reversed.</span>
+              </label>
+              {progress ? <p className="text-sm text-muted-foreground">{progress}</p> : null}
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={removeCustomers.isPending}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={!confirmed || removeCustomers.isPending}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (pendingDelete) removeCustomers.mutate(pendingDelete);
+                  }}
+                >
+                  {removeCustomers.isPending ? "Deleting…" : "Delete permanently"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </TabsContent>
 
         <TabsContent value="renewals">

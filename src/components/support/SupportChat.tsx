@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MessageCircle, Send, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { notifySupportMessage } from "@/lib/notify.functions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,7 @@ type ChatMessage = {
 /** Floating chat for customers. Messages land in the WebWarheads admin inbox. */
 export function SupportChat({ businessId }: { businessId: string }) {
   const [open, setOpen] = useState(false);
+  const notifyTeam = useServerFn(notifySupportMessage);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -88,6 +91,13 @@ export function SupportChat({ businessId }: { businessId: string }) {
         body: body.slice(0, 4000),
       });
       if (msgError) throw msgError;
+
+      // Ping the team by email; a mail failure must not lose the message.
+      try {
+        await notifyTeam({ data: { businessId, message: body.slice(0, 4000) } });
+      } catch (mailError) {
+        console.error("Support alert email failed", mailError);
+      }
     },
     onSuccess: () => {
       setText("");

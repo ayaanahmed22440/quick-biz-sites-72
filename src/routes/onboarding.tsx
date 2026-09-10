@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyWelcome } from "@/lib/notify.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
@@ -229,6 +231,7 @@ const SWATCHES = ["#1f6feb", "#0f766e", "#b91c1c", "#d97706", "#7c3aed", "#0f172
 function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const sendWelcome = useServerFn(notifyWelcome);
   
   const { data: workspace, isLoading } = useWorkspace();
 
@@ -449,6 +452,13 @@ function OnboardingPage() {
         },
         { onConflict: "website_id" },
       );
+    }
+
+    // Welcome email, plus a heads-up to the team. Never blocks finishing setup.
+    try {
+      await sendWelcome({ data: { businessId: id } });
+    } catch (mailError) {
+      console.error("Welcome email failed", mailError);
     }
 
     try {

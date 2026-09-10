@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { notifySitePublished } from "@/lib/notify.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -77,6 +79,7 @@ function WebsitePage() {
   const { data: workspace, isLoading } = useWorkspace();
   const businessId = workspace?.business?.id;
   const queryClient = useQueryClient();
+  const notifyPublished = useServerFn(notifySitePublished);
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
@@ -197,6 +200,12 @@ function WebsitePage() {
           .update({ status: "published", published_at: new Date().toISOString() })
           .eq("id", site.data.websiteId);
         if (wErr) throw wErr;
+        // Congratulations email — never block going live on it.
+        try {
+          await notifyPublished({ data: { businessId } });
+        } catch (mailError) {
+          console.error("Publish email failed", mailError);
+        }
       }
 
       if (draft.brand.primaryColor !== site.data.business.primary_color ||

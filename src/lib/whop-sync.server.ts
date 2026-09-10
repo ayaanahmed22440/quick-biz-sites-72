@@ -54,6 +54,47 @@ export async function resolveMembershipOwner(membership: WhopMembership): Promis
   return null;
 }
 
+/** Emails the owner (and the team) about a billing outcome. Never throws. */
+async function notifyBilling(
+  businessId: string,
+  outcome: "received" | "failed" | "ended",
+  planId?: string,
+) {
+  try {
+    const [{ data: business }, { data: plan }] = await Promise.all([
+      supabaseAdmin.from("businesses").select("id, name, email").eq("id", businessId).maybeSingle(),
+      planId
+        ? supabaseAdmin.from("plans").select("name").eq("id", planId).maybeSingle()
+        : Promise.resolve({ data: null as { name: string } | null }),
+    ]);
+    if (!business) return;
+    const planName = plan?.name ?? planId ?? "your plan";
+    const emails = await import("@/lib/emails.server");
+
+    if (business.email) {
+      if (outcome === "received") {
+        await emails.sendPaymentReceivedEmail({
+          to: business.email,
+          businessId,
+          planName,
+        });
+      } else if (outcome === "failed") {
+        await emails.sendPaymentFailedEmail({ to: business.email, businessId });
+      } else {
+        await emails.sendAccessPausedEmail({ to: business.email, businessId });
+      }
+    }
+    await emails.adminPaymentEvent({
+      businessId,
+      businessName: business.name,
+      outcome,
+      planName,
+    });
+  } catch (error) {
+    console.error("[billing email] failed", error);
+  }
+}
+
 /** Upserts the subscription row for a membership. Returns the business it belongs to. */
 export async function syncMembership(
   membership: WhopMembership,
@@ -63,6 +104,14 @@ export async function syncMembership(
   if (!owner) return null;
 
   const status = options?.forceStatus ?? mapWhopStatus(membership.status, membership.valid);
+
+  // Only email when the state actually changes, so renewals don't spam.
+  const { data: before } = await supabaseAdmin
+    .from("subscriptions")
+    .select("status")
+    .eq("business_id", owner.businessId)
+    .maybeSingle();
+  const previous = before?.status ?? null;
   const row = {
     business_id: owner.businessId,
     plan_id: owner.planId,
@@ -88,6 +137,12 @@ export async function syncMembership(
     .eq("business_id", owner.businessId)
     .eq("status", "pending");
 
+  if (status === "active" && previous !== "active") {
+    await notifyBilling(owner.businessId, "received", owner.planId);
+  } else if (status === "canceled" && previous !== "canceled") {
+    await notifyBilling(owner.businessId, "ended", owner.planId);
+  }
+
   return owner.businessId;
 }
 
@@ -105,4 +160,11 @@ export async function markPaymentFailed(businessId: string): Promise<void> {
     .from("subscriptions")
     .update({ status: "past_due", last_payment_failed_at: new Date().toISOString() })
     .eq("business_id", businessId);
+
+  const { data: sub } = await supabaseAdmin
+    .from("subscriptions")
+    .select("plan_id")
+    .eq("business_id", businessId)
+    .maybeSingle();
+  await notifyBilling(businessId, "failed", sub?.plan_id);
 }
