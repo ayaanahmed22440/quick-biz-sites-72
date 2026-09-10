@@ -50,7 +50,7 @@ const FEATURES = [
   { icon: Search, title: "Get the local basics right", body: "Clean structure, metadata and service-area information are handled from the start." },
 ];
 
-const FAQS = [
+const FAQS: ReadonlyArray<readonly [string, string]> = [
   ["Can I see my website before paying?", "Yes. Build the site, add your real details and preview the result first. Payment is only required when you publish."],
   ["Do I need to know how to code?", "No. The editor only asks for the information your customers need, and the design stays protected."],
   ["Can I use my own domain?", "Yes. Publish first, then follow the guided steps to connect a domain you already own."],
