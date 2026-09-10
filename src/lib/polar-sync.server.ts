@@ -1,16 +1,16 @@
-/** Server-only: writes verified Whop membership state into our subscriptions table. */
+/** Server-only: writes verified Polar subscription state into our subscriptions table. */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { getWhopMembership, mapWhopStatus, toIso, type WhopMembership } from "./whop.server";
+import { mapPolarStatus, toIso, type PolarSubscription } from "./polar.server";
 
 type Resolved = { businessId: string; planId: string } | null;
 
-/** Finds our business + internal plan for a Whop membership, without trusting the browser. */
-export async function resolveMembershipOwner(membership: WhopMembership): Promise<Resolved> {
-  const meta = (membership.metadata ?? {}) as Record<string, unknown>;
+/** Finds our business + internal plan for a Polar subscription, without trusting the browser. */
+export async function resolveSubscriptionOwner(sub: PolarSubscription): Promise<Resolved> {
+  const meta = (sub.metadata ?? {}) as Record<string, unknown>;
   const sessionId = typeof meta["checkout_session_id"] === "string" ? meta["checkout_session_id"] : null;
   const metaBusiness = typeof meta["business_id"] === "string" ? meta["business_id"] : null;
   const metaPlan = typeof meta["plan_id"] === "string" ? meta["plan_id"] : null;
-  const whopPlanId = membership.plan ?? membership.plan_id ?? null;
+  const productId = sub.product_id ?? sub.product?.id ?? null;
 
   if (sessionId) {
     const { data } = await supabaseAdmin
@@ -23,20 +23,31 @@ export async function resolveMembershipOwner(membership: WhopMembership): Promis
 
   if (metaBusiness && metaPlan) return { businessId: metaBusiness, planId: metaPlan };
 
-  // Already-known membership (renewals, cancellations).
+  // Already-known subscription (renewals, cancellations).
   const { data: existing } = await supabaseAdmin
     .from("subscriptions")
     .select("business_id, plan_id")
-    .eq("whop_membership_id", membership.id)
+    .eq("polar_subscription_id", sub.id)
     .maybeSingle();
   if (existing) return { businessId: existing.business_id, planId: existing.plan_id };
 
-  // Last resort: map the Whop plan back to one of our plans and the newest pending checkout.
-  if (whopPlanId) {
+  // The business id we send Polar as the external customer id.
+  const externalId = sub.customer?.external_id ?? null;
+  if (externalId && productId) {
     const { data: plan } = await supabaseAdmin
       .from("plans")
       .select("id")
-      .eq("whop_plan_id", whopPlanId)
+      .eq("polar_product_id", productId)
+      .maybeSingle();
+    if (plan) return { businessId: externalId, planId: plan.id };
+  }
+
+  // Last resort: newest pending checkout for that product.
+  if (productId) {
+    const { data: plan } = await supabaseAdmin
+      .from("plans")
+      .select("id")
+      .eq("polar_product_id", productId)
       .maybeSingle();
     if (plan) {
       const { data: session } = await supabaseAdmin
@@ -73,37 +84,28 @@ async function notifyBilling(
 
     if (business.email) {
       if (outcome === "received") {
-        await emails.sendPaymentReceivedEmail({
-          to: business.email,
-          businessId,
-          planName,
-        });
+        await emails.sendPaymentReceivedEmail({ to: business.email, businessId, planName });
       } else if (outcome === "failed") {
         await emails.sendPaymentFailedEmail({ to: business.email, businessId });
       } else {
         await emails.sendAccessPausedEmail({ to: business.email, businessId });
       }
     }
-    await emails.adminPaymentEvent({
-      businessId,
-      businessName: business.name,
-      outcome,
-      planName,
-    });
+    await emails.adminPaymentEvent({ businessId, businessName: business.name, outcome, planName });
   } catch (error) {
     console.error("[billing email] failed", error);
   }
 }
 
-/** Upserts the subscription row for a membership. Returns the business it belongs to. */
-export async function syncMembership(
-  membership: WhopMembership,
-  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+/** Upserts the subscription row for a Polar subscription. Returns the business it belongs to. */
+export async function syncSubscription(
+  sub: PolarSubscription,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" | "expired" },
 ): Promise<string | null> {
-  const owner = await resolveMembershipOwner(membership);
+  const owner = await resolveSubscriptionOwner(sub);
   if (!owner) return null;
 
-  const status = options?.forceStatus ?? mapWhopStatus(membership.status, membership.valid);
+  const status = options?.forceStatus ?? mapPolarStatus(sub.status);
 
   // Only email when the state actually changes, so renewals don't spam.
   const { data: before } = await supabaseAdmin
@@ -112,18 +114,18 @@ export async function syncMembership(
     .eq("business_id", owner.businessId)
     .maybeSingle();
   const previous = before?.status ?? null;
+
   const row = {
     business_id: owner.businessId,
     plan_id: owner.planId,
-    provider: "whop",
+    provider: "polar",
     status,
-    whop_membership_id: membership.id,
-    whop_plan_id: membership.plan ?? membership.plan_id ?? null,
-    whop_user_id: membership.user ?? membership.user_id ?? null,
-    current_period_start: toIso(membership.renewal_period_start),
-    current_period_end: toIso(membership.renewal_period_end),
-    cancel_at_period_end: Boolean(membership.cancel_at_period_end),
-    canceled_at: status === "canceled" ? new Date().toISOString() : null,
+    polar_subscription_id: sub.id,
+    polar_customer_id: sub.customer_id ?? sub.customer?.id ?? null,
+    current_period_start: toIso(sub.current_period_start),
+    current_period_end: toIso(sub.current_period_end),
+    cancel_at_period_end: Boolean(sub.cancel_at_period_end),
+    canceled_at: toIso(sub.canceled_at) ?? (status === "canceled" ? new Date().toISOString() : null),
   };
 
   const { error } = await supabaseAdmin
@@ -137,22 +139,23 @@ export async function syncMembership(
     .eq("business_id", owner.businessId)
     .eq("status", "pending");
 
+  const ended = status === "canceled" || status === "expired";
   if (status === "active" && previous !== "active") {
     await notifyBilling(owner.businessId, "received", owner.planId);
-  } else if (status === "canceled" && previous !== "canceled") {
+  } else if (ended && previous !== status) {
     await notifyBilling(owner.businessId, "ended", owner.planId);
   }
 
   return owner.businessId;
 }
 
-/** Re-reads a membership from Whop and syncs it (used as a webhook fallback). */
-export async function syncMembershipById(
-  membershipId: string,
-  options?: { forceStatus?: "active" | "canceled" | "past_due" },
+/** Re-reads a subscription from Polar and syncs it (webhook fallback / manual refresh). */
+export async function syncSubscriptionById(
+  subscriptionId: string,
+  options?: { forceStatus?: "active" | "canceled" | "past_due" | "expired" },
 ): Promise<string | null> {
-  const membership = await getWhopMembership(membershipId);
-  return syncMembership(membership, options);
+  const { getPolarSubscription } = await import("./polar.server");
+  return syncSubscription(await getPolarSubscription(subscriptionId), options);
 }
 
 export async function markPaymentFailed(businessId: string): Promise<void> {

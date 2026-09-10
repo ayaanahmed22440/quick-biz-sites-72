@@ -44,8 +44,8 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_authenticated/admin-site.$businessId'
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
+import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
-import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -229,14 +229,14 @@ const AuthenticatedBillingReturnRoute =
     path: '/billing/return',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicPolarWebhookRoute = ApiPublicPolarWebhookRouteImport.update({
+  id: '/api/public/polar-webhook',
+  path: '/api/public/polar-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   id: '/api/public/sitemap.xml',
   path: '/api/public/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
-  id: '/api/public/whop-webhook',
-  path: '/api/public/whop-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
@@ -290,8 +290,8 @@ export interface FileRoutesByFullPath {
   '/s/$slug': typeof SSlugRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
+  '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -331,8 +331,8 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof SSlugRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
+  '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -374,8 +374,8 @@ export interface FileRoutesById {
   '/s/$slug': typeof SSlugRoute
   '/_authenticated/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
+  '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -417,8 +417,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/admin-site/$businessId'
     | '/billing/return'
+    | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -458,8 +458,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/admin-site/$businessId'
     | '/billing/return'
+    | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -500,8 +500,8 @@ export interface FileRouteTypes {
     | '/s/$slug'
     | '/_authenticated/admin-site/$businessId'
     | '/_authenticated/billing_/return'
+    | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -523,8 +523,8 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   SSlugRoute: typeof SSlugRoute
+  ApiPublicPolarWebhookRoute: typeof ApiPublicPolarWebhookRoute
   ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
-  ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -777,18 +777,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBillingReturnRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/polar-webhook': {
+      id: '/api/public/polar-webhook'
+      path: '/api/public/polar-webhook'
+      fullPath: '/api/public/polar-webhook'
+      preLoaderRoute: typeof ApiPublicPolarWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sitemap.xml': {
       id: '/api/public/sitemap.xml'
       path: '/api/public/sitemap.xml'
       fullPath: '/api/public/sitemap.xml'
       preLoaderRoute: typeof ApiPublicSitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/whop-webhook': {
-      id: '/api/public/whop-webhook'
-      path: '/api/public/whop-webhook'
-      fullPath: '/api/public/whop-webhook'
-      preLoaderRoute: typeof ApiPublicWhopWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/media/$': {
@@ -888,8 +888,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   SSlugRoute: SSlugRoute,
+  ApiPublicPolarWebhookRoute: ApiPublicPolarWebhookRoute,
   ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
-  ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

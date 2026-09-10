@@ -15,8 +15,8 @@ function safeReturnPath(path: string | undefined): string {
 }
 
 /**
- * Creates a Whop checkout session for the caller's business.
- * The Whop API key stays on the server; the browser only receives a URL.
+ * Creates a Polar checkout for the caller's business.
+ * The Polar access token stays on the server; the browser only receives a URL.
  */
 export const startCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -26,7 +26,7 @@ export const startCheckout = createServerFn({ method: "POST" })
 
     // RLS keeps this scoped to businesses the caller belongs to, so an explicit
     // id can be trusted once the row comes back.
-    let query = supabase.from("businesses").select("id, name");
+    let query = supabase.from("businesses").select("id, name, email");
     query = data.businessId
       ? query.eq("id", data.businessId)
       : query.order("created_at", { ascending: true }).limit(1);
@@ -37,10 +37,12 @@ export const startCheckout = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: plan } = await supabaseAdmin
       .from("plans")
-      .select("id, whop_plan_id, is_active")
+      .select("id, polar_product_id, is_active")
       .eq("id", data.planId)
       .maybeSingle();
-    if (!plan?.whop_plan_id || !plan.is_active) throw new Error("That plan is not available right now.");
+    if (!plan?.polar_product_id || !plan.is_active) {
+      throw new Error("That plan is not available right now.");
+    }
 
     const returnPath = safeReturnPath(data.returnPath);
 
@@ -50,7 +52,6 @@ export const startCheckout = createServerFn({ method: "POST" })
         business_id: business.id,
         user_id: userId,
         plan_id: plan.id,
-        whop_plan_id: plan.whop_plan_id,
         return_path: returnPath,
       })
       .select("id")
@@ -58,23 +59,25 @@ export const startCheckout = createServerFn({ method: "POST" })
     if (sessionError) throw new Error(sessionError.message);
 
     const appUrl = process.env["APP_URL"] ?? "https://webwarheads.com";
-    const { createWhopCheckoutSession } = await import("./whop.server");
+    const { createPolarCheckout } = await import("./polar.server");
 
     try {
-      const checkout = await createWhopCheckoutSession({
-        whopPlanId: plan.whop_plan_id,
+      const checkout = await createPolarCheckout({
+        productId: plan.polar_product_id,
+        externalCustomerId: business.id,
+        customerEmail: business.email,
         metadata: {
           checkout_session_id: session.id,
           business_id: business.id,
           plan_id: plan.id,
           user_id: userId,
         },
-        redirectUrl: `${appUrl}/billing/return?session=${session.id}`,
+        successUrl: `${appUrl}/billing/return?session=${session.id}`,
       });
 
       await supabaseAdmin
         .from("checkout_sessions")
-        .update({ checkout_url: checkout.url })
+        .update({ checkout_url: checkout.url, polar_checkout_id: checkout.id })
         .eq("id", session.id);
 
       return { url: checkout.url, sessionId: session.id };

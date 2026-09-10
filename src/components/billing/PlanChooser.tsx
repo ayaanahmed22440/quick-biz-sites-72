@@ -117,7 +117,7 @@ export function PlanChooser({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Secure payment handled by Whop. Cancel any time — your website and content stay yours.
+        Secure payment handled by Polar. Cancel any time — your website and content stay yours.
       </p>
     </div>
   );

@@ -62,7 +62,7 @@ function BillingPage() {
         <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
           <h2 className="text-sm font-semibold">There's a problem with your last payment</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Your website stays online while we retry. Update your payment details on Whop, or
+            Your website stays online while we retry. Update your payment details, or
             choose a plan again below to fix it.
           </p>
         </div>
