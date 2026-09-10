@@ -5,10 +5,8 @@ import {
   Check,
   CheckCircle2,
   ChevronRight,
-  Globe2,
   Image,
   LayoutTemplate,
-  MessageSquareText,
   Monitor,
   Search,
   Send,
@@ -19,6 +17,7 @@ import { PublicLayout } from "@/components/site/PublicLayout";
 import { PricingCards } from "@/components/site/PricingCards";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import previewImage from "@/assets/templates/cleaning-gallery-1.jpg";
 import {
   Accordion,
   AccordionContent,
@@ -118,7 +117,7 @@ function ProductPreview() {
                   </div>
                 </div>
                 <div className="hidden aspect-[4/3] overflow-hidden rounded-lg bg-success/10 p-3 md:block">
-                  <img src="/src/assets/templates/cleaning-gallery-1.jpg" alt="Landscaped outdoor area shown in a customer website preview" className="h-full w-full rounded-md object-cover" />
+                  <img src={previewImage} alt="Landscaped outdoor area shown in a customer website preview" className="h-full w-full rounded-md object-cover" />
                 </div>
               </div>
               <div className="grid grid-cols-3 border-t border-border bg-muted/50 px-4 py-4 text-center">
