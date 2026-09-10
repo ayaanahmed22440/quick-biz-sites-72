@@ -46,7 +46,6 @@ import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
-import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -240,11 +239,6 @@ const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   path: '/api/public/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
-  id: '/api/public/whop-webhook',
-  path: '/api/public/whop-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
   path: '/api/public/media/$',
@@ -298,7 +292,6 @@ export interface FileRoutesByFullPath {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -340,7 +333,6 @@ export interface FileRoutesByTo {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -384,7 +376,6 @@ export interface FileRoutesById {
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
-  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -428,7 +419,6 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -470,7 +460,6 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -513,7 +502,6 @@ export interface FileRouteTypes {
     | '/_authenticated/billing_/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
-    | '/api/public/whop-webhook'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -537,7 +525,6 @@ export interface RootRouteChildren {
   SSlugRoute: typeof SSlugRoute
   ApiPublicPolarWebhookRoute: typeof ApiPublicPolarWebhookRoute
   ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
-  ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -804,13 +791,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/whop-webhook': {
-      id: '/api/public/whop-webhook'
-      path: '/api/public/whop-webhook'
-      fullPath: '/api/public/whop-webhook'
-      preLoaderRoute: typeof ApiPublicWhopWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/media/$': {
       id: '/api/public/media/$'
       path: '/api/public/media/$'
@@ -910,7 +890,6 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugRoute: SSlugRoute,
   ApiPublicPolarWebhookRoute: ApiPublicPolarWebhookRoute,
   ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
-  ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

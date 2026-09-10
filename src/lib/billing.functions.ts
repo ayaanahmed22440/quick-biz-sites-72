@@ -15,8 +15,8 @@ function safeReturnPath(path: string | undefined): string {
 }
 
 /**
- * Creates a Whop checkout session for the caller's business.
- * The Whop API key stays on the server; the browser only receives a URL.
+ * Creates a Polar checkout for the caller's business.
+ * The Polar access token stays on the server; the browser only receives a URL.
  */
 export const startCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
