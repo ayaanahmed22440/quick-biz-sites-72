@@ -52,6 +52,16 @@ export function SiteFooter() {
                 Privacy
               </Link>
             </li>
+            <li>
+              <Link to="/refund-policy" className="hover:text-navy-foreground">
+                Refunds
+              </Link>
+            </li>
+            <li>
+              <Link to="/cancellation-policy" className="hover:text-navy-foreground">
+                Cancellation
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
