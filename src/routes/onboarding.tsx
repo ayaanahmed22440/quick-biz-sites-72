@@ -451,6 +451,13 @@ function OnboardingPage() {
       );
     }
 
+    // Welcome email, plus a heads-up to the team. Never blocks finishing setup.
+    try {
+      await sendWelcome({ data: { businessId: id } });
+    } catch (mailError) {
+      console.error("Welcome email failed", mailError);
+    }
+
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {
