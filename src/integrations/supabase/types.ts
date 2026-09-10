@@ -299,11 +299,12 @@ export type Database = {
           created_at: string
           id: string
           plan_id: string
+          polar_checkout_id: string | null
           return_path: string
           status: string
           updated_at: string
           user_id: string
-          whop_plan_id: string
+          whop_plan_id: string | null
         }
         Insert: {
           business_id: string
@@ -312,11 +313,12 @@ export type Database = {
           created_at?: string
           id?: string
           plan_id: string
+          polar_checkout_id?: string | null
           return_path?: string
           status?: string
           updated_at?: string
           user_id: string
-          whop_plan_id: string
+          whop_plan_id?: string | null
         }
         Update: {
           business_id?: string
@@ -325,11 +327,12 @@ export type Database = {
           created_at?: string
           id?: string
           plan_id?: string
+          polar_checkout_id?: string | null
           return_path?: string
           status?: string
           updated_at?: string
           user_id?: string
-          whop_plan_id?: string
+          whop_plan_id?: string | null
         }
         Relationships: [
           {
@@ -647,6 +650,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          polar_product_id: string | null
           price_cents: number
           sort_order: number
           tagline: string | null
@@ -659,6 +663,7 @@ export type Database = {
           id: string
           is_active?: boolean
           name: string
+          polar_product_id?: string | null
           price_cents: number
           sort_order?: number
           tagline?: string | null
@@ -671,6 +676,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          polar_product_id?: string | null
           price_cents?: number
           sort_order?: number
           tagline?: string | null
@@ -955,6 +961,8 @@ export type Database = {
           id: string
           last_payment_failed_at: string | null
           plan_id: string
+          polar_customer_id: string | null
+          polar_subscription_id: string | null
           provider: string
           status: Database["public"]["Enums"]["subscription_status"]
           updated_at: string
@@ -972,6 +980,8 @@ export type Database = {
           id?: string
           last_payment_failed_at?: string | null
           plan_id: string
+          polar_customer_id?: string | null
+          polar_subscription_id?: string | null
           provider?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
@@ -989,6 +999,8 @@ export type Database = {
           id?: string
           last_payment_failed_at?: string | null
           plan_id?: string
+          polar_customer_id?: string | null
+          polar_subscription_id?: string | null
           provider?: string
           status?: Database["public"]["Enums"]["subscription_status"]
           updated_at?: string
