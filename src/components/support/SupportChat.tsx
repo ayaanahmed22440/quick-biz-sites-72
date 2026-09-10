@@ -20,6 +20,7 @@ type ChatMessage = {
 /** Floating chat for customers. Messages land in the WebWarheads admin inbox. */
 export function SupportChat({ businessId }: { businessId: string }) {
   const [open, setOpen] = useState(false);
+  const notifyTeam = useServerFn(notifySupportMessage);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
