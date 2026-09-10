@@ -603,6 +603,57 @@ function AdminPage() {
               </TableBody>
             </Table>
           </div>
+
+          <AlertDialog
+            open={Boolean(pendingDelete)}
+            onOpenChange={(open) => {
+              if (!open && !removeCustomers.isPending) {
+                setPendingDelete(null);
+                setConfirmed(false);
+              }
+            }}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Delete {pendingDelete?.length === 1 ? pendingDelete[0]?.name : `${pendingDelete?.length ?? 0} customers`}?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  This permanently removes their website, images, leads, support history and
+                  sign-in account. Payment history is kept for your revenue figures. It cannot be
+                  undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              {pendingDelete && pendingDelete.length > 1 ? (
+                <ul className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-border bg-muted/40 p-3 text-sm">
+                  {pendingDelete.map((target) => (
+                    <li key={target.id}>{target.name}</li>
+                  ))}
+                </ul>
+              ) : null}
+              <label className="flex items-start gap-2 text-sm">
+                <Checkbox
+                  checked={confirmed}
+                  onCheckedChange={(value) => setConfirmed(value === true)}
+                  aria-label="Confirm this permanent deletion"
+                />
+                <span>I understand this is permanent and cannot be reversed.</span>
+              </label>
+              {progress ? <p className="text-sm text-muted-foreground">{progress}</p> : null}
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={removeCustomers.isPending}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={!confirmed || removeCustomers.isPending}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (pendingDelete) removeCustomers.mutate(pendingDelete);
+                  }}
+                >
+                  {removeCustomers.isPending ? "Deleting…" : "Delete permanently"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </TabsContent>
 
         <TabsContent value="renewals">
