@@ -29,25 +29,18 @@ const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
  * Lovable editor/preview host.
  */
 const securityHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
-  const response = await next();
   const pathname = new URL(request.url).pathname;
-  if (pathname.startsWith("/lovable/") || pathname.startsWith("/api/")) return response;
+  if (pathname.startsWith("/lovable/") || pathname.startsWith("/api/")) return next();
 
-  const contentType = response.headers?.get?.("content-type") ?? "";
-  if (!contentType.includes("text/html")) return response;
-
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
-  );
-  response.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  response.headers.set(
-    "Strict-Transport-Security",
-    "max-age=31536000; includeSubDomains; preload",
-  );
+  setResponseHeaders({
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Permissions-Policy":
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+  });
 
   // Inline scripts/styles are required by the framework's hydration payload and
   // by Tailwind's runtime theme variables; everything else is locked to a short
