@@ -104,6 +104,14 @@ export async function syncMembership(
   if (!owner) return null;
 
   const status = options?.forceStatus ?? mapWhopStatus(membership.status, membership.valid);
+
+  // Only email when the state actually changes, so renewals don't spam.
+  const { data: before } = await supabaseAdmin
+    .from("subscriptions")
+    .select("status")
+    .eq("business_id", owner.businessId)
+    .maybeSingle();
+  const previous = before?.status ?? null;
   const row = {
     business_id: owner.businessId,
     plan_id: owner.planId,
