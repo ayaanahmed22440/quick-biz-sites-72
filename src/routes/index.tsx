@@ -155,7 +155,7 @@ function HomePage() {
             <Sparkles className="h-3.5 w-3.5 text-accent" /> Built for local business owners
           </div>
           <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-bold leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
-            Your business deserves a website that <span className="text-accent">wins the local search.</span>
+            Stop paying $1,500 for a website. <span className="text-accent">Start with $37.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
             Build, preview and publish a professional website without hiring a developer. Everything you need, from <strong className="font-semibold text-foreground">$37 a month.</strong>
