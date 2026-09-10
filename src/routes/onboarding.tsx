@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyWelcome } from "@/lib/notify.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
