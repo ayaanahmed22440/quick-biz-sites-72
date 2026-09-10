@@ -1,6 +1,7 @@
 # WebWarheads roadmap
 
 ## Done
+- Dashboard and editor now show the real published state, live-site access, lead count, and domain status
 - Preview typecheck and production build are error-free
 - Public site: home, pricing, how it works, contact, terms, privacy (mobile tuned)
 - Auth: email/password, Google, password reset

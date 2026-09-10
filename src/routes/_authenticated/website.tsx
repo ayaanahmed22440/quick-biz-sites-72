@@ -218,8 +218,27 @@ function WebsitePage() {
     },
     onSuccess: (_data, variables) => {
       setDirty(false);
-      if (variables.publish) toast.success("Your website is live");
+      if (variables.publish) {
+        queryClient.setQueryData<Loaded>(["website-editor", businessId], (current) =>
+          current
+            ? {
+                ...current,
+                status: "published",
+                publishedAt: new Date().toISOString(),
+                hasPublished: true,
+                content: draft ?? current.content,
+              }
+            : current,
+        );
+        toast.success("Your website is live", {
+          action: {
+            label: "View site",
+            onClick: () => window.open(`/${site.data?.business.slug ?? ""}`, "_blank", "noopener,noreferrer"),
+          },
+        });
+      }
       void queryClient.invalidateQueries({ queryKey: ["website-editor", businessId] });
+      void queryClient.invalidateQueries({ queryKey: ["workspace"] });
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Could not save"),
   });
@@ -281,7 +300,7 @@ function WebsitePage() {
         description={`${presetFor(draft.templateId).name} — an approved WebWarheads design filled with your own details. Nothing is generated at random.`}
       />
 
-      <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 sm:flex sm:justify-between">
+      <div className="mb-6 grid gap-3 rounded-lg border border-border bg-card px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">
             {site.data.status === "published" ? "Published" : "Draft — not live yet"}
@@ -296,9 +315,25 @@ function WebsitePage() {
             )}
           </p>
         </div>
-        <Badge variant={site.data.status === "published" ? "default" : "secondary"} className="shrink-0">
-          {site.data.status}
-        </Badge>
+        <div className="flex min-w-0 items-center gap-1 rounded-md bg-muted p-1">
+          <Button size="sm" variant="secondary" className="flex-1 sm:flex-none">
+            Edit
+          </Button>
+          <Button asChild size="sm" variant="ghost" className="flex-1 sm:flex-none">
+            <a href="#website-preview">Preview</a>
+          </Button>
+          {site.data.status === "published" || site.data.hasPublished ? (
+            <Button asChild size="sm" variant="ghost" className="flex-1 sm:flex-none">
+              <a href={liveUrl} target="_blank" rel="noreferrer">
+                Live site
+              </a>
+            </Button>
+          ) : (
+            <Badge variant="secondary" className="mx-2 shrink-0">
+              Draft
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,400px)_minmax(0,1fr)]">
@@ -574,7 +609,7 @@ function WebsitePage() {
 
         </div>
 
-        <div className="order-1 min-w-0 lg:order-2 lg:sticky lg:top-6">
+        <div id="website-preview" className="order-1 min-w-0 scroll-mt-6 lg:order-2 lg:sticky lg:top-6">
           <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
             <p className="truncate text-sm font-medium">Preview</p>
             <div className="flex shrink-0 gap-1.5">
