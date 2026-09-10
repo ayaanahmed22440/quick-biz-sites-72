@@ -715,6 +715,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_hits: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: string
+          subject: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: string
+          subject: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       sent_emails: {
         Row: {
           business_id: string | null
