@@ -421,6 +421,15 @@ function AdminPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      aria-label="Select every client shown"
+                      checked={filtered.length > 0 && selected.length === filtered.length}
+                      onCheckedChange={(value) =>
+                        setSelected(value ? filtered.map((row) => row.business.id) : [])
+                      }
+                    />
+                  </TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead>Plan</TableHead>
                   <TableHead>Website</TableHead>
