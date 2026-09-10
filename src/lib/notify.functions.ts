@@ -43,7 +43,7 @@ export const notifyWelcome = createServerFn({ method: "POST" })
   .inputValidator((input) => businessInput.parse(input))
   .handler(async ({ data, context }) => {
     await assertMember(context as never, data.businessId);
-    const business = await loadBusiness(null, data.businessId);
+    const business = await loadBusiness(data.businessId);
     if (!business) return { sent: false };
 
     const { sendWelcomeEmail, adminNewCustomer } = await import("@/lib/emails.server");
@@ -69,7 +69,7 @@ export const notifySitePublished = createServerFn({ method: "POST" })
   .inputValidator((input) => businessInput.parse(input))
   .handler(async ({ data, context }) => {
     await assertMember(context as never, data.businessId);
-    const business = await loadBusiness(null, data.businessId);
+    const business = await loadBusiness(data.businessId);
     if (!business?.email) return { sent: false };
 
     const { sendSitePublishedEmail } = await import("@/lib/emails.server");
@@ -90,7 +90,7 @@ export const notifySupportMessage = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertMember(context as never, data.businessId);
-    const business = await loadBusiness(null, data.businessId);
+    const business = await loadBusiness(data.businessId);
     if (!business) return { sent: false };
 
     const { adminSupportMessage } = await import("@/lib/emails.server");
@@ -110,7 +110,7 @@ export const notifySupportReply = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertStaff(context as never);
-    const business = await loadBusiness(null, data.businessId);
+    const business = await loadBusiness(data.businessId);
     if (!business?.email) return { sent: false };
 
     const { sendSupportReplyEmail } = await import("@/lib/emails.server");
