@@ -159,18 +159,37 @@ function AdminPage() {
     onError: () => toast.error("Could not delete that website"),
   });
 
-  const removeCustomer = useMutation({
-    mutationFn: (businessId: string) => deleteCustomerFn({ data: { businessId } }),
-    onSuccess: (result) => {
-      void refresh();
-      toast.success(
-        result.accountRemoved
-          ? "Customer and their sign-in account were deleted"
-          : "Customer data deleted",
-      );
+  // Deletes one at a time so a single refusal (an admin account) doesn't stop the rest.
+  const removeCustomers = useMutation({
+    mutationFn: async (targets: { id: string; name: string }[]) => {
+      const failures: string[] = [];
+      let done = 0;
+      for (const target of targets) {
+        setProgress(`${done} of ${targets.length} removed…`);
+        try {
+          await deleteCustomerFn({ data: { businessId: target.id } });
+          done += 1;
+        } catch (error) {
+          failures.push(
+            `${target.name}: ${error instanceof Error ? error.message : "could not be deleted"}`,
+          );
+        }
+      }
+      setProgress(null);
+      return { done, failures };
     },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not delete that customer"),
+    onSuccess: ({ done, failures }) => {
+      setSelected([]);
+      setPendingDelete(null);
+      setConfirmed(false);
+      void refresh();
+      if (done) toast.success(`${done} customer${done === 1 ? "" : "s"} deleted`);
+      if (failures.length) toast.error(failures.join(" · "));
+    },
+    onError: (error) => {
+      setProgress(null);
+      toast.error(error instanceof Error ? error.message : "Could not delete those customers");
+    },
   });
 
   const setTicketStatus = useMutation({
