@@ -14,11 +14,13 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -72,6 +74,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CancellationPolicyRoute = CancellationPolicyRouteImport.update({
+  id: '/cancellation-policy',
+  path: '/cancellation-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -95,6 +102,11 @@ const PricingRoute = PricingRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -248,11 +260,13 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -287,11 +301,13 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -328,11 +344,13 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -369,11 +387,13 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
     | '/privacy'
+    | '/refund-policy'
     | '/reset-password'
     | '/terms'
     | '/admin'
@@ -408,11 +428,13 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
     | '/privacy'
+    | '/refund-policy'
     | '/reset-password'
     | '/terms'
     | '/admin'
@@ -448,11 +470,13 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
     | '/privacy'
+    | '/refund-policy'
     | '/reset-password'
     | '/terms'
     | '/_authenticated/admin'
@@ -489,11 +513,13 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRouteWithChildren
+  CancellationPolicyRoute: typeof CancellationPolicyRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
   OnboardingRoute: typeof OnboardingRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   SSlugRoute: typeof SSlugRoute
@@ -541,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cancellation-policy': {
+      id: '/cancellation-policy'
+      path: '/cancellation-policy'
+      fullPath: '/cancellation-policy'
+      preLoaderRoute: typeof CancellationPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -574,6 +607,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -838,11 +878,13 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRouteWithChildren,
+  CancellationPolicyRoute: CancellationPolicyRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
   OnboardingRoute: OnboardingRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   SSlugRoute: SSlugRoute,
