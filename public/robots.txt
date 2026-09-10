@@ -1,14 +1,27 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /admin-chat
+Disallow: /admin-emails
+Disallow: /admin-team
+Disallow: /admin-site
+Disallow: /admin-templates
+Disallow: /billing
+Disallow: /business
+Disallow: /leads
+Disallow: /media
+Disallow: /seo
+Disallow: /settings
+Disallow: /support
+Disallow: /website
+Disallow: /domains
+Disallow: /connect-domain
+Disallow: /analytics
+Disallow: /onboarding
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /api/
+
+Sitemap: https://webwarheads.com/api/public/sitemap.xml
