@@ -77,6 +77,7 @@ function WebsitePage() {
   const { data: workspace, isLoading } = useWorkspace();
   const businessId = workspace?.business?.id;
   const queryClient = useQueryClient();
+  const notifyPublished = useServerFn(notifySitePublished);
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
