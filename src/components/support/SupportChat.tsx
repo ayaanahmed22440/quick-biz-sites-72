@@ -88,6 +88,13 @@ export function SupportChat({ businessId }: { businessId: string }) {
         body: body.slice(0, 4000),
       });
       if (msgError) throw msgError;
+
+      // Ping the team by email; a mail failure must not lose the message.
+      try {
+        await notifyTeam({ data: { businessId, message: body.slice(0, 4000) } });
+      } catch (mailError) {
+        console.error("Support alert email failed", mailError);
+      }
     },
     onSuccess: () => {
       setText("");
