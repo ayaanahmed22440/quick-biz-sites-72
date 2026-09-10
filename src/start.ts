@@ -33,15 +33,18 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next, reque
   const pathname = new URL(request.url).pathname;
   if (pathname.startsWith("/lovable/") || pathname.startsWith("/api/")) return next();
 
-  setResponseHeaders({
-    "x-content-type-options": "nosniff",
-    "referrer-policy": "strict-origin-when-cross-origin",
-    "x-frame-options": "SAMEORIGIN",
-    "permissions-policy":
-      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
-    "cross-origin-opener-policy": "same-origin-allow-popups",
-    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
-  });
+  const setHeader = (name: string, value: string) =>
+    (setResponseHeader as (n: string, v: string) => void)(name, value);
+
+  setHeader("x-content-type-options", "nosniff");
+  setHeader("referrer-policy", "strict-origin-when-cross-origin");
+  setHeader("x-frame-options", "SAMEORIGIN");
+  setHeader(
+    "permissions-policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  );
+  setHeader("cross-origin-opener-policy", "same-origin-allow-popups");
+  setHeader("strict-transport-security", "max-age=31536000; includeSubDomains; preload");
 
   // Inline scripts/styles are required by the framework's hydration payload and
   // by Tailwind's runtime theme variables; everything else is locked to a short
