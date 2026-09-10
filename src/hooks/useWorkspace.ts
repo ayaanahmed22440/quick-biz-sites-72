@@ -24,6 +24,12 @@ export type Workspace = {
     current_period_end: string | null;
     cancel_at_period_end: boolean;
   } | null;
+  website: {
+    status: string;
+    published_at: string | null;
+  } | null;
+  leadCount: number;
+  hasActiveDomain: boolean;
   entitlements: Entitlements;
 };
 
@@ -59,13 +65,36 @@ async function fetchWorkspace(): Promise<Workspace | null> {
   const business = businesses?.[0] ?? null;
 
   let subscription: Workspace["subscription"] = null;
+  let website: Workspace["website"] = null;
+  let leadCount = 0;
+  let hasActiveDomain = false;
   if (business) {
-    const { data } = await supabase
-      .from("subscriptions")
-      .select("plan_id, status, current_period_end, cancel_at_period_end")
-      .eq("business_id", business.id)
-      .maybeSingle();
-    subscription = data ?? null;
+    const [subscriptionResult, websiteResult, leadsResult, domainResult] = await Promise.all([
+      supabase
+        .from("subscriptions")
+        .select("plan_id, status, current_period_end, cancel_at_period_end")
+        .eq("business_id", business.id)
+        .maybeSingle(),
+      supabase
+        .from("websites")
+        .select("status, published_at")
+        .eq("business_id", business.id)
+        .maybeSingle(),
+      supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("business_id", business.id),
+      supabase
+        .from("domains")
+        .select("id")
+        .eq("business_id", business.id)
+        .eq("status", "active")
+        .limit(1),
+    ]);
+    subscription = subscriptionResult.data ?? null;
+    website = websiteResult.data ?? null;
+    leadCount = leadsResult.count ?? 0;
+    hasActiveDomain = Boolean(domainResult.data?.length);
   }
 
   const roleValues = (roles ?? []).map((r) => r.role);
@@ -78,6 +107,9 @@ async function fetchWorkspace(): Promise<Workspace | null> {
     isAdmin: roleValues.includes("admin"),
     business,
     subscription,
+    website,
+    leadCount,
+    hasActiveDomain,
     entitlements: subscription
       ? entitlementsFor(subscription.plan_id, subscription.status)
       : NO_ENTITLEMENTS,

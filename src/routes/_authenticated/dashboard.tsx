@@ -72,12 +72,14 @@ function DashboardPage() {
     );
   }
 
+  const isPublished = data.website?.status === "published";
+  const liveUrl = `/${business.slug}`;
   const checklist = [
     { done: true, label: "Account created" },
     { done: business.onboarding_completed, label: "Business details added", to: "/onboarding" },
     { done: Boolean(data.subscription), label: "Plan chosen", to: "/billing" },
-    { done: false, label: "Website published", to: "/website" },
-    { done: false, label: "Domain connected", to: "/domains" },
+    { done: isPublished, label: "Website published", to: "/website" },
+    { done: data.hasActiveDomain, label: "Domain connected", to: "/domains" },
   ] as const;
 
   return (
@@ -99,10 +101,23 @@ function DashboardPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Website
           </p>
-          <p className="mt-2 text-lg font-semibold">Not published yet</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            The editor and template arrive in the next build.
+          <p className="mt-2 text-lg font-semibold">
+            {isPublished ? "Your website is live" : "Draft — not live yet"}
           </p>
+          {isPublished ? (
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-flex items-center gap-1 text-sm text-accent hover:underline"
+            >
+              Open live website <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          ) : (
+            <Link to="/website" className="mt-1 inline-block text-sm text-accent hover:underline">
+              Open website editor
+            </Link>
+          )}
         </div>
         <div className="rounded-xl border border-border bg-card p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -122,9 +137,9 @@ function DashboardPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Leads
           </p>
-          <p className="mt-2 text-lg font-semibold">0</p>
+          <p className="mt-2 text-lg font-semibold">{data.leadCount}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Enquiries appear here once your site is live.
+            {data.leadCount === 1 ? "Customer enquiry received." : "Customer enquiries received."}
           </p>
         </div>
       </div>
