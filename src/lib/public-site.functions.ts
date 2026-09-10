@@ -107,31 +107,19 @@ export const submitWebsiteLead = createServerFn({ method: "POST" })
         .eq("slug", data.slug)
         .maybeSingle();
       if (business?.email) {
-        const { sendGmail, emailShell } = await import("@/lib/gmail.server");
-        const row = (label: string, value: string) =>
-          value
-            ? `<p style="margin:0 0 8px;font-size:15px;"><strong>${label}:</strong> ${value}</p>`
-            : "";
-        await sendGmail({
+        const { sendNewLeadEmail } = await import("@/lib/emails.server");
+        await sendNewLeadEmail({
           to: business.email,
-          ...(data.email ? { replyTo: data.email } : {}),
-          purpose: "new_lead",
           businessId: business.id,
-          subject: `New enquiry from ${data.name}`,
-          html: emailShell(
-            `New enquiry for ${business.name}`,
-            [
-              row("Name", data.name),
-              row("Phone", data.phone),
-              row("Email", data.email),
-              row("Service", data.service),
-              row("Best time", data.preferred_time),
-              data.message
-                ? `<p style="margin:16px 0 0;font-size:15px;line-height:1.6;white-space:pre-line;">${data.message}</p>`
-                : "",
-              `<p style="margin:24px 0 0;font-size:14px;color:#64748b;">Reply to this email to answer them directly.</p>`,
-            ].join(""),
-          ),
+          businessName: business.name,
+          lead: {
+            name: data.name,
+            ...(data.email ? { email: data.email } : {}),
+            ...(data.phone ? { phone: data.phone } : {}),
+            ...(data.service ? { service: data.service } : {}),
+            ...(data.preferred_time ? { preferred_time: data.preferred_time } : {}),
+            ...(data.message ? { message: data.message } : {}),
+          },
         });
       }
     } catch (mailError) {
