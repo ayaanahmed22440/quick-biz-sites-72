@@ -443,13 +443,20 @@ function AdminPage() {
               <TableBody>
                 {filtered.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-sm text-muted-foreground">
+                    <TableCell colSpan={9} className="text-sm text-muted-foreground">
                       No clients match that search.
                     </TableCell>
                   </TableRow>
                 ) : (
                   filtered.map(({ business: b, sub, site, mrr: m, ltv, monthsActive }) => (
                     <TableRow key={b.id}>
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Select ${b.name}`}
+                          checked={selected.includes(b.id)}
+                          onCheckedChange={() => toggleSelected(b.id)}
+                        />
+                      </TableCell>
                       <TableCell>
                         <p className="font-medium">
                           {b.name}
