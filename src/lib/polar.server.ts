@@ -20,6 +20,15 @@ function accessToken(): string {
   return token;
 }
 
+class PolarError extends Error {
+  constructor(
+    public status: number,
+    public body: string,
+  ) {
+    super(`Polar request failed (${status})`);
+  }
+}
+
 async function polarFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${apiBase()}${path}`, {
     ...init,
@@ -32,7 +41,7 @@ async function polarFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const text = await res.text();
   if (!res.ok) {
     console.error("[polar] request failed", path, res.status, text.slice(0, 500));
-    throw new Error(`Polar request failed (${res.status})`);
+    throw new PolarError(res.status, text);
   }
   return (text ? JSON.parse(text) : {}) as T;
 }
@@ -45,6 +54,16 @@ export type PolarCheckout = {
   metadata?: Record<string, unknown> | null;
 };
 
+/** Only pass on addresses Polar will accept; it rejects unroutable demo domains. */
+function usableEmail(email: string | null | undefined): string | null {
+  if (!email) return null;
+  const value = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(value)) return null;
+  const domain = value.split("@")[1] ?? "";
+  if (/(^|\.)(example|invalid|test|localhost)(\.|$)/.test(domain)) return null;
+  return value;
+}
+
 /** Creates a hosted Polar checkout tied to our own checkout_sessions row via metadata. */
 export async function createPolarCheckout(input: {
   productId: string;
@@ -53,18 +72,31 @@ export async function createPolarCheckout(input: {
   externalCustomerId: string;
   metadata: Record<string, string>;
 }): Promise<{ id: string; url: string }> {
-  const checkout = await polarFetch<PolarCheckout>("/v1/checkouts/", {
-    method: "POST",
-    body: JSON.stringify({
+  const email = usableEmail(input.customerEmail);
+  const body = (withEmail: boolean) =>
+    JSON.stringify({
       products: [input.productId],
       success_url: input.successUrl,
       external_customer_id: input.externalCustomerId,
-      ...(input.customerEmail ? { customer_email: input.customerEmail } : {}),
+      ...(withEmail && email ? { customer_email: email } : {}),
       metadata: input.metadata,
-    }),
-  });
+    });
+
+  let checkout: PolarCheckout;
+  try {
+    checkout = await polarFetch<PolarCheckout>("/v1/checkouts/", { method: "POST", body: body(true) });
+  } catch (error) {
+    // A rejected or conflicting email should never block payment: let Polar collect it.
+    const retryable =
+      error instanceof PolarError &&
+      (error.status === 422 || error.status === 409) &&
+      error.body.includes("email");
+    if (!retryable) throw error;
+    checkout = await polarFetch<PolarCheckout>("/v1/checkouts/", { method: "POST", body: body(false) });
+  }
   return { id: checkout.id, url: checkout.url };
 }
+
 
 export async function getPolarCheckout(id: string): Promise<PolarCheckout> {
   return polarFetch<PolarCheckout>(`/v1/checkouts/${encodeURIComponent(id)}`);
