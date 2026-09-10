@@ -103,7 +103,7 @@ export function mapPolarStatus(raw: string | null | undefined): SubscriptionStat
     case "trialing":
       return "trialing";
     case "active":
-											      return "active";
+      return "active";
     case "past_due":
     case "unpaid":
       return "past_due";
