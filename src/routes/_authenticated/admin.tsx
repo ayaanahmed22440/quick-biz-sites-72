@@ -394,6 +394,22 @@ function AdminPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+            {selected.length ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  setConfirmed(false);
+                  setPendingDelete(
+                    filtered
+                      .filter((row) => selected.includes(row.business.id))
+                      .map((row) => ({ id: row.business.id, name: row.business.name })),
+                  );
+                }}
+              >
+                Delete selected ({selected.length})
+              </Button>
+            ) : null}
             <Link
               to="/admin-templates"
               className="ml-auto text-sm font-semibold text-primary underline-offset-4 hover:underline"
