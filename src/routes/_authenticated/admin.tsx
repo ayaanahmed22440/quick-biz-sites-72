@@ -212,6 +212,12 @@ function AdminPage() {
       });
       if (error) throw error;
       await supabase.from("support_tickets").update({ status: "pending" }).eq("id", ticketId);
+      // Email the customer too — a mail hiccup must not lose the reply.
+      try {
+        await notifyReplyFn({ data: { businessId, message: reply.trim().slice(0, 4000) } });
+      } catch (mailError) {
+        console.error("Support reply email failed", mailError);
+      }
     },
     onSuccess: () => {
       setReply("");
