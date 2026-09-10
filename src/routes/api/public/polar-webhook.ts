@@ -81,6 +81,8 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
               sub,
               forceStatus ? { forceStatus } : undefined,
             );
+            // A failed renewal must also stamp the failure and email the customer.
+            if (businessId && forceStatus === "past_due") await markPaymentFailed(businessId);
             await finish(businessId ? "processed" : "unmatched", businessId);
             return Response.json({ ok: true, matched: Boolean(businessId) });
           }
