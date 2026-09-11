@@ -283,6 +283,12 @@ function WebsitePage() {
       if (dirty) await save.mutateAsync({ publish: false });
     } finally {
       setShowPlans(true);
+      // The plans sit below the editor fields — bring them into view so the
+      // customer immediately sees where to pick a plan.
+      requestAnimationFrame(() => {
+        plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      toast("Choose a plan below to publish your site");
     }
   };
 
