@@ -97,7 +97,8 @@ export const getSiteForHost = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     const { getRequestHeader } = await import("@tanstack/react-start/server");
-    const raw = (data.host ?? getRequestHeader("host") ?? "")
+    const headerHost = getRequestHeader("x-forwarded-host") ?? getRequestHeader("host");
+    const raw = (data.host ?? headerHost ?? "")
       .toLowerCase()
       .trim()
       .split(":")[0];
