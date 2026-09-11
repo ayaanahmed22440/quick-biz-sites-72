@@ -124,3 +124,91 @@ export const deleteCustomer = createServerFn({ method: "POST" })
 
     return { deleted: true, accountRemoved };
   });
+
+const clearCooldownSchema = z.object({ businessId: z.string().uuid() });
+
+async function requireStaff(context: { supabase: { rpc: Function }; userId: string }) {
+  const { data: isStaff, error } = await (context.supabase as any).rpc("is_platform_staff", {
+    _user_id: context.userId,
+  });
+  if (error) throw error;
+  if (!isStaff) throw new Error("Staff access required");
+}
+
+/**
+ * Recent checkout attempts plus the card-testing signal: how many declined
+ * payments each account has had in the cooldown window, and whether checkout
+ * is currently blocked for it.
+ */
+export const listCheckoutAttempts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireStaff(context as never);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { CHECKOUT_BUCKETS, CHECKOUT_LIMITS } = await import("./checkout-guard.server");
+
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const [sessionsResult, failuresResult] = await Promise.all([
+      supabaseAdmin
+        .from("checkout_sessions")
+        .select("id, business_id, plan_id, status, created_at, completed_at")
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(60),
+      supabaseAdmin
+        .from("rate_limit_hits")
+        .select("subject, created_at")
+        .eq("bucket", CHECKOUT_BUCKETS.failures)
+        .gte("created_at", new Date(Date.now() - CHECKOUT_LIMITS.cooldownSeconds * 1000).toISOString()),
+    ]);
+
+    const sessions = sessionsResult.data ?? [];
+    const businessIds = Array.from(
+      new Set([
+        ...sessions.map((s) => s.business_id),
+        ...(failuresResult.data ?? []).map((f) => f.subject),
+      ]),
+    );
+    const { data: businesses } = businessIds.length
+      ? await supabaseAdmin.from("businesses").select("id, name").in("id", businessIds)
+      : { data: [] as { id: string; name: string }[] };
+    const names = new Map((businesses ?? []).map((b) => [b.id, b.name]));
+
+    const failureCounts = new Map<string, number>();
+    for (const row of failuresResult.data ?? []) {
+      failureCounts.set(row.subject, (failureCounts.get(row.subject) ?? 0) + 1);
+    }
+
+    return {
+      threshold: CHECKOUT_LIMITS.failures.limit,
+      attempts: sessions.map((s) => ({
+        id: s.id,
+        businessId: s.business_id,
+        businessName: names.get(s.business_id) ?? "Unknown",
+        planId: s.plan_id,
+        status: s.status,
+        createdAt: s.created_at,
+        completedAt: s.completed_at,
+      })),
+      blocked: Array.from(failureCounts.entries())
+        .map(([businessId, failures]) => ({
+          businessId,
+          businessName: names.get(businessId) ?? "Unknown",
+          failures,
+          isBlocked: failures >= CHECKOUT_LIMITS.failures.limit,
+        }))
+        .sort((a, b) => b.failures - a.failures),
+    };
+  });
+
+/** Releases a customer whose checkout was auto-blocked after declines. */
+export const clearCheckoutCooldown = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => clearCooldownSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    await requireStaff(context as never);
+    const { clearPaymentFailures } = await import("./checkout-guard.server");
+    await clearPaymentFailures(data.businessId);
+    return { ok: true };
+  });

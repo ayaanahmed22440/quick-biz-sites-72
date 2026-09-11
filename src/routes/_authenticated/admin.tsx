@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { deleteCustomer } from "@/lib/admin.functions";
+import {
+  clearCheckoutCooldown,
+  deleteCustomer,
+  listCheckoutAttempts,
+} from "@/lib/admin.functions";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import {
@@ -115,6 +119,24 @@ function AdminPage() {
   });
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ADMIN_KEY });
+
+  const listAttemptsFn = useServerFn(listCheckoutAttempts);
+  const clearCooldownFn = useServerFn(clearCheckoutCooldown);
+
+  const attempts = useQuery({
+    queryKey: ["admin-checkout-attempts"],
+    enabled: Boolean(workspace?.isStaff),
+    queryFn: () => listAttemptsFn({ data: undefined }),
+  });
+
+  const clearCooldown = useMutation({
+    mutationFn: (businessId: string) => clearCooldownFn({ data: { businessId } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-checkout-attempts"] });
+      toast.success("Payments re-enabled for that customer");
+    },
+    onError: () => toast.error("Could not clear that block"),
+  });
 
   const setSuspended = useMutation({
     mutationFn: async ({ id, suspended }: { id: string; suspended: boolean }) => {
@@ -384,6 +406,7 @@ function AdminPage() {
           <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
+          <TabsTrigger value="payments">Payment attempts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="clients" className="space-y-4">
@@ -688,6 +711,68 @@ function AdminPage() {
                 {pastDue.length} client(s) have a failed payment — chase these first.
               </p>
             ) : null}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="payments" className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-sm font-semibold">Blocked for declined payments</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Accounts are paused automatically after {attempts.data?.threshold ?? 3} declined
+              payments in an hour. This is what stops bots testing stolen cards.
+            </p>
+            {attempts.isLoading ? (
+              <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+            ) : (attempts.data?.blocked.length ?? 0) === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No declined payments in the last hour.
+              </p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {attempts.data?.blocked.map((row) => (
+                  <li key={row.businessId} className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium">{row.businessName}</span>
+                    <span className="text-muted-foreground">
+                      {row.failures} declined attempt{row.failures === 1 ? "" : "s"}
+                    </span>
+                    {row.isBlocked ? <Badge variant="destructive">Paused</Badge> : null}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-auto"
+                      disabled={clearCooldown.isPending}
+                      onClick={() => clearCooldown.mutate(row.businessId)}
+                    >
+                      Clear block
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-sm font-semibold">Checkout attempts (last 24 hours)</h2>
+            {(attempts.data?.attempts.length ?? 0) === 0 ? (
+              <p className="mt-2 text-sm text-muted-foreground">No checkout attempts today.</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {attempts.data?.attempts.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium">{a.businessName}</span>
+                    <span className="text-muted-foreground">
+                      {planById.get(a.planId)?.name ?? a.planId}
+                    </span>
+                    <Badge variant={a.status === "completed" ? "default" : "secondary"}>
+                      {a.status}
+                    </Badge>
+                    <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </TabsContent>
 

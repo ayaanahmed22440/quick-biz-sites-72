@@ -44,7 +44,31 @@ export const startCheckout = createServerFn({ method: "POST" })
       throw new Error("That plan is not available right now.");
     }
 
+    // Abuse guard: throttles, new-account gate and decline cooldown.
+    const { guardCheckout, CHECKOUT_LIMITS } = await import("./checkout-guard.server");
+    await guardCheckout({ userId, businessId: business.id, businessName: business.name });
+
     const returnPath = safeReturnPath(data.returnPath);
+
+    // Reuse a fresh, unused payment link instead of minting a new one every click.
+    const reuseSince = new Date(
+      Date.now() - CHECKOUT_LIMITS.reuseWindowSeconds * 1000,
+    ).toISOString();
+    const { data: existing } = await supabaseAdmin
+      .from("checkout_sessions")
+      .select("id, checkout_url, return_path")
+      .eq("business_id", business.id)
+      .eq("plan_id", plan.id)
+      .eq("status", "pending")
+      .eq("return_path", returnPath)
+      .gte("created_at", reuseSince)
+      .not("checkout_url", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existing?.checkout_url) {
+      return { url: existing.checkout_url, sessionId: existing.id };
+    }
 
     const { data: session, error: sessionError } = await supabaseAdmin
       .from("checkout_sessions")
