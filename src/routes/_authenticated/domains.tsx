@@ -243,12 +243,25 @@ function DomainsPage() {
 
               {d.status !== "active" ? (
                 <div className="mt-4 space-y-3">
-                  <p className="text-sm font-medium">Add these two records at your provider</p>
-                  <RecordRow host="@" name="This one covers yourbusiness.com" />
-                  <RecordRow host="www" name="This one covers www.yourbusiness.com" />
+                  <p className="text-sm font-medium">
+                    Add {d.verification_token ? "these records" : "these two records"} at your
+                    provider
+                  </p>
+                  <RecordRow host="@" name={`This one covers ${d.domain}`} />
+                  <RecordRow host="www" name={`This one covers www.${d.domain}`} />
+                  {d.verification_token ? (
+                    <RecordRow
+                      type="TXT"
+                      host="_lovable"
+                      value={d.verification_token}
+                      name="This one proves you own the name. Add it exactly as shown."
+                    />
+                  ) : null}
                   <p className="text-xs text-muted-foreground">
                     In GoDaddy: My Products → your domain → DNS → Add New Record. If a record with
-                    the same name already exists, edit it instead of adding a second one.
+                    the same name already exists, edit it instead of adding a second one. Once the
+                    records are in, hit “Check my records” — we finish the secure setup for you,
+                    usually within a few hours.
                   </p>
                 </div>
               ) : null}
