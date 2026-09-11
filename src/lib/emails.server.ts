@@ -287,6 +287,30 @@ export function sendSupportReplyEmail(opts: {
   });
 }
 
+/** Staff answering a website enquiry from the admin centre. */
+export function sendEnquiryReplyEmail(opts: {
+  to: string;
+  name?: string | null;
+  subject: string;
+  message: string;
+  original?: string | null;
+}) {
+  return send({
+    to: opts.to,
+    purpose: "enquiry_reply",
+    subject: opts.subject,
+    title: "A reply from WebWarheads",
+    replyTo: ADMIN_ALERT_EMAIL,
+    body: [
+      paragraph(`Hi ${escape(opts.name?.trim() || "there")},`),
+      `<p style="margin:0 0 14px;font-size:15px;line-height:1.65;white-space:pre-line;">${escape(opts.message)}</p>`,
+      opts.original
+        ? `<p style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e2e8f0;color:#64748b;font-size:13px;line-height:1.6;white-space:pre-line;">You wrote:\n${escape(opts.original)}</p>`
+        : "",
+    ].join(""),
+  });
+}
+
 /* ------------------------------------------------------------------ admin */
 
 function adminNote(opts: {
