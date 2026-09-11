@@ -68,9 +68,9 @@ function ProductPreview() {
       defaultSiteContent({
         businessName: previewData.business.name,
         city: previewData.business.city,
-        primaryService: activePreset?.copy.service,
-        primaryColor: activePreset?.accent,
-        templateId: activePreset?.templateId,
+        primaryService: activePreset?.copy.service ?? null,
+        primaryColor: activePreset?.accent ?? null,
+        templateId: activePreset?.templateId ?? null,
       }),
     [activePreset, previewData.business.city, previewData.business.name],
   );
