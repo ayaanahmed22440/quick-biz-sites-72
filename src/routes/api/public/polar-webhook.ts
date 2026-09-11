@@ -66,6 +66,9 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
         try {
           const { syncSubscription, syncSubscriptionById, markPaymentFailed, resolveSubscriptionOwner } =
             await import("@/lib/polar-sync.server");
+          const { recordPaymentFailure, clearPaymentFailures } = await import(
+            "@/lib/checkout-guard.server"
+          );
           const sub = data as never;
 
           if (eventType.startsWith("subscription.")) {
@@ -82,7 +85,12 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
               forceStatus ? { forceStatus } : undefined,
             );
             // A failed renewal must also stamp the failure and email the customer.
-            if (businessId && forceStatus === "past_due") await markPaymentFailed(businessId);
+            if (businessId && forceStatus === "past_due") {
+              await markPaymentFailed(businessId);
+              await recordPaymentFailure(businessId);
+            }
+            // A good payment clears any card-testing cooldown.
+            if (businessId && forceStatus === "active") await clearPaymentFailures(businessId);
             await finish(businessId ? "processed" : "unmatched", businessId);
             return Response.json({ ok: true, matched: Boolean(businessId) });
           }
@@ -97,6 +105,7 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
             const businessId = subscriptionId
               ? await syncSubscriptionById(subscriptionId, { forceStatus: "active" })
               : null;
+            if (businessId) await clearPaymentFailures(businessId);
             await finish(businessId ? "processed" : "unmatched", businessId);
             return Response.json({ ok: true, matched: Boolean(businessId) });
           }
@@ -108,7 +117,10 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
 
           if (eventType === "subscription.past_due" || eventType === "order.payment_failed") {
             const owner = await resolveSubscriptionOwner(sub);
-            if (owner) await markPaymentFailed(owner.businessId);
+            if (owner) {
+              await markPaymentFailed(owner.businessId);
+              await recordPaymentFailure(owner.businessId);
+            }
             await finish(owner ? "processed" : "unmatched", owner?.businessId ?? null);
             return Response.json({ ok: true, matched: Boolean(owner) });
           }
