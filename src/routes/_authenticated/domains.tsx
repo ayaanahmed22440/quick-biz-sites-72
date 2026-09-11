@@ -59,12 +59,22 @@ function CopyField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function RecordRow({ name, host }: { name: string; host: string }) {
+function RecordRow({
+  name,
+  host,
+  type = "A",
+  value = DOMAIN_TARGET_IP,
+}: {
+  name: string;
+  host: string;
+  type?: string;
+  value?: string;
+}) {
   return (
     <div className="grid gap-3 rounded-lg border border-border bg-card p-3 sm:grid-cols-4">
-      <CopyField label="Type" value="A" />
+      <CopyField label="Type" value={type} />
       <CopyField label="Name / Host" value={host} />
-      <CopyField label="Value / Points to" value={DOMAIN_TARGET_IP} />
+      <CopyField label="Value / Points to" value={value} />
       <CopyField label="TTL" value="1 hour" />
       <p className="text-xs text-muted-foreground sm:col-span-4">{name}</p>
     </div>
@@ -85,7 +95,9 @@ function DomainsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("domains")
-        .select("id, domain, kind, status, ssl_active, last_checked_at, created_at")
+        .select(
+          "id, domain, kind, status, ssl_active, verification_token, last_checked_at, created_at",
+        )
         .eq("business_id", businessId!)
         .order("created_at");
       if (error) throw error;
