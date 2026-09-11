@@ -870,8 +870,18 @@ function AdminPage() {
                   <p className="text-muted-foreground">{m.email}</p>
                   <p className="mt-1.5 whitespace-pre-line">{m.message}</p>
                   <div className="mt-3 flex gap-2">
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`mailto:${m.email}`}>Email back</a>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEnquiry({ id: m.id, name: m.name ?? "", email: m.email ?? "" });
+                        setEnquirySubject(
+                          `Re: your message to WebWarheads${m.business_name ? ` — ${m.business_name}` : ""}`,
+                        );
+                        setEnquiryBody("");
+                      }}
+                    >
+                      Email back
                     </Button>
                     {!m.handled ? (
                       <Button size="sm" variant="ghost" onClick={() => markHandled.mutate(m.id)}>
