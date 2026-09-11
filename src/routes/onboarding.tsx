@@ -55,7 +55,7 @@ const EMPTY: Draft = {
   state: "",
   services: "",
   areas: "",
-  primary_color: "#1f6feb",
+  primary_color: presetFor("cleaning").accent,
   logo_url: null,
   google_url: "",
   
@@ -72,7 +72,7 @@ const DEMO: Omit<Draft, "niche"> = {
   state: "NC",
   services: "Regular house cleaning\nDeep cleaning\nMove-in / move-out cleaning\nOffice cleaning",
   areas: "Matthews, Huntersville, Concord, Pineville",
-  primary_color: "#1f6feb",
+  primary_color: presetFor("cleaning").accent,
   logo_url: null,
   google_url: "",
 };
@@ -294,6 +294,15 @@ function OnboardingPage() {
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
+    setError(null);
+  }
+
+  function selectNiche(niche: string) {
+    setDraft((current) => ({
+      ...current,
+      niche,
+      primary_color: presetFor(niche).accent,
+    }));
     setError(null);
   }
 
@@ -592,7 +601,7 @@ function OnboardingPage() {
                     <button
                       key={p.templateId}
                       type="button"
-                      onClick={() => set("niche", p.niche)}
+                      onClick={() => selectNiche(p.niche)}
                       className={cn(
                         "group relative overflow-hidden rounded-xl border text-left transition-all",
                         draft.niche === p.niche
@@ -634,7 +643,13 @@ function OnboardingPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setDraft((d) => ({ ...DEMO, niche: d.niche }))}
+                    onClick={() =>
+                      setDraft((current) => ({
+                        ...DEMO,
+                        niche: current.niche,
+                        primary_color: presetFor(current.niche).accent,
+                      }))
+                    }
                     className="flex w-full items-center gap-3 rounded-xl border border-dashed border-border p-4 text-left transition-colors hover:border-accent/60 hover:bg-accent/5"
                   >
                     <Sparkles className="h-4 w-4 shrink-0 text-accent" />

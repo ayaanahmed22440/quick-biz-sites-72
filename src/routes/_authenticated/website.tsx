@@ -564,7 +564,12 @@ function WebsitePage() {
               </p>
               {showPlans ? (
                 <div className="mt-4">
-                  <PlanChooser currentPlanId={null} returnPath="/website" featureCount={4} />
+                  <PlanChooser
+                    currentPlanId={null}
+                    returnPath="/website"
+                    featureCount={4}
+                    businessId={businessId}
+                  />
                 </div>
               ) : (
                 <Button className="mt-3" onClick={() => void openPlans()}>
