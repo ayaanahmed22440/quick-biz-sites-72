@@ -116,6 +116,24 @@ function AdminPage() {
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ADMIN_KEY });
 
+  const listAttemptsFn = useServerFn(listCheckoutAttempts);
+  const clearCooldownFn = useServerFn(clearCheckoutCooldown);
+
+  const attempts = useQuery({
+    queryKey: ["admin-checkout-attempts"],
+    enabled: Boolean(workspace?.isStaff),
+    queryFn: () => listAttemptsFn({ data: undefined }),
+  });
+
+  const clearCooldown = useMutation({
+    mutationFn: (businessId: string) => clearCooldownFn({ data: { businessId } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-checkout-attempts"] });
+      toast.success("Payments re-enabled for that customer");
+    },
+    onError: () => toast.error("Could not clear that block"),
+  });
+
   const setSuspended = useMutation({
     mutationFn: async ({ id, suspended }: { id: string; suspended: boolean }) => {
       const { error } = await supabase.from("businesses").update({ suspended }).eq("id", id);
