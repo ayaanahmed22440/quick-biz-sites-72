@@ -362,3 +362,21 @@ export function adminSupportMessage(opts: {
     lines: [`<strong>${escape(opts.businessName)}</strong>`, escape(opts.message)],
   });
 }
+
+export function adminCheckoutAbuse(opts: {
+  businessId: string;
+  businessName: string;
+  failures: number;
+}) {
+  return adminNote({
+    purpose: "admin_checkout_blocked",
+    businessId: opts.businessId,
+    subject: `Payments paused: ${opts.businessName}`,
+    title: "Repeated declined payments",
+    lines: [
+      `<strong>${escape(opts.businessName)}</strong>`,
+      `${opts.failures} declined payment attempts in the last hour — checkout is temporarily blocked for this account.`,
+      "Clear the block from the admin area if this is a genuine customer.",
+    ],
+  });
+}
