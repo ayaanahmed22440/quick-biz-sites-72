@@ -384,6 +384,7 @@ function AdminPage() {
           <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
+          <TabsTrigger value="payments">Payment attempts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="clients" className="space-y-4">
