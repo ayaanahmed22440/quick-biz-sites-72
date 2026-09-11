@@ -83,6 +83,7 @@ function WebsitePage() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
+  const plansRef = useRef<HTMLDivElement | null>(null);
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const isMobile = useIsMobile();
 
@@ -282,6 +283,12 @@ function WebsitePage() {
       if (dirty) await save.mutateAsync({ publish: false });
     } finally {
       setShowPlans(true);
+      // The plans sit below the editor fields — bring them into view so the
+      // customer immediately sees where to pick a plan.
+      requestAnimationFrame(() => {
+        plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      toast("Choose a plan below to publish your site");
     }
   };
 
@@ -556,7 +563,7 @@ function WebsitePage() {
           </Section>
 
           {!canPublish ? (
-            <div className="rounded-lg border border-accent/40 bg-accent/10 p-4">
+            <div ref={plansRef} className="scroll-mt-6 rounded-lg border border-accent/40 bg-accent/10 p-4">
               <p className="text-sm font-semibold">Building is free — you only pay to go live</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 Keep editing and previewing as long as you like. Choose a plan when you're happy
