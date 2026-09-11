@@ -83,6 +83,7 @@ function WebsitePage() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
+  const plansRef = useRef<HTMLDivElement | null>(null);
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const isMobile = useIsMobile();
 
