@@ -568,7 +568,7 @@ function WebsitePage() {
                     currentPlanId={null}
                     returnPath="/website"
                     featureCount={4}
-                    businessId={businessId}
+                    businessId={businessId ?? null}
                   />
                 </div>
               ) : (
