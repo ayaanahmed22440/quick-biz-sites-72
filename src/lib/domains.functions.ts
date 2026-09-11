@@ -146,9 +146,9 @@ export const setDomainVerification = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertStaff(context as never);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, string | null> = {};
-    if (data.verificationToken !== undefined) patch["verification_token"] = data.verificationToken || null;
-    if (data.note !== undefined) patch["dns_notes"] = data.note || null;
+    const patch: { verification_token?: string | null; dns_notes?: string | null } = {};
+    if (data.verificationToken !== undefined) patch.verification_token = data.verificationToken || null;
+    if (data.note !== undefined) patch.dns_notes = data.note || null;
     const { error } = await supabaseAdmin.from("domains").update(patch).eq("id", data.domainId);
     if (error) throw error;
     return { ok: true };
