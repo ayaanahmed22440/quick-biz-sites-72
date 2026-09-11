@@ -1,4 +1,11 @@
-import { RateLimitError, callerKey, countHits, enforceRateLimit, recordHit } from "./rate-limit.server";
+import {
+  RateLimitError,
+  callerKey,
+  clearHits,
+  countHits,
+  enforceRateLimit,
+  recordHit,
+} from "./rate-limit.server";
 
 /**
  * Anti card-testing guard for checkout.
@@ -35,6 +42,15 @@ export class CheckoutBlockedError extends Error {}
 /** Counts a declined/failed payment against a business. */
 export async function recordPaymentFailure(businessId: string): Promise<void> {
   await recordHit(CHECKOUT_BUCKETS.failures, businessId);
+}
+
+/** Clears the decline cooldown for a business (successful payment, or admin release). */
+export async function clearPaymentFailures(businessId: string): Promise<void> {
+  try {
+    await clearHits(CHECKOUT_BUCKETS.failures, businessId);
+  } catch {
+    /* never break the caller on bookkeeping */
+  }
 }
 
 export async function failureCount(businessId: string): Promise<number> {
