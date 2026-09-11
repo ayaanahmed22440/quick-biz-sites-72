@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { PublicLayout } from "@/components/site/PublicLayout";
+import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
+import { getSiteForHost, type HostedSite } from "@/lib/public-site.functions";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { PricingCards } from "@/components/site/PricingCards";
 import { Button } from "@/components/ui/button";
@@ -31,18 +33,32 @@ const DESCRIPTION =
   "Build, edit and publish a professional local-business website with hosting, leads and support included from $37/month.";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: TITLE },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: HomePage,
+  loader: async () =>
+    (await getSiteForHost({
+      data: { host: typeof document === "undefined" ? null : window.location.hostname },
+    })) as HostedSite | null,
+  head: ({ loaderData }) =>
+    loaderData
+      ? publicSiteMeta(loaderData.site)
+      : {
+          meta: [
+            { title: TITLE },
+            { name: "description", content: DESCRIPTION },
+            { property: "og:title", content: TITLE },
+            { property: "og:description", content: DESCRIPTION },
+            { property: "og:type", content: "website" },
+            { name: "twitter:card", content: "summary_large_image" },
+          ],
+        },
+  component: RootIndex,
 });
+
+/** A customer's own domain serves their website here; everything else sees the marketing page. */
+function RootIndex() {
+  const hosted = Route.useLoaderData();
+  if (hosted) return <PublicSiteView site={hosted.site} slug={hosted.slug} />;
+  return <HomePage />;
+}
 
 const FEATURES = [
   { icon: LayoutTemplate, title: "Start with a proven design", body: "Choose a polished layout built for service businesses, then make it yours." },

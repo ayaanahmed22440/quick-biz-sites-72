@@ -70,6 +70,63 @@ export const getPublishedSite = createServerFn({ method: "GET" })
     return (site ?? null) as PublishedSite | null;
   });
 
+/** Hostnames that always serve the WebWarheads marketing site, never a customer site. */
+function isPlatformHost(host: string) {
+  return (
+    host === "webwarheads.com" ||
+    host === "www.webwarheads.com" ||
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.endsWith(".lovable.app") ||
+    host.endsWith(".lovableproject.com") ||
+    host.endsWith(".lovable.dev")
+  );
+}
+
+export type HostedSite = { slug: string; site: PublishedSite };
+
+/**
+ * Works out whether the current request arrived on a customer's own domain.
+ * Returns null for the platform's own hostnames so the marketing site shows.
+ */
+export const getSiteForHost = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({ host: z.string().max(253).nullable().optional() })
+      .parse(data ?? {}),
+  )
+  .handler(async ({ data }) => {
+    const { getRequestHeader } = await import("@tanstack/react-start/server");
+    const headerHost = getRequestHeader("x-forwarded-host") ?? getRequestHeader("host");
+    const raw = (data.host ?? headerHost ?? "")
+      .toLowerCase()
+      .trim()
+      .split(":")[0];
+    if (!raw || isPlatformHost(raw)) return null;
+
+    const bare = raw.replace(/^www\./, "");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("domains")
+      .select("business_id")
+      .eq("domain", bare)
+      .limit(1);
+    const businessId = rows?.[0]?.business_id;
+    if (!businessId) return null;
+
+    const { data: business } = await supabaseAdmin
+      .from("businesses")
+      .select("slug, suspended")
+      .eq("id", businessId)
+      .maybeSingle();
+    if (!business || business.suspended) return null;
+
+    const supabase = publicClient();
+    const { data: site } = await supabase.rpc("get_published_site", { p_slug: business.slug });
+    if (!site) return null;
+    return { slug: business.slug, site: site as PublishedSite } satisfies HostedSite;
+  });
+
 export const submitWebsiteLead = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
     z
