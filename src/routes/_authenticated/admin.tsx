@@ -922,6 +922,45 @@ function AdminPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={Boolean(enquiry)} onOpenChange={(open) => !open && setEnquiry(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Email back</DialogTitle>
+            <DialogDescription>
+              Sends from your connected WebWarheads mailbox to {enquiry?.email}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={enquirySubject}
+              onChange={(e) => setEnquirySubject(e.target.value)}
+              placeholder="Subject"
+            />
+            <Textarea
+              rows={8}
+              value={enquiryBody}
+              onChange={(e) => setEnquiryBody(e.target.value)}
+              placeholder="Write your reply…"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEnquiry(null)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={
+                sendEnquiryReply.isPending ||
+                enquirySubject.trim().length < 2 ||
+                enquiryBody.trim().length < 2
+              }
+              onClick={() => sendEnquiryReply.mutate()}
+            >
+              {sendEnquiryReply.isPending ? "Sending…" : "Send email"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
