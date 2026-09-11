@@ -25,8 +25,6 @@ export const CHECKOUT_LIMITS = {
   failures: { limit: 3, windowSeconds: 60 * 60 },
   /** How long an account stays blocked after tripping the failure threshold. */
   cooldownSeconds: 60 * 60,
-  /** A brand-new account waits this long before it can pay. */
-  minAccountAgeSeconds: 120,
   /** Reuse an unused payment link created within this window. */
   reuseWindowSeconds: 15 * 60,
 } as const;
@@ -72,25 +70,7 @@ export async function guardCheckout(options: {
 }): Promise<void> {
   const { userId, businessId } = options;
 
-  // 1. Account must be real and not seconds old — kills "signup, blast cards, repeat".
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: account } = await supabaseAdmin.auth.admin.getUserById(userId);
-  const user = account?.user;
-  if (user) {
-    if (!user.email_confirmed_at && !user.phone_confirmed_at) {
-      throw new CheckoutBlockedError(
-        "Please confirm your email address before starting a payment.",
-      );
-    }
-    const ageSeconds = (Date.now() - new Date(user.created_at).getTime()) / 1000;
-    if (ageSeconds < CHECKOUT_LIMITS.minAccountAgeSeconds) {
-      throw new CheckoutBlockedError(
-        "Your account was just created. Please try again in a minute.",
-      );
-    }
-  }
-
-  // 2. Cooldown after repeated declines.
+  // 1. Cooldown after repeated declines.
   const failures = await failureCount(businessId);
   if (failures >= CHECKOUT_LIMITS.failures.limit) {
     await notifyAbuse(options, failures);
@@ -99,7 +79,7 @@ export async function guardCheckout(options: {
     );
   }
 
-  // 3. Plain throttles per account and per network address.
+  // 2. Plain throttles per account and per network address.
   try {
     await enforceRateLimit({
       bucket: CHECKOUT_BUCKETS.account,

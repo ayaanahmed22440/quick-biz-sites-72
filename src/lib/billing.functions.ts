@@ -44,7 +44,7 @@ export const startCheckout = createServerFn({ method: "POST" })
       throw new Error("That plan is not available right now.");
     }
 
-    // Abuse guard: throttles, new-account gate and decline cooldown.
+    // Abuse guard: throttles repeated attempts and enforces decline cooldowns.
     const { guardCheckout, CHECKOUT_LIMITS } = await import("./checkout-guard.server");
     await guardCheckout({ userId, businessId: business.id, businessName: business.name });
 
