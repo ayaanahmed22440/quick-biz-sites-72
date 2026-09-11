@@ -1,23 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Check,
-  CheckCircle2,
-  ChevronRight,
   Image,
   LayoutTemplate,
   Monitor,
   Search,
   Send,
-  Smartphone,
   Sparkles,
 } from "lucide-react";
+import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { PublicLayout } from "@/components/site/PublicLayout";
+import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { PricingCards } from "@/components/site/PricingCards";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import previewImage from "@/assets/templates/cleaning-gallery-1.jpg";
+import { defaultSiteContent } from "@/lib/site-content";
+import { previewDataFor } from "@/lib/template-preview-data";
+import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 import {
   Accordion,
   AccordionContent,
@@ -58,72 +59,90 @@ const FAQS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 function ProductPreview() {
+  const [activeNiche, setActiveNiche] = useState("cleaning");
+  const activePreset =
+    TEMPLATE_PRESETS.find((preset) => preset.niche === activeNiche) ?? TEMPLATE_PRESETS[0];
+  const previewData = previewDataFor(activePreset?.niche ?? "cleaning");
+  const content = useMemo(
+    () =>
+      defaultSiteContent({
+        businessName: previewData.business.name,
+        city: previewData.business.city,
+        primaryService: activePreset?.copy.service ?? null,
+        primaryColor: activePreset?.accent ?? null,
+        templateId: activePreset?.templateId ?? null,
+      }),
+    [activePreset, previewData.business.city, previewData.business.name],
+  );
+  const address = `webwarheads.com/${previewData.business.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
+
   return (
-    <div className="animate-product-rise relative mx-auto mt-16 max-w-6xl px-3 sm:px-6">
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_28px_80px_-36px_color-mix(in_oklab,var(--color-navy)_42%,transparent)]">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-3 py-3 sm:flex sm:px-4">
+    <div className="animate-product-rise relative mx-auto mt-14 max-w-7xl px-3 sm:mt-16 sm:px-6 lg:px-8">
+      <div className="mb-5 text-center">
+        <p className="text-xs font-bold uppercase text-accent">Pick your industry</p>
+        <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">See a site built for your business</h2>
+      </div>
+
+      <div
+        className="-mx-3 flex snap-x gap-2 overflow-x-auto px-3 pb-3 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0"
+        role="tablist"
+        aria-label="Business template industries"
+      >
+        {TEMPLATE_PRESETS.map((preset) => {
+          const selected = preset.niche === activeNiche;
+          return (
+            <Button
+              key={preset.niche}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              variant={selected ? "default" : "outline"}
+              className={selected ? "snap-start bg-navy text-navy-foreground hover:bg-navy/90" : "snap-start bg-card"}
+              onClick={() => setActiveNiche(preset.niche)}
+            >
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: preset.accent }}
+                aria-hidden="true"
+              />
+              {preset.industryLabel}
+            </Button>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 overflow-hidden rounded-xl border border-border bg-card shadow-[0_28px_80px_-36px_color-mix(in_oklab,var(--color-navy)_42%,transparent)]">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-muted/70 px-3 py-3 sm:gap-4 sm:px-4">
           <div className="flex shrink-0 gap-1.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-warning" />
             <span className="h-2.5 w-2.5 rounded-full bg-success" />
           </div>
-          <div className="hidden min-w-0 flex-1 justify-center sm:flex">
-            <div className="w-full max-w-md truncate rounded-md border border-border bg-muted px-4 py-1.5 text-center text-xs text-muted-foreground">
-              webwarheads.com/your-business
-            </div>
+          <div className="min-w-0 truncate rounded-md border border-border bg-background px-3 py-1.5 text-center text-[10px] text-muted-foreground sm:text-xs">
+            {address}
           </div>
-          <div className="flex shrink-0 items-center gap-1 rounded-md border border-border bg-muted p-1">
-            <span className="rounded-sm bg-background p-1.5 text-foreground shadow-xs"><Monitor className="h-3.5 w-3.5" /></span>
-            <span className="p-1.5 text-muted-foreground"><Smartphone className="h-3.5 w-3.5" /></span>
+          <div className="flex shrink-0 items-center gap-1 text-[10px] font-semibold text-muted-foreground sm:text-xs">
+            <Monitor className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Desktop preview</span>
           </div>
         </div>
 
-        <div className="grid min-h-[430px] bg-muted/50 lg:grid-cols-[290px_minmax(0,1fr)]">
-          <aside className="hidden border-r border-border bg-card p-5 lg:block">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-foreground">Website editor</p>
-              <span className="flex items-center gap-1 text-[11px] font-semibold text-success"><CheckCircle2 className="h-3.5 w-3.5" /> Saved</span>
-            </div>
-            <div className="mt-6 space-y-2">
-              {["Business details", "Services", "Photos", "Reviews", "Contact & hours"].map((item, index) => (
-                <div key={item} className={`flex items-center justify-between rounded-md px-3 py-2.5 text-sm ${index === 1 ? "bg-secondary font-semibold text-foreground" : "text-muted-foreground"}`}>
-                  <span>{item}</span><ChevronRight className="h-4 w-4" />
-                </div>
-              ))}
-            </div>
-            <div className="mt-7 border-t border-border pt-5">
-              <p className="text-xs font-bold uppercase text-muted-foreground">Brand color</p>
-              <div className="mt-3 flex gap-2">
-                {["bg-accent", "bg-navy", "bg-success", "bg-warning"].map((color) => <span key={color} className={`h-7 w-7 rounded-full border-2 border-card shadow-sm ${color}`} />)}
-              </div>
-            </div>
-          </aside>
-
-          <div className="p-3 sm:p-6 lg:p-8">
-            <div className="mx-auto h-full max-w-4xl overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-              <div className="flex items-center justify-between border-b border-border px-4 py-3">
-                <div className="font-bold text-foreground">Greenline<span className="text-success">.</span></div>
-                <div className="hidden gap-5 text-xs font-medium text-muted-foreground sm:flex"><span>Services</span><span>Our work</span><span>Contact</span></div>
-                <span className="rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-success-foreground">Free estimate</span>
-              </div>
-              <div className="grid min-h-[330px] content-center gap-8 p-6 sm:p-10 md:grid-cols-[1.08fr_.92fr] md:items-center">
-                <div>
-                  <span className="text-xs font-bold uppercase text-success">Austin's local landscape team</span>
-                  <h2 className="mt-3 text-3xl font-bold leading-tight text-foreground sm:text-4xl">Outdoor spaces made for living.</h2>
-                  <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">Thoughtful landscape design, dependable care and a team that keeps every project clear from day one.</p>
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <span className="rounded-md bg-success px-4 py-2 text-xs font-bold text-success-foreground">Request a quote</span>
-                    <span className="rounded-md border border-border px-4 py-2 text-xs font-bold text-foreground">See our work</span>
-                  </div>
-                </div>
-                <div className="hidden aspect-[4/3] overflow-hidden rounded-lg bg-success/10 p-3 md:block">
-                  <img src={previewImage} alt="Landscaped outdoor area shown in a customer website preview" className="h-full w-full rounded-md object-cover" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 border-t border-border bg-muted/50 px-4 py-4 text-center">
-                {["Fast quotes", "Local team", "Quality work"].map((item) => <span key={item} className="text-[10px] font-bold uppercase text-muted-foreground sm:text-xs">{item}</span>)}
-              </div>
-            </div>
+        <div className="bg-muted/50 p-2 sm:p-5 lg:p-7">
+          <div key={activeNiche} className="animate-template-swap mx-auto overflow-hidden rounded-lg border border-border bg-background shadow-xl">
+            <PreviewFrame width={1280} height={720}>
+              <LocalBusinessTemplate
+                business={previewData.business}
+                content={content}
+                services={previewData.services}
+                areas={previewData.areas}
+                hours={previewData.hours}
+                reviews={previewData.reviews}
+                previewOnly
+              />
+            </PreviewFrame>
           </div>
         </div>
       </div>
