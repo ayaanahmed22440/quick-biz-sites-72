@@ -692,6 +692,68 @@ function AdminPage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="payments" className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-sm font-semibold">Blocked for declined payments</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Accounts are paused automatically after {attempts.data?.threshold ?? 3} declined
+              payments in an hour. This is what stops bots testing stolen cards.
+            </p>
+            {attempts.isLoading ? (
+              <p className="mt-3 text-sm text-muted-foreground">Loading…</p>
+            ) : (attempts.data?.blocked.length ?? 0) === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No declined payments in the last hour.
+              </p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {attempts.data?.blocked.map((row) => (
+                  <li key={row.businessId} className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium">{row.businessName}</span>
+                    <span className="text-muted-foreground">
+                      {row.failures} declined attempt{row.failures === 1 ? "" : "s"}
+                    </span>
+                    {row.isBlocked ? <Badge variant="destructive">Paused</Badge> : null}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-auto"
+                      disabled={clearCooldown.isPending}
+                      onClick={() => clearCooldown.mutate(row.businessId)}
+                    >
+                      Clear block
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-sm font-semibold">Checkout attempts (last 24 hours)</h2>
+            {(attempts.data?.attempts.length ?? 0) === 0 ? (
+              <p className="mt-2 text-sm text-muted-foreground">No checkout attempts today.</p>
+            ) : (
+              <ul className="mt-3 space-y-2 text-sm">
+                {attempts.data?.attempts.map((a) => (
+                  <li key={a.id} className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium">{a.businessName}</span>
+                    <span className="text-muted-foreground">
+                      {planById.get(a.planId)?.name ?? a.planId}
+                    </span>
+                    <Badge variant={a.status === "completed" ? "default" : "secondary"}>
+                      {a.status}
+                    </Badge>
+                    <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </TabsContent>
+
         <TabsContent value="support">
           <div className="space-y-3">
             {data.tickets.length === 0 ? (
