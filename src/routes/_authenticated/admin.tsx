@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
+import { checkDomain, listAllDomains, setDomainVerification } from "@/lib/domains.functions";
 import {
   Dialog,
   DialogContent,
@@ -967,5 +968,108 @@ function AdminPage() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+/** Setup queue for customer-owned domains: DNS state, ownership token, live check. */
+function AdminDomains() {
+  const queryClient = useQueryClient();
+  const list = useServerFn(listAllDomains);
+  const saveToken = useServerFn(setDomainVerification);
+  const check = useServerFn(checkDomain);
+  const [tokens, setTokens] = useState<Record<string, string>>({});
+
+  const domains = useQuery({
+    queryKey: ["admin-domains"],
+    queryFn: () => list({ data: undefined }),
+  });
+
+  const save = useMutation({
+    mutationFn: (vars: { domainId: string; verificationToken: string }) =>
+      saveToken({ data: vars }),
+    onSuccess: () => {
+      toast.success("Saved — the customer now sees this record");
+      void queryClient.invalidateQueries({ queryKey: ["admin-domains"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save that"),
+  });
+
+  const recheck = useMutation({
+    mutationFn: (domainId: string) => check({ data: { domainId } }),
+    onSuccess: (result) => {
+      toast.info(result.message);
+      void queryClient.invalidateQueries({ queryKey: ["admin-domains"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not check that domain"),
+  });
+
+  if (domains.isLoading) return <LoadingBlock rows={3} />;
+  if (domains.isError) return <ErrorBlock />;
+
+  const rows = domains.data ?? [];
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h2 className="text-sm font-semibold">Customer domain setup queue</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Each customer domain also has to be attached to the WebWarheads project once. Add the
+          domain in project settings, paste the ownership token here so the customer can add it,
+          then re-check the records.
+        </p>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
+          No customer has connected a domain yet.
+        </div>
+      ) : (
+        <ul className="space-y-3">
+          {rows.map((row) => (
+            <li key={row.id} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="truncate font-medium">{row.domain}</span>
+                <Badge variant={row.status === "active" ? "default" : "secondary"}>
+                  {row.status}
+                </Badge>
+                {row.ssl_active ? <Badge>SSL</Badge> : null}
+                <span className="text-sm text-muted-foreground">{row.businessName}</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {row.last_checked_at
+                    ? `Checked ${new Date(row.last_checked_at).toLocaleString()}`
+                    : "Never checked"}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+                <Input
+                  placeholder="Ownership token (TXT value for _lovable)"
+                  value={tokens[row.id] ?? row.verification_token ?? ""}
+                  onChange={(e) => setTokens((t) => ({ ...t, [row.id]: e.target.value }))}
+                />
+                <Button
+                  variant="outline"
+                  disabled={save.isPending}
+                  onClick={() =>
+                    save.mutate({
+                      domainId: row.id,
+                      verificationToken: tokens[row.id] ?? row.verification_token ?? "",
+                    })
+                  }
+                >
+                  Save token
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={recheck.isPending}
+                  onClick={() => recheck.mutate(row.id)}
+                >
+                  Re-check DNS
+                </Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
