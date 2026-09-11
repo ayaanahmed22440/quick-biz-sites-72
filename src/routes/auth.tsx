@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PLAN_COPY } from "@/lib/plans";
 import { GoogleIcon } from "@/components/brand/GoogleIcon";
+import { AppleIcon } from "@/components/brand/AppleIcon";
 
 const TITLE = "Log in or create your WebWarheads account";
 const DESCRIPTION =
@@ -136,6 +137,20 @@ function AuthPage() {
     void navigate({ to: "/dashboard", replace: true });
   }
 
+  async function handleApple() {
+    setError(null);
+    sessionStorage.setItem("ww:after-login", "/dashboard");
+    const result = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setError("Apple sign-in didn't complete. Please try again.");
+      return;
+    }
+    if (result.redirected) return;
+    void navigate({ to: "/dashboard", replace: true });
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
       <header className="border-b border-border bg-background">
@@ -247,10 +262,16 @@ function AuthPage() {
                     or
                     <span className="h-px flex-1 bg-border" />
                   </div>
-                  <Button variant="outline" className="w-full gap-2" onClick={handleGoogle}>
-                    <GoogleIcon />
-                    Continue with Google
-                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline" className="w-full gap-2" onClick={handleGoogle}>
+                      <GoogleIcon />
+                      Google
+                    </Button>
+                    <Button variant="outline" className="w-full gap-2" onClick={handleApple}>
+                      <AppleIcon />
+                      Apple
+                    </Button>
+                  </div>
                 </>
               ) : null}
 

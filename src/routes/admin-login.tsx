@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/brand/GoogleIcon";
+import { AppleIcon } from "@/components/brand/AppleIcon";
 
 const TITLE = "WebWarheads staff log in";
 const DESCRIPTION = "Log in to the WebWarheads staff and admin area.";
@@ -93,14 +94,14 @@ function AdminLoginPage() {
     await goToAdmin();
   }
 
-  async function handleGoogle() {
+  async function handleOAuth(provider: "google" | "apple") {
     setError(null);
     sessionStorage.setItem("ww:after-login", "/admin");
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
-      setError("Google sign-in didn't complete. Please try again.");
+      setError(`${provider === "google" ? "Google" : "Apple"} sign-in didn't complete. Please try again.`);
       return;
     }
     if (result.redirected) return;
@@ -150,10 +151,16 @@ function AdminLoginPage() {
             or
             <span className="h-px flex-1 bg-border" />
           </div>
-          <Button variant="outline" className="w-full gap-2" onClick={handleGoogle}>
-            <GoogleIcon />
-            Continue with Google
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="w-full gap-2" onClick={() => void handleOAuth("google")}>
+              <GoogleIcon />
+              Google
+            </Button>
+            <Button variant="outline" className="w-full gap-2" onClick={() => void handleOAuth("apple")}>
+              <AppleIcon />
+              Apple
+            </Button>
+          </div>
 
           <button
             type="button"
