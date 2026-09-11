@@ -25,7 +25,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { notifySupportReply } from "@/lib/notify.functions";
+import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,6 +76,25 @@ function AdminPage() {
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string }[] | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
+  const replyToEnquiryFn = useServerFn(replyToEnquiry);
+  const [enquiry, setEnquiry] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [enquirySubject, setEnquirySubject] = useState("");
+  const [enquiryBody, setEnquiryBody] = useState("");
+
+  const sendEnquiryReply = useMutation({
+    mutationFn: async () => {
+      if (!enquiry) return;
+      await replyToEnquiryFn({
+        data: { messageId: enquiry.id, subject: enquirySubject.trim(), message: enquiryBody.trim() },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Email sent");
+      setEnquiry(null);
+      void refresh();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not send that email"),
+  });
 
   const toggleSelected = (id: string) =>
     setSelected((current) =>
@@ -870,8 +897,18 @@ function AdminPage() {
                   <p className="text-muted-foreground">{m.email}</p>
                   <p className="mt-1.5 whitespace-pre-line">{m.message}</p>
                   <div className="mt-3 flex gap-2">
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={`mailto:${m.email}`}>Email back</a>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEnquiry({ id: m.id, name: m.name ?? "", email: m.email ?? "" });
+                        setEnquirySubject(
+                          `Re: your message to WebWarheads${m.business_name ? ` — ${m.business_name}` : ""}`,
+                        );
+                        setEnquiryBody("");
+                      }}
+                    >
+                      Email back
                     </Button>
                     {!m.handled ? (
                       <Button size="sm" variant="ghost" onClick={() => markHandled.mutate(m.id)}>
@@ -885,6 +922,45 @@ function AdminPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={Boolean(enquiry)} onOpenChange={(open) => !open && setEnquiry(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Email back</DialogTitle>
+            <DialogDescription>
+              Sends from your connected WebWarheads mailbox to {enquiry?.email}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              value={enquirySubject}
+              onChange={(e) => setEnquirySubject(e.target.value)}
+              placeholder="Subject"
+            />
+            <Textarea
+              rows={8}
+              value={enquiryBody}
+              onChange={(e) => setEnquiryBody(e.target.value)}
+              placeholder="Write your reply…"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEnquiry(null)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={
+                sendEnquiryReply.isPending ||
+                enquirySubject.trim().length < 2 ||
+                enquiryBody.trim().length < 2
+              }
+              onClick={() => sendEnquiryReply.mutate()}
+            >
+              {sendEnquiryReply.isPending ? "Sending…" : "Send email"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
