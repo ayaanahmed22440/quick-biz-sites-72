@@ -97,6 +97,63 @@ export const checkDomain = createServerFn({ method: "POST" })
     };
   });
 
+async function assertStaff(context: { supabase: { rpc: Function }; userId: string }) {
+  const { data: staff } = await (context.supabase as any).rpc("is_platform_staff", {
+    _user_id: context.userId,
+  });
+  if (!staff) throw new Error("Staff access required");
+}
+
+/** Every customer domain across the platform, for the admin setup queue. */
+export const listAllDomains = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertStaff(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("domains")
+      .select(
+        "id, domain, status, ssl_active, verification_token, dns_notes, created_at, last_checked_at, business_id",
+      )
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+
+    const ids = [...new Set((rows ?? []).map((r) => r.business_id))];
+    const { data: businesses } = ids.length
+      ? await supabaseAdmin.from("businesses").select("id, name, slug").in("id", ids)
+      : { data: [] as { id: string; name: string; slug: string }[] };
+    const byId = new Map((businesses ?? []).map((b) => [b.id, b]));
+
+    return (rows ?? []).map((row) => ({
+      ...row,
+      businessName: byId.get(row.business_id)?.name ?? "Unknown business",
+      businessSlug: byId.get(row.business_id)?.slug ?? "",
+    }));
+  });
+
+/** Staff store the ownership token WebWarheads was given for this domain. */
+export const setDomainVerification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z
+      .object({
+        domainId: z.string().uuid(),
+        verificationToken: z.string().max(300).nullable().optional(),
+        note: z.string().max(300).nullable().optional(),
+      })
+      .parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch: Record<string, string | null> = {};
+    if (data.verificationToken !== undefined) patch["verification_token"] = data.verificationToken || null;
+    if (data.note !== undefined) patch["dns_notes"] = data.note || null;
+    const { error } = await supabaseAdmin.from("domains").update(patch).eq("id", data.domainId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 /** Nudges owners whose records still aren't in place after two days. */
 export const remindPendingDomains = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
