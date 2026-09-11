@@ -121,3 +121,41 @@ export const notifySupportReply = createServerFn({ method: "POST" })
     });
     return { sent: true };
   });
+
+/** Staff answering a website enquiry from the admin centre, via Gmail. */
+export const replyToEnquiry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        messageId: z.string().uuid(),
+        subject: z.string().min(2).max(200),
+        message: z.string().min(2).max(4000),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as never);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: enquiry, error } = await supabaseAdmin
+      .from("contact_messages")
+      .select("id, name, email, message")
+      .eq("id", data.messageId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!enquiry?.email) throw new Error("That enquiry has no email address");
+
+    const { sendEnquiryReplyEmail } = await import("@/lib/emails.server");
+    const result = await sendEnquiryReplyEmail({
+      to: enquiry.email,
+      name: enquiry.name,
+      subject: data.subject,
+      message: data.message,
+      original: enquiry.message,
+    });
+    if (!result?.sent) throw new Error("The email could not be sent — check the email log");
+
+    await supabaseAdmin.from("contact_messages").update({ handled: true }).eq("id", enquiry.id);
+    return { sent: true };
+  });
