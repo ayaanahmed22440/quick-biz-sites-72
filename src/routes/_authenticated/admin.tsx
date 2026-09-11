@@ -25,7 +25,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { notifySupportReply } from "@/lib/notify.functions";
+import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -68,6 +76,25 @@ function AdminPage() {
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string }[] | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
+  const replyToEnquiryFn = useServerFn(replyToEnquiry);
+  const [enquiry, setEnquiry] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [enquirySubject, setEnquirySubject] = useState("");
+  const [enquiryBody, setEnquiryBody] = useState("");
+
+  const sendEnquiryReply = useMutation({
+    mutationFn: async () => {
+      if (!enquiry) return;
+      await replyToEnquiryFn({
+        data: { messageId: enquiry.id, subject: enquirySubject.trim(), message: enquiryBody.trim() },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Email sent");
+      setEnquiry(null);
+      void refresh();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not send that email"),
+  });
 
   const toggleSelected = (id: string) =>
     setSelected((current) =>
