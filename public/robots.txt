@@ -24,4 +24,4 @@ Disallow: /auth
 Disallow: /reset-password
 Disallow: /api/
 
-Sitemap: https://webwarheads.com/api/public/sitemap.xml
+Sitemap: https://webwarheads.com/sitemap.xml
