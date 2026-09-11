@@ -116,7 +116,7 @@ export function SupportChat({ businessId }: { businessId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:opacity-90"
+        className="fixed bottom-20 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:opacity-90 sm:bottom-5"
       >
         <MessageCircle className="h-4 w-4" />
         Chat with us
