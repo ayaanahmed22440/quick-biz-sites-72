@@ -87,7 +87,7 @@ function ProductPreview() {
       </div>
 
       <div
-        className="-mx-3 flex snap-x gap-2 overflow-x-auto px-3 pb-3 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0"
+        className="flex snap-x gap-2 overflow-x-auto pb-3 sm:flex-wrap sm:justify-center"
         role="tablist"
         aria-label="Business template industries"
       >
