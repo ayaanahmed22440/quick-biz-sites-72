@@ -434,6 +434,7 @@ function AdminPage() {
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
           <TabsTrigger value="payments">Payment attempts</TabsTrigger>
+          <TabsTrigger value="domains">Domains</TabsTrigger>
         </TabsList>
 
         <TabsContent value="clients" className="space-y-4">
@@ -801,6 +802,10 @@ function AdminPage() {
               </ul>
             )}
           </div>
+        </TabsContent>
+
+        <TabsContent value="domains">
+          <AdminDomains />
         </TabsContent>
 
         <TabsContent value="support">
