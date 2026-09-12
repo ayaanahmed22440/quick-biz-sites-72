@@ -7,7 +7,7 @@ import { notifyWelcome } from "@/lib/notify.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Eye, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Eye, Loader2, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace, workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
+import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
 import { cn } from "@/lib/utils";
 
@@ -242,6 +243,23 @@ function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
+  const [nicheSearch, setNicheSearch] = useState("");
+
+  const groupedNiches = useMemo(() => {
+    const query = nicheSearch.trim().toLowerCase();
+    const matches = TEMPLATE_PRESETS.filter((item) =>
+      `${item.industryLabel} ${item.niche}`.replaceAll("_", " ").toLowerCase().includes(query),
+    );
+    return NICHE_CATEGORIES.map((category) => ({
+      category,
+      presets: matches.filter((item) => NICHE_CATALOG.find((entry) => entry.niche === item.niche)?.category === category),
+    })).filter((group) => group.presets.length > 0);
+  }, [nicheSearch]);
+
+  const originalPresets = useMemo(
+    () => TEMPLATE_PRESETS.filter((item) => !NICHE_CATALOG.some((entry) => entry.niche === item.niche)),
+    [],
+  );
 
   useEffect(() => {
     try {
@@ -596,8 +614,24 @@ function OnboardingPage() {
 
             <div className="mt-8 space-y-5">
               {step.key === "niche" ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {TEMPLATE_PRESETS.map((p) => (
+                <div className="space-y-7">
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={nicheSearch}
+                      onChange={(event) => setNicheSearch(event.target.value)}
+                      placeholder="Search your industry"
+                      className="h-12 pl-11"
+                      aria-label="Search industries"
+                    />
+                  </div>
+                  {[{ category: "Popular", presets: originalPresets.filter((item) => item.industryLabel.toLowerCase().includes(nicheSearch.trim().toLowerCase())) }, ...groupedNiches]
+                    .filter((group) => group.presets.length > 0)
+                    .map((group) => (
+                    <section key={group.category}>
+                      <h2 className="mb-3 text-sm font-semibold text-foreground">{group.category}</h2>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                      {group.presets.map((p) => (
                     <button
                       key={p.templateId}
                       type="button"
@@ -627,7 +661,15 @@ function OnboardingPage() {
                         </span>
                       </span>
                     </button>
+                      ))}
+                      </div>
+                    </section>
                   ))}
+                  {originalPresets.length + groupedNiches.reduce((total, group) => total + group.presets.length, 0) === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border px-5 py-10 text-center text-sm text-muted-foreground">
+                      No matching industry yet. Try a broader search.
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 

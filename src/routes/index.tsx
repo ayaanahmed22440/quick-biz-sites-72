@@ -107,7 +107,7 @@ function ProductPreview() {
         role="tablist"
         aria-label="Business template industries"
       >
-        {TEMPLATE_PRESETS.map((preset) => {
+        {TEMPLATE_PRESETS.filter((preset) => ["cleaning", "landscaping", "roofing", "plumbing", "renovation", "construction", "junk_removal"].includes(preset.niche)).map((preset) => {
           const selected = preset.niche === activeNiche;
           return (
             <Button

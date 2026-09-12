@@ -34,6 +34,8 @@ import junkHero from "@/assets/templates/junk-removal-hero.jpg";
 import junkAbout from "@/assets/templates/junk-removal-about.jpg";
 import junkG1 from "@/assets/templates/junk-removal-gallery-1.jpg";
 import junkG2 from "@/assets/templates/junk-removal-gallery-2.jpg";
+import { NICHE_CATALOG } from "@/lib/niche-catalog";
+import { GENERATED_TEMPLATE_IMAGES } from "@/lib/template-generated-assets";
 
 /** Hero arrangement. All variants are responsive and share the same sections. */
 export type TemplateLayout = "split" | "overlay" | "banner";
@@ -71,6 +73,32 @@ export type TemplatePreset = {
 function preset(p: TemplatePreset): TemplatePreset {
   return p;
 }
+
+const fallbackGeneratedImages = GENERATED_TEMPLATE_IMAGES["pressure_washing"];
+if (!fallbackGeneratedImages) throw new Error("Missing generated template photography");
+
+const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
+  templateId: `${item.niche.replaceAll("_", "-")}-01`,
+  niche: item.niche,
+  name: `${item.label} — Local Standard`,
+  industryLabel: item.label,
+  description: `A polished, conversion-focused ${item.label.toLowerCase()} website with real service photography and a clear enquiry journey.`,
+  accent: item.accent,
+  layout: item.layout,
+  images: GENERATED_TEMPLATE_IMAGES[item.niche] ?? fallbackGeneratedImages,
+  copy: {
+    service: item.label.toLowerCase(),
+    trustPoints: ["Experienced local team", "Clear, upfront pricing", "Work backed by local reviews"],
+    servicesHeading: `${item.label} services`,
+    servicesIntro: `${item.services.slice(0, 3).join(", ")} and more, delivered by a dependable local team.`,
+    galleryHeading: "Our recent work",
+    galleryIntro: `A closer look at the quality behind every ${item.label.toLowerCase()} project.`,
+    serviceQuestion: `How can our ${item.label.toLowerCase()} team help?`,
+    quoteHeading: "Request a free estimate",
+    quoteIntro: "Share a few details and our team will follow up with clear next steps.",
+    cta: "Get a free estimate",
+  },
+}));
 
 export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
@@ -239,6 +267,7 @@ export const TEMPLATE_PRESETS: TemplatePreset[] = [
       cta: "Get a pickup price",
     },
   }),
+  ...GENERATED_PRESETS,
 ];
 
 export const DEFAULT_TEMPLATE_ID = "cleaning-01";

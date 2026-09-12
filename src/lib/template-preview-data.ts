@@ -5,6 +5,7 @@ import type {
   TemplateReview,
   TemplateService,
 } from "@/components/templates/LocalBusinessTemplate";
+import { NICHE_CATALOG } from "@/lib/niche-catalog";
 
 export type TemplatePreviewData = {
   business: TemplateBusiness;
@@ -41,7 +42,33 @@ function preview(
   };
 }
 
-export const TEMPLATE_PREVIEW_DATA = {
+const GENERATED_PREVIEW_DATA = Object.fromEntries(
+  NICHE_CATALOG.map((item, index) => [
+    item.niche,
+    preview(
+      {
+        name: item.businessName,
+        tagline: `${item.label} done right, close to home`,
+        phone: `(${String(210 + (index % 700)).padStart(3, "0")}) 555-${String(1200 + index).padStart(4, "0")}`,
+        email: `hello@${item.niche.replaceAll("_", "")}.example`,
+        city: item.city,
+        state: item.state,
+        address_line1: `${120 + index * 17} Main Street`,
+        postal_code: String(10001 + index * 137).slice(0, 5),
+        logo_url: null,
+      },
+      item.services,
+      [item.city, `North ${item.city}`, `${item.city} Heights`, `${item.city} Metro`],
+      {
+        author_name: ["Jordan Lee", "Avery Martin", "Taylor Brooks", "Morgan Davis"][index % 4] ?? "Local customer",
+        location: `${item.city}, ${item.state}`,
+        quote: `${item.businessName} made the entire process easy, communicated clearly and delivered excellent work.`,
+      },
+    ),
+  ]),
+) as Record<string, TemplatePreviewData>;
+
+export const TEMPLATE_PREVIEW_DATA: Record<string, TemplatePreviewData> = {
   cleaning: preview(
     {
       name: "Sparkle & Shine Cleaning Co.",
@@ -154,11 +181,11 @@ export const TEMPLATE_PREVIEW_DATA = {
     ["Tampa", "Brandon", "Clearwater", "St. Petersburg"],
     { author_name: "Rachel Foster", location: "Tampa, FL", quote: "Clearway was quick, friendly and cleared the entire garage in under an hour." },
   ),
+  ...GENERATED_PREVIEW_DATA,
 } satisfies Record<string, TemplatePreviewData>;
 
 export function previewDataFor(niche: string): TemplatePreviewData {
-  if (niche in TEMPLATE_PREVIEW_DATA) {
-    return TEMPLATE_PREVIEW_DATA[niche as keyof typeof TEMPLATE_PREVIEW_DATA];
-  }
-  return TEMPLATE_PREVIEW_DATA.cleaning;
+  const fallback = TEMPLATE_PREVIEW_DATA["cleaning"];
+  if (!fallback) throw new Error("Missing cleaning preview data");
+  return TEMPLATE_PREVIEW_DATA[niche] ?? fallback;
 }

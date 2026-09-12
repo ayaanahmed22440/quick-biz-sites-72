@@ -1,6 +1,9 @@
 # WebWarheads roadmap
 
 ## Done
+- Expanded the template library with 50 new industries, four original optimized photos per niche, unique accents/copy/demo data, and matching published catalog records
+- Onboarding niche selection is now searchable and grouped by category; the existing Back control remains available
+- Landing-page showcase remains curated to the original featured industries for speed and clarity
 - Dashboard and editor now show the real published state, live-site access, lead count, and domain status
 - Preview typecheck and production build are error-free
 - Public site: home, pricing, how it works, contact, terms, privacy (mobile tuned)
