@@ -693,8 +693,8 @@ function OnboardingPage() {
                     onClick={() =>
                       setDraft((current) => ({
                         ...DEMO,
-                        niche: current.niche,
-                        primary_color: presetFor(current.niche).accent,
+                        niche: current.niche || "cleaning",
+                        primary_color: presetFor(current.niche || "cleaning").accent,
                       }))
                     }
                     className="flex w-full items-center gap-3 rounded-xl border border-dashed border-border p-4 text-left transition-colors hover:border-accent/60 hover:bg-accent/5"
