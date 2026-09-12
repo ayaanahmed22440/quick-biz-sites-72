@@ -589,7 +589,12 @@ function OnboardingPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:py-16">
+      <div
+        className={cn(
+          "mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:py-16",
+          step.key === "niche" && "pb-32 lg:pb-32",
+        )}
+      >
         {/* Question column */}
         <div className="mx-auto w-full max-w-xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
@@ -856,33 +861,54 @@ function OnboardingPage() {
               {error ? <p className="text-sm text-destructive">{error}</p> : null}
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => setIndex((i) => Math.max(0, i - 1))}
-                disabled={index === 0 || saving}
-              >
-                Back
-              </Button>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  size="lg"
-                  onClick={() => void next()}
-                  disabled={saving}
-                  className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
-                    </>
-                  ) : isLast ? (
-                    "See my website"
-                  ) : (
-                    "Continue"
-                  )}
+            {step.key === "niche" ? (
+              <div className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-xl items-center gap-3 border border-border bg-background p-3 shadow-lg sm:inset-x-6 sm:bottom-6 sm:p-4">
+                <img
+                  src={presetFor(draft.niche).images.hero}
+                  alt=""
+                  className="h-12 w-14 shrink-0 rounded object-cover sm:h-14 sm:w-20"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">
+                    {presetFor(draft.niche).industryLabel} selected
+                  </p>
+                  <p className="hidden text-xs text-muted-foreground sm:block">
+                    Confirm this design to continue.
+                  </p>
+                </div>
+                <Button size="lg" onClick={() => void next()} disabled={saving} className="shrink-0">
+                  Continue
                 </Button>
               </div>
-            </div>
+            ) : (
+              <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                  disabled={index === 0 || saving}
+                >
+                  Back
+                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="lg"
+                    onClick={() => void next()}
+                    disabled={saving}
+                    className={isLast ? "bg-accent text-accent-foreground hover:bg-accent/90" : ""}
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…
+                      </>
+                    ) : isLast ? (
+                      "See my website"
+                    ) : (
+                      "Continue"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
