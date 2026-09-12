@@ -237,6 +237,11 @@ function OnboardingPage() {
   const { data: workspace, isLoading } = useWorkspace();
 
 
+  // Secondary ad conversion — someone started building a site.
+  useEffect(() => {
+    trackOnboardingStarted();
+  }, []);
+
   const [index, setIndex] = useState(0);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [error, setError] = useState<string | null>(null);
