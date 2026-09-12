@@ -47,8 +47,12 @@ export const Route = createFileRoute("/")({
             { property: "og:title", content: TITLE },
             { property: "og:description", content: DESCRIPTION },
             { property: "og:type", content: "website" },
+            { property: "og:url", content: "https://webwarheads.com/" },
+            { property: "og:image", content: "https://webwarheads.com/og-cover.jpg" },
             { name: "twitter:card", content: "summary_large_image" },
+            { name: "twitter:image", content: "https://webwarheads.com/og-cover.jpg" },
           ],
+          links: [{ rel: "canonical", href: "https://webwarheads.com/" }],
         },
   component: RootIndex,
 });
