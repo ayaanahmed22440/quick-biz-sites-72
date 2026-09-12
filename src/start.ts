@@ -55,7 +55,7 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next, reque
     "object-src 'none'",
     "form-action 'self'",
     "frame-ancestors 'self' https://*.lovable.app https://*.lovable.dev https://lovable.dev",
-    "script-src 'self' 'unsafe-inline' https://cdn.gpteng.co https://*.lovable.app https://*.lovable.dev",
+    "script-src 'self' 'unsafe-inline' https://cdn.gpteng.co https://*.lovable.app https://*.lovable.dev https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
