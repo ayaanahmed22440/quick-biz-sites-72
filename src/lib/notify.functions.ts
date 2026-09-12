@@ -72,13 +72,32 @@ export const notifySitePublished = createServerFn({ method: "POST" })
     const business = await loadBusiness(data.businessId);
     if (!business?.email) return { sent: false };
 
-    const { sendSitePublishedEmail } = await import("@/lib/emails.server");
+    const { sendSitePublishedEmail, sendReviewRequestEmail } = await import(
+      "@/lib/emails.server"
+    );
     await sendSitePublishedEmail({
       to: business.email,
       businessId: business.id,
       businessName: business.name,
       slug: business.slug,
     });
+
+    // Ask for a Google review once the site is live — only ever once per
+    // business, so republishing never sends a second one.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: already } = await supabaseAdmin
+      .from("sent_emails")
+      .select("id")
+      .eq("business_id", business.id)
+      .eq("purpose", "review_request")
+      .limit(1);
+    if (!already || already.length === 0) {
+      await sendReviewRequestEmail({
+        to: business.email,
+        businessId: business.id,
+        businessName: business.name,
+      });
+    }
     return { sent: true };
   });
 
