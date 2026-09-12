@@ -68,7 +68,7 @@ const GENERATED_PREVIEW_DATA = Object.fromEntries(
   ]),
 ) as Record<string, TemplatePreviewData>;
 
-export const TEMPLATE_PREVIEW_DATA = {
+export const TEMPLATE_PREVIEW_DATA: Record<string, TemplatePreviewData> = {
   cleaning: preview(
     {
       name: "Sparkle & Shine Cleaning Co.",
@@ -185,5 +185,7 @@ export const TEMPLATE_PREVIEW_DATA = {
 } satisfies Record<string, TemplatePreviewData>;
 
 export function previewDataFor(niche: string): TemplatePreviewData {
-  return TEMPLATE_PREVIEW_DATA[niche] ?? TEMPLATE_PREVIEW_DATA.cleaning;
+  const fallback = TEMPLATE_PREVIEW_DATA["cleaning"];
+  if (!fallback) throw new Error("Missing cleaning preview data");
+  return TEMPLATE_PREVIEW_DATA[niche] ?? fallback;
 }

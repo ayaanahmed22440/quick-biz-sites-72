@@ -74,6 +74,9 @@ function preset(p: TemplatePreset): TemplatePreset {
   return p;
 }
 
+const fallbackGeneratedImages = GENERATED_TEMPLATE_IMAGES["pressure_washing"];
+if (!fallbackGeneratedImages) throw new Error("Missing generated template photography");
+
 const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
   templateId: `${item.niche.replaceAll("_", "-")}-01`,
   niche: item.niche,
@@ -82,7 +85,7 @@ const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
   description: `A polished, conversion-focused ${item.label.toLowerCase()} website with real service photography and a clear enquiry journey.`,
   accent: item.accent,
   layout: item.layout,
-  images: GENERATED_TEMPLATE_IMAGES[item.niche] ?? GENERATED_TEMPLATE_IMAGES.pressure_washing,
+  images: GENERATED_TEMPLATE_IMAGES[item.niche] ?? fallbackGeneratedImages,
   copy: {
     service: item.label.toLowerCase(),
     trustPoints: ["Experienced local team", "Clear, upfront pricing", "Work backed by local reviews"],
