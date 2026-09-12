@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Circle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, Star } from "lucide-react";
+
+const GOOGLE_REVIEW_URL = "https://g.page/r/CaiWtKMXkWg7EAI/review";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { planCopy } from "@/lib/plans";
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
