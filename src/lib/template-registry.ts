@@ -39,6 +39,14 @@ import { GENERATED_TEMPLATE_IMAGES } from "@/lib/template-generated-assets";
 
 /** Hero arrangement. All variants are responsive and share the same sections. */
 export type TemplateLayout = "split" | "overlay" | "banner";
+export type TemplateFamily = "technical" | "emergency" | "showcase" | "wellness" | "professional" | "kinetic";
+
+export type TemplateFeature = {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  items: Array<{ title: string; copy: string; meta: string }>;
+};
 
 export type TemplatePreset = {
   templateId: string;
@@ -49,6 +57,8 @@ export type TemplatePreset = {
   description: string;
   accent: string;
   layout: TemplateLayout;
+  family?: TemplateFamily;
+  feature?: TemplateFeature;
   images: { hero: string; about: string; gallery: string[] };
   copy: {
     service: string;
@@ -74,10 +84,40 @@ function preset(p: TemplatePreset): TemplatePreset {
   return p;
 }
 
+const FAMILY_BY_NICHE: Partial<Record<string, TemplateFamily>> = {
+  hvac: "technical", electrical_contractor: "technical", concrete_contractor: "technical", window_installation: "technical", flooring_contractor: "technical", construction: "technical",
+  plumbing: "emergency", locksmith: "emergency", towing_service: "emergency", garage_door_service: "emergency", water_damage_restoration: "emergency", fire_damage_restoration: "emergency", auto_battery_service: "emergency",
+  landscaping: "showcase", renovation: "showcase", painting_contractor: "showcase", bathroom_remodeling: "showcase", kitchen_remodeling: "showcase", masonry_contractor: "showcase", photography: "showcase", wedding_services: "showcase",
+  hair_salon: "wellness", nail_salon: "wellness", spa: "wellness", massage_therapy: "wellness", yoga_studio: "wellness", pet_grooming: "wellness", dentist: "wellness", chiropractor: "wellness",
+  home_inspection: "professional", real_estate_agent: "professional", law_firm: "professional", accountant: "professional", insurance_agency: "professional", storage_company: "professional",
+};
+
+function familyFor(niche: string): TemplateFamily {
+  return FAMILY_BY_NICHE[niche] ?? "kinetic";
+}
+
+function featureFor(label: string, services: readonly string[], family: TemplateFamily): TemplateFeature {
+  const service = services[0] ?? label;
+  const second = services[1] ?? "Project planning";
+  const third = services[2] ?? "Quality assurance";
+  const fourth = services[3] ?? "Ongoing support";
+  const variants: Record<TemplateFamily, TemplateFeature> = {
+    technical: { eyebrow: "Methodology // 01", heading: `Precision built into every ${label.toLowerCase()} project.`, intro: "A measured, documented approach replaces guesswork with dependable performance.", items: [{ title: "Site analysis", copy: `We assess the property and requirements before recommending ${service.toLowerCase()}.`, meta: "Diagnostic" }, { title: "System planning", copy: `${second} is mapped around performance, code and your priorities.`, meta: "Engineering" }, { title: "Precision delivery", copy: `${third} is completed by an experienced, prepared crew.`, meta: "Execution" }, { title: "Final verification", copy: `${fourth} and a clear handover protect the finished work.`, meta: "Quality control" }] },
+    emergency: { eyebrow: "Rapid response", heading: "When it matters, every minute has a job.", intro: "A calm response, clear decisions and capable work from the first call through resolution.", items: [{ title: "Answer fast", copy: `We quickly establish what is happening and whether ${service.toLowerCase()} is urgent.`, meta: "Triage" }, { title: "Make it safe", copy: "The immediate risk is controlled before permanent work begins.", meta: "Stabilize" }, { title: "Fix the cause", copy: `${second} is handled with the right equipment and a clear scope.`, meta: "Resolve" }, { title: "Confirm the result", copy: "We test the work, explain what changed and leave the site ready.", meta: "Verify" }] },
+    showcase: { eyebrow: "The craft", heading: "Good work should be worth looking at.", intro: "Thoughtful planning, considered details and a finish that changes how the space feels.", items: [{ title: "Discover", copy: `We learn how you want ${service.toLowerCase()} to look, feel and function.`, meta: "Vision" }, { title: "Shape the idea", copy: `${second} turns priorities into a practical, visual direction.`, meta: "Design" }, { title: "Make it real", copy: `${third} is delivered with care for every visible detail.`, meta: "Craft" }, { title: "Reveal", copy: "We walk through the finished work together and make every detail count.", meta: "Finish" }] },
+    wellness: { eyebrow: "Your experience", heading: "Care designed around how you want to feel.", intro: "Personal attention from the welcome through every detail of your visit.", items: [{ title: "A warm welcome", copy: `We listen first and understand what you want from ${service.toLowerCase()}.`, meta: "Connect" }, { title: "Personal plan", copy: `${second} is tailored to your comfort, goals and preferences.`, meta: "Personalize" }, { title: "Expert care", copy: `${third} is delivered in a calm, considered environment.`, meta: "Experience" }, { title: "Feel the difference", copy: `${fourth} helps the result last beyond your appointment.`, meta: "Continue" }] },
+    professional: { eyebrow: "Our standard", heading: "Clear judgment. Careful work. No loose ends.", intro: "A disciplined engagement built around clarity, accountability and informed decisions.", items: [{ title: "Understand", copy: `We establish your priorities before advising on ${service.toLowerCase()}.`, meta: "Discovery" }, { title: "Evaluate", copy: `${second} is considered against the facts, risks and best options.`, meta: "Assessment" }, { title: "Advise", copy: "You receive a clear recommendation without unnecessary complexity.", meta: "Direction" }, { title: "Follow through", copy: `${fourth} keeps the work moving and you fully informed.`, meta: "Delivery" }] },
+    kinetic: { eyebrow: "Built to move", heading: "Less waiting. More getting it done.", intro: "A direct, energetic service experience built for people who value their time.", items: [{ title: "Book it", copy: `Tell us what you need from ${service.toLowerCase()} and choose a convenient time.`, meta: "Schedule" }, { title: "We get moving", copy: `${second} starts with the crew, tools and information already prepared.`, meta: "Action" }, { title: "See the change", copy: `${third} is completed efficiently without cutting corners.`, meta: "Result" }, { title: "Back to your day", copy: "Simple payment, a clean handoff and no unnecessary follow-up.", meta: "Done" }] },
+  };
+  return variants[family];
+}
+
 const fallbackGeneratedImages = GENERATED_TEMPLATE_IMAGES["pressure_washing"];
 if (!fallbackGeneratedImages) throw new Error("Missing generated template photography");
 
-const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
+const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => {
+  const family = familyFor(item.niche);
+  return {
   templateId: `${item.niche.replaceAll("_", "-")}-01`,
   niche: item.niche,
   name: `${item.label} — Local Standard`,
@@ -85,6 +125,8 @@ const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
   description: `A polished, conversion-focused ${item.label.toLowerCase()} website with real service photography and a clear enquiry journey.`,
   accent: item.accent,
   layout: item.layout,
+  family,
+  feature: featureFor(item.label, item.services, family),
   images: GENERATED_TEMPLATE_IMAGES[item.niche] ?? fallbackGeneratedImages,
   copy: {
     service: item.label.toLowerCase(),
@@ -98,7 +140,8 @@ const GENERATED_PRESETS: TemplatePreset[] = NICHE_CATALOG.map((item) => ({
     quoteIntro: "Share a few details and our team will follow up with clear next steps.",
     cta: "Get a free estimate",
   },
-}));
+  };
+});
 
 export const TEMPLATE_PRESETS: TemplatePreset[] = [
   preset({
