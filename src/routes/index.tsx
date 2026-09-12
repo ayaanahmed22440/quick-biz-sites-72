@@ -186,33 +186,54 @@ function HomePage() {
     return () => listener.subscription.unsubscribe();
   }, [navigate]);
 
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-home-reveal]"));
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      sections.forEach((section) => section.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -12%", threshold: 0.12 },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <PublicLayout>
       <section className="overflow-hidden bg-background">
         <div className="mx-auto max-w-5xl px-4 pb-4 pt-16 text-center sm:px-6 sm:pt-24">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-[11px] font-bold uppercase text-muted-foreground">
+          <div className="animate-hero-entry inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-[11px] font-bold uppercase text-muted-foreground">
             <Sparkles className="h-3.5 w-3.5 text-accent" /> Built for local business owners
           </div>
-          <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-bold leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
+          <h1 className="animate-hero-entry animate-hero-delay-1 mx-auto mt-7 max-w-4xl text-4xl font-bold leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
             Stop paying $1,500 for a website. <span className="text-accent">Start with $37.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
+          <p className="animate-hero-entry animate-hero-delay-2 mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
             Build, preview and publish a professional website without hiring a developer. Everything you need, from <strong className="font-semibold text-foreground">$37 a month.</strong>
           </p>
-          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 bg-accent px-7 text-accent-foreground hover:bg-accent/90">
-              <Link to="/auth" search={{ mode: "signup" }}>Build my website free <ArrowRight /></Link>
+          <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button asChild size="lg" className="group h-12 bg-accent px-7 text-accent-foreground shadow-lg shadow-accent/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent/90 hover:shadow-xl hover:shadow-accent/25">
+              <Link to="/auth" search={{ mode: "signup" }}>Preview my website <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-7">
               <Link to="/how-it-works">See how it works</Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">No setup fee · Preview before you pay · Cancel anytime</p>
+          <p className="animate-hero-entry animate-hero-delay-4 mt-4 text-xs text-muted-foreground">No setup fee · Preview before you pay · Cancel anytime</p>
         </div>
         <ProductPreview />
       </section>
 
-      <section className="border-y border-border bg-navy text-navy-foreground">
+      <section data-home-reveal className="home-reveal border-y border-border bg-navy text-navy-foreground">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
           {["Website, hosting and SSL included", "Built to turn visitors into leads", "Your content and domain stay yours"].map((item) => (
             <div key={item} className="flex items-center justify-center gap-2 text-sm font-semibold"><Check className="h-4 w-4 text-accent" />{item}</div>
@@ -220,7 +241,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="bg-background py-20 sm:py-28">
+      <section data-home-reveal className="home-reveal bg-background py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-sm font-bold text-accent">ONE PLACE TO RUN YOUR SITE</p>
@@ -239,7 +260,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-muted/50 py-20 sm:py-28">
+      <section data-home-reveal className="home-reveal border-y border-border bg-muted/50 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-sm font-bold text-accent">FROM IDEA TO LIVE</p>
@@ -261,7 +282,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="bg-background py-20 sm:py-28">
+      <section data-home-reveal className="home-reveal bg-background py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-bold text-accent">SIMPLE PRICING</p>
@@ -273,7 +294,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-muted/50 py-20">
+      <section data-home-reveal className="home-reveal border-y border-border bg-muted/50 py-20">
         <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 md:grid-cols-[.8fr_1.2fr] lg:px-8">
           <div>
             <p className="text-sm font-bold text-accent">STRAIGHT ANSWERS</p>
@@ -286,7 +307,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="bg-navy text-navy-foreground">
+      <section data-home-reveal className="home-reveal bg-navy text-navy-foreground">
         <div className="mx-auto flex max-w-7xl flex-col items-start gap-7 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div>
             <h2 className="text-3xl font-bold sm:text-4xl">See your business online today.</h2>
