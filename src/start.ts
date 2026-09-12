@@ -60,7 +60,7 @@ const securityHeadersMiddleware = createMiddleware().server(async ({ next, reque
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https:",
     "media-src 'self' https:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://api.polar.sh",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.app https://*.lovable.dev https://api.polar.sh https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://googleads.g.doubleclick.net https://www.google.com https://connect.facebook.net https://www.facebook.com",
     "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://polar.sh https://*.polar.sh",
     "upgrade-insecure-requests",
   ].join("; ");
