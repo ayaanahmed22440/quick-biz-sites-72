@@ -942,15 +942,16 @@ function OnboardingPage() {
 
 
 function previewContent(draft: Draft): SiteContent {
+  const niche = draft.niche || "cleaning";
   const content = defaultSiteContent({
     businessName: draft.name || "Your business name",
     city: draft.city,
     primaryService: draft.primary_service,
     primaryColor: draft.primary_color,
     logoUrl: draft.logo_url,
-    niche: draft.niche,
+    niche,
   });
-  content.templateId = templateIdForNiche(draft.niche);
+  content.templateId = templateIdForNiche(niche);
   content.reviews.googleUrl = draft.google_url;
   if (draft.description.trim()) content.about.body = draft.description.trim();
   return content;
