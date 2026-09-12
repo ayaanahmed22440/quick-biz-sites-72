@@ -862,11 +862,11 @@ function OnboardingPage() {
             </div>
 
             {step.key === "niche" ? (
-              <div className="fixed inset-x-3 bottom-3 z-30 mx-auto flex max-w-xl items-center gap-3 border border-border bg-background p-3 shadow-lg sm:inset-x-6 sm:bottom-6 sm:p-4">
+              <div className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-center gap-2.5 rounded-2xl border-2 border-accent/20 bg-background/95 p-2.5 shadow-xl ring-1 ring-accent/10 backdrop-blur-sm sm:inset-x-6 sm:bottom-6 sm:max-w-xl sm:gap-3 sm:p-3">
                 <img
                   src={presetFor(draft.niche).images.hero}
                   alt=""
-                  className="h-12 w-14 shrink-0 rounded object-cover sm:h-14 sm:w-20"
+                  className="h-10 w-12 shrink-0 rounded-lg object-cover sm:h-11 sm:w-16"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
@@ -876,7 +876,7 @@ function OnboardingPage() {
                     Confirm this design to continue.
                   </p>
                 </div>
-                <Button size="lg" onClick={() => void next()} disabled={saving} className="shrink-0">
+                <Button size="default" onClick={() => void next()} disabled={saving} className="shrink-0">
                   Continue
                 </Button>
               </div>
