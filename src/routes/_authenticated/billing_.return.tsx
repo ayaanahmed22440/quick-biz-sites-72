@@ -56,6 +56,8 @@ function BillingReturnPage() {
           if (result.active) {
             await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
             if (cancelled) return;
+            // Primary ad conversion — a payment the backend has confirmed.
+            trackPaidSignup(session ? { id: session } : {});
             setState("active");
             setTimeout(() => void navigate({ to: destination }), 1200);
             return;
