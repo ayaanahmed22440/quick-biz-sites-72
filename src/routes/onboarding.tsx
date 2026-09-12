@@ -46,7 +46,7 @@ type Draft = {
 };
 
 const EMPTY: Draft = {
-  niche: "cleaning",
+  niche: "",
   name: "",
   primary_service: "",
   description: "",
@@ -56,7 +56,7 @@ const EMPTY: Draft = {
   state: "",
   services: "",
   areas: "",
-  primary_color: presetFor("cleaning").accent,
+  primary_color: "#1f6feb",
   logo_url: null,
   google_url: "",
   
