@@ -57,8 +57,8 @@ export type TemplatePreset = {
   description: string;
   accent: string;
   layout: TemplateLayout;
-  family: TemplateFamily;
-  feature: TemplateFeature;
+  family?: TemplateFamily;
+  feature?: TemplateFeature;
   images: { hero: string; about: string; gallery: string[] };
   copy: {
     service: string;

@@ -204,6 +204,21 @@ export function LocalBusinessTemplate({
     .join(", ");
   const place = business.city || areas[0]?.city || "the local area";
   const featuredReview = reviews[0];
+  const family = preset.family ?? (layout === "overlay" ? "showcase" : layout === "banner" ? "technical" : "professional");
+  const feature = preset.feature ?? {
+    eyebrow: "Our standard",
+    heading: `The details behind dependable ${preset.copy.service}.`,
+    intro: "A clear, capable approach from the first conversation through the finished work.",
+    items: [
+      { title: "Listen first", copy: "We understand the job, the property and what matters most to you.", meta: "Discovery" },
+      { title: "Plan clearly", copy: "You receive a straightforward scope, timeline and price before work begins.", meta: "Planning" },
+      { title: "Work carefully", copy: "Our team arrives prepared and completes every detail with care.", meta: "Delivery" },
+      { title: "Stand behind it", copy: "We check the result with you and remain available after the job.", meta: "Assurance" },
+    ],
+  };
+  const earlyFeature = family === "emergency" || family === "kinetic";
+  const earlyGallery = family === "showcase";
+  const earlyReviews = family === "wellness" || family === "professional";
 
   const heroCopy = (
     <div className="relative z-10 max-w-3xl">
@@ -282,14 +297,15 @@ export function LocalBusinessTemplate({
         </div>
       </header>
 
+      <main className="flex flex-col">
       {layout === "overlay" ? (
-        <section className="relative isolate min-h-[680px] overflow-hidden bg-slate-950 text-white">
+        <section className={`relative isolate order-1 min-h-[680px] overflow-hidden bg-slate-950 text-white ${family === "wellness" ? "lg:min-h-[760px]" : ""}`}>
           <img src={heroImage} alt={`${preset.industryLabel} by ${business.name}`} className="absolute inset-0 h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/75 to-slate-950/10" />
           <div className="mx-auto flex min-h-[680px] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">{heroCopy}</div>
         </section>
       ) : layout === "banner" ? (
-        <section className="overflow-hidden bg-slate-950 text-white">
+        <section className={`order-1 overflow-hidden ${family === "technical" ? "bg-slate-900" : "bg-slate-950"} text-white`}>
           <div className="mx-auto grid max-w-7xl lg:grid-cols-[1.05fr_.95fr]">
             <div className="flex items-center px-4 py-20 sm:px-6 lg:px-8 lg:py-28">{heroCopy}</div>
             <div className="relative min-h-[440px] lg:min-h-[680px]">
@@ -299,7 +315,7 @@ export function LocalBusinessTemplate({
           </div>
         </section>
       ) : (
-        <section className="overflow-hidden bg-white">
+        <section className={`order-1 overflow-hidden ${family === "professional" ? "bg-slate-100" : "bg-white"}`}>
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8 lg:py-24">
             <div className="lg:col-span-7">{heroCopy}</div>
             <div className="relative lg:col-span-5">
@@ -318,7 +334,7 @@ export function LocalBusinessTemplate({
         </section>
       )}
 
-      <section className="border-y border-slate-200 bg-white">
+      <section className="order-2 border-y border-slate-200 bg-white">
         <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6 lg:px-8">
           {content.hero.trustPoints.filter(Boolean).slice(0, 3).map((point, index) => (
             <div key={point} className="flex items-center gap-4 py-6 sm:px-7 first:sm:pl-0 last:sm:pr-0">
@@ -332,7 +348,7 @@ export function LocalBusinessTemplate({
       </section>
 
       {services.length > 0 ? (
-        <section id="services" className="scroll-mt-24 bg-slate-50 py-20 sm:py-28">
+        <section id="services" className={`scroll-mt-24 bg-slate-50 py-20 sm:py-28 ${earlyFeature ? "order-4" : "order-3"}`}>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
               <SectionTitle eyebrow="What we do" title={content.services.heading} intro={content.services.intro} />
@@ -340,9 +356,9 @@ export function LocalBusinessTemplate({
                 Discuss your project <ArrowRight className="h-4 w-4" />
               </a>
             </div>
-            <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className={`mt-12 grid gap-5 md:grid-cols-2 ${family === "professional" ? "lg:grid-cols-2" : family === "wellness" ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
               {services.map((service, index) => (
-                <article key={service.id} className="group flex min-h-72 flex-col rounded-2xl border border-slate-200 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70">
+                <article key={service.id} className={`group flex flex-col border border-slate-200 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70 ${family === "technical" ? "min-h-72 rounded-sm" : family === "kinetic" ? "min-h-64 rounded-none border-x-0 border-t-0" : family === "wellness" ? "min-h-72 rounded-3xl" : family === "professional" ? "min-h-56 rounded-lg" : "min-h-72 rounded-2xl"}`}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Service {String(index + 1).padStart(2, "0")}</span>
                     <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 transition-colors group-hover:text-white" style={{ color: "var(--site-accent)" }}>
@@ -362,16 +378,16 @@ export function LocalBusinessTemplate({
         </section>
       ) : null}
 
-      <section id="about" className="scroll-mt-24 overflow-hidden bg-white py-20 sm:py-28">
-        <div className="mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
-          <div className="relative order-2 lg:order-1">
+      <section id="about" className={`scroll-mt-24 overflow-hidden bg-white py-20 sm:py-28 ${earlyGallery || earlyReviews ? "order-5" : "order-4"}`}>
+        <div className={`mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:items-center lg:px-8 ${family === "kinetic" ? "lg:grid-cols-[.8fr_1.2fr]" : "lg:grid-cols-2"}`}>
+          <div className={`relative order-2 ${family === "professional" || family === "technical" ? "lg:order-2" : "lg:order-1"}`}>
             <img src={aboutImage} alt={`${business.name} at work`} loading="lazy" className="aspect-[5/4] w-full rounded-3xl object-cover" />
             <div className="absolute -bottom-8 right-4 rounded-2xl bg-slate-950 p-6 text-white shadow-xl sm:right-10">
               <p style={display} className="text-3xl font-bold">Built on trust.</p>
               <p className="mt-1 text-sm text-white/60">Recommended across {place}</p>
             </div>
           </div>
-          <div className="order-1 lg:order-2 lg:pl-10">
+          <div className={`order-1 ${family === "professional" || family === "technical" ? "lg:order-1 lg:pr-10" : "lg:order-2 lg:pl-10"}`}>
             <SectionTitle eyebrow="Our story" title={content.about.heading} />
             <p className="mt-7 whitespace-pre-line text-lg leading-8 text-slate-600">{content.about.body}</p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -391,19 +407,19 @@ export function LocalBusinessTemplate({
         </div>
       </section>
 
-      <section className="bg-slate-950 py-20 text-white sm:py-28">
+      <section className={`py-20 sm:py-28 ${earlyFeature ? "order-3" : "order-5"} ${family === "wellness" ? "bg-white text-slate-950" : "bg-slate-950 text-white"}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionTitle eyebrow="How it works" title="A simpler way to get the job done right." intro="From the first conversation to the final walk-through, we keep the process clear and straightforward." inverse />
-          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 md:grid-cols-3">
-            {[
-              ["01", "Tell us what you need", "Share a few details about your property, priorities and preferred timing."],
-              ["02", "Get a clear plan", "We'll confirm the scope, answer your questions and provide straightforward pricing."],
-              ["03", "Enjoy the result", "Our team arrives prepared, completes the work carefully and leaves everything tidy."],
-            ].map(([number, title, copy]) => (
-              <article key={number} className="bg-slate-950 p-8 sm:p-10">
-                <span style={display} className="text-5xl font-bold text-white/15">{number}</span>
-                <h3 className="mt-10 text-xl font-bold">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/60">{copy}</p>
+          <SectionTitle eyebrow={feature.eyebrow} title={feature.heading} intro={feature.intro} inverse={family !== "wellness"} />
+          <div className={`mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-4 ${family === "showcase" ? "lg:items-start" : ""}`}>
+            {feature.items.map((item, index) => (
+              <article key={item.title} className={`group relative border p-8 pt-12 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${family === "wellness" ? "rounded-3xl border-slate-200 bg-slate-50" : index === 1 ? "border-slate-800 bg-slate-900 lg:mt-8" : "border-white/10 bg-white/[0.04]"} ${family === "showcase" && index % 2 === 1 ? "lg:mt-12" : ""}`}>
+                <span style={display} className={`absolute right-7 top-5 text-4xl font-bold ${family === "wellness" ? "text-slate-200" : "text-white/15"}`}>{String(index + 1).padStart(2, "0")}</span>
+                <span className={`flex h-10 w-10 items-center justify-center rounded-sm ${family === "wellness" ? "bg-white" : "bg-white/10"}`} style={{ color: "var(--site-accent)" }}><Check className="h-5 w-5" /></span>
+                <h3 className="mt-8 text-xl font-bold">{item.title}</h3>
+                <p className={`mt-3 text-sm leading-7 ${family === "wellness" ? "text-slate-600" : "text-white/60"}`}>{item.copy}</p>
+                <div className={`mt-7 flex items-center gap-3 border-t pt-4 text-[10px] font-bold uppercase tracking-[0.16em] ${family === "wellness" ? "border-slate-200 text-slate-400" : "border-white/10 text-white/40"}`}>
+                  {item.meta}<span className="h-px flex-1 bg-current opacity-25" />
+                </div>
               </article>
             ))}
           </div>
@@ -411,12 +427,12 @@ export function LocalBusinessTemplate({
       </section>
 
       {projectImages.length > 0 ? (
-        <section id="projects" className="scroll-mt-24 bg-white py-20 sm:py-28">
+        <section id="projects" className={`scroll-mt-24 bg-white py-20 sm:py-28 ${earlyGallery ? "order-3" : "order-6"}`}>
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <SectionTitle eyebrow="Selected work" title={content.gallery.heading} intro={content.gallery.intro} />
-            <div className="mt-12 grid auto-rows-[230px] gap-4 md:grid-cols-12 md:auto-rows-[270px]">
+            <div className={`mt-12 grid gap-4 md:grid-cols-12 ${family === "technical" ? "auto-rows-[210px] md:auto-rows-[230px]" : family === "showcase" ? "auto-rows-[280px] md:auto-rows-[360px]" : "auto-rows-[230px] md:auto-rows-[270px]"}`}>
               {projectImages.map((src, index) => (
-                <figure key={`${src}-${index}`} className={`group relative overflow-hidden rounded-2xl ${index === 0 ? "md:col-span-7 md:row-span-2" : index === 1 ? "md:col-span-5" : "md:col-span-5"}`}>
+                <figure key={`${src}-${index}`} className={`group relative overflow-hidden ${family === "technical" ? "rounded-sm" : family === "showcase" ? "rounded-none" : "rounded-2xl"} ${family === "showcase" ? (index === 0 ? "md:col-span-8 md:row-span-2" : "md:col-span-4") : index === 0 ? "md:col-span-7 md:row-span-2" : "md:col-span-5"}`}>
                   <img src={src} alt={`${business.name} completed project ${index + 1}`} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 to-transparent p-6 pt-16 text-sm font-bold text-white opacity-0 transition-opacity group-hover:opacity-100">
                     Project by {business.name}
@@ -428,7 +444,7 @@ export function LocalBusinessTemplate({
         </section>
       ) : null}
 
-      <section id="reviews" className="scroll-mt-24 bg-slate-100 py-20 sm:py-28">
+      <section id="reviews" className={`scroll-mt-24 bg-slate-100 py-20 sm:py-28 ${earlyReviews ? "order-3" : "order-7"}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
             <div>
@@ -479,7 +495,7 @@ export function LocalBusinessTemplate({
         </div>
       </section>
 
-      <section className="bg-white py-20 sm:py-28">
+      <section className="order-8 bg-white py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
           <SectionTitle eyebrow="Where we work" title={content.areas.heading} intro={content.areas.intro} />
           <div className="rounded-3xl bg-slate-50 p-7 sm:p-10">
@@ -500,7 +516,7 @@ export function LocalBusinessTemplate({
         </div>
       </section>
 
-      <section id="quote" className="scroll-mt-24 bg-slate-950 py-20 text-white sm:py-28">
+      <section id="quote" className={`order-9 scroll-mt-24 py-20 text-white sm:py-28 ${family === "kinetic" ? "bg-slate-900" : "bg-slate-950"}`}>
         <div className="mx-auto grid max-w-7xl gap-14 px-4 sm:px-6 lg:grid-cols-[.85fr_1.15fr] lg:px-8">
           <div>
             <SectionTitle eyebrow="Start a conversation" title={content.quote.heading} intro={content.quote.intro} inverse />
@@ -549,7 +565,7 @@ export function LocalBusinessTemplate({
         </div>
       </section>
 
-      <section id="contact" className="scroll-mt-24 border-b border-slate-200 bg-white py-16">
+      <section id="contact" className="order-10 scroll-mt-24 border-b border-slate-200 bg-white py-16">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 md:grid-cols-2 lg:px-8">
           <div>
             <h2 style={display} className="text-3xl font-bold text-slate-950">{content.contact.heading}</h2>
@@ -575,6 +591,7 @@ export function LocalBusinessTemplate({
           ) : null}
         </div>
       </section>
+      </main>
 
       <footer className="bg-white py-10">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
