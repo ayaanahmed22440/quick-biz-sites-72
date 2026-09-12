@@ -863,20 +863,32 @@ function OnboardingPage() {
 
             {step.key === "niche" ? (
               <div className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-center gap-2.5 rounded-2xl border-2 border-accent/20 bg-background/95 p-2.5 shadow-xl ring-1 ring-accent/10 backdrop-blur-sm sm:inset-x-6 sm:bottom-6 sm:max-w-xl sm:gap-3 sm:p-3">
-                <img
-                  src={presetFor(draft.niche).images.hero}
-                  alt=""
-                  className="h-10 w-12 shrink-0 rounded-lg object-cover sm:h-11 sm:w-16"
-                />
+                {draft.niche ? (
+                  <img
+                    src={presetFor(draft.niche).images.hero}
+                    alt=""
+                    className="h-10 w-12 shrink-0 rounded-lg object-cover sm:h-11 sm:w-16"
+                  />
+                ) : (
+                  <div className="flex h-10 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30 sm:h-11 sm:w-16">
+                    <Sparkles className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">
-                    {presetFor(draft.niche).industryLabel} selected
+                    {draft.niche ? `${presetFor(draft.niche).industryLabel} selected` : "Pick a design above"}
                   </p>
                   <p className="hidden text-xs text-muted-foreground sm:block">
-                    Confirm this design to continue.
+                    {draft.niche ? "Confirm this design to continue." : "Select the trade that matches your business."}
                   </p>
                 </div>
-                <Button size="default" onClick={() => void next()} disabled={saving} className="shrink-0">
+                <Button
+                  size="default"
+                  variant="outline"
+                  onClick={() => void next()}
+                  disabled={!draft.niche || saving}
+                  className="shrink-0 border-2 border-foreground/80 text-foreground hover:bg-foreground hover:text-background"
+                >
                   Continue
                 </Button>
               </div>
