@@ -28,7 +28,7 @@ export function CookieNotice() {
       <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           We use essential cookies to keep you signed in. Optional ones help us understand how the
-          site is used. See our{" "}
+          site is used and measure our advertising on Google and Meta. See our{" "}
           <Link to="/privacy" className="underline underline-offset-2">
             privacy policy
           </Link>
