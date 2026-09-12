@@ -862,7 +862,7 @@ function OnboardingPage() {
             </div>
 
             {step.key === "niche" ? (
-              <div className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-center gap-2.5 rounded-2xl border-2 border-accent/20 bg-background/95 p-2.5 shadow-xl ring-1 ring-accent/10 backdrop-blur-sm sm:inset-x-6 sm:bottom-6 sm:max-w-xl sm:gap-3 sm:p-3">
+              <div className="fixed inset-x-4 bottom-4 z-30 mx-auto flex max-w-md items-center gap-2.5 rounded-2xl border-2 border-accent bg-background/95 p-2.5 shadow-xl shadow-accent/10 ring-2 ring-accent/30 backdrop-blur-sm sm:inset-x-6 sm:bottom-6 sm:max-w-xl sm:gap-3 sm:p-3">
                 {draft.niche ? (
                   <img
                     src={presetFor(draft.niche).images.hero}
@@ -884,10 +884,9 @@ function OnboardingPage() {
                 </div>
                 <Button
                   size="default"
-                  variant="outline"
                   onClick={() => void next()}
                   disabled={!draft.niche || saving}
-                  className="shrink-0 border-2 border-foreground/80 text-foreground hover:bg-foreground hover:text-background"
+                  className="shrink-0 bg-accent text-accent-foreground hover:bg-accent/90"
                 >
                   Continue
                 </Button>
