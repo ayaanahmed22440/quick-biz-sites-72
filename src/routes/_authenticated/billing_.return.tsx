@@ -7,6 +7,7 @@ import { z } from "zod";
 import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functions";
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
+import { trackPaidSignup } from "@/lib/tracking";
 
 const search = z.object({ session: z.string().optional() });
 
