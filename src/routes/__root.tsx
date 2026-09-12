@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { initTracking } from "@/lib/tracking";
 
 function NotFoundComponent() {
   return (
@@ -139,6 +140,12 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  // Ad measurement: only loads when real IDs are configured and the visitor
+  // may be tracked (see src/lib/tracking.ts).
+  useEffect(() => {
+    void initTracking();
+  }, []);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {

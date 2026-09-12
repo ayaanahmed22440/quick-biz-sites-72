@@ -104,6 +104,35 @@ export function sendSitePublishedEmail(opts: {
   });
 }
 
+const GOOGLE_REVIEW_URL = "https://g.page/r/CaiWtKMXkWg7EAI/review";
+
+/** One-time ask for a Google review, once a customer's site is live. */
+export function sendReviewRequestEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+}) {
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "review_request",
+    subject: "How did we do?",
+    title: "Would you leave us a review?",
+    body: [
+      paragraph(
+        `Now that <strong>${escape(opts.businessName)}</strong> is online, we'd love to know what you think.`,
+      ),
+      paragraph(
+        "A short Google review helps other local business owners find us — it takes under a minute.",
+      ),
+      button("Leave a Google review", GOOGLE_REVIEW_URL),
+      paragraph(
+        `<span style="color:#64748b;font-size:14px;">If something isn't right, reply to this email instead and we'll fix it.</span>`,
+      ),
+    ].join(""),
+  });
+}
+
 export function sendNewLeadEmail(opts: {
   to: string;
   businessId: string;

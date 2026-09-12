@@ -222,7 +222,7 @@ function HomePage() {
           </p>
           <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="group h-12 bg-accent px-7 text-accent-foreground shadow-lg shadow-accent/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent/90 hover:shadow-xl hover:shadow-accent/25">
-              <Link to="/auth" search={{ mode: "signup" }}>Preview my website <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
+              <Link to="/preview">Preview my website <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="h-12 px-7">
               <Link to="/how-it-works">See how it works</Link>
