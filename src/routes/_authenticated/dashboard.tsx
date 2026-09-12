@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Circle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, Star } from "lucide-react";
+
+const GOOGLE_REVIEW_URL = "https://g.page/r/CaiWtKMXkWg7EAI/review";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { planCopy } from "@/lib/plans";
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
@@ -166,6 +168,26 @@ function DashboardPage() {
           ))}
         </ul>
       </div>
+
+      {isPublished ? (
+        <div className="flex flex-col items-start gap-3 rounded-xl border border-accent/30 bg-accent/5 p-5 sm:flex-row sm:items-center">
+          <div className="flex items-start gap-3">
+            <Star className="mt-0.5 h-5 w-5 shrink-0 fill-accent text-accent" />
+            <div>
+              <p className="font-semibold">Enjoying your new website?</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                A quick Google review helps other local business owners find us — it takes under a
+                minute.
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="outline" className="sm:ml-auto">
+            <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer">
+              Leave us a review <ArrowRight className="ml-1 h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+      ) : null}
     </>
   );
 }
