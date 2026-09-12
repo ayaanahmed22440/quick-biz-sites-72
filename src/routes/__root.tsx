@@ -141,6 +141,12 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  // Ad measurement: only loads when real IDs are configured and the visitor
+  // may be tracked (see src/lib/tracking.ts).
+  useEffect(() => {
+    void initTracking();
+  }, []);
+
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
