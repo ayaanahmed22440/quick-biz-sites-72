@@ -7,7 +7,7 @@ import { notifyWelcome } from "@/lib/notify.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Eye, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Eye, Loader2, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace, workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
+import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
 import { cn } from "@/lib/utils";
 
