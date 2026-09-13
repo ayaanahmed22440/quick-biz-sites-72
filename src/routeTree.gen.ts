@@ -14,6 +14,7 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -73,6 +74,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CancellationPolicyRoute = CancellationPolicyRouteImport.update({
@@ -266,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -525,6 +537,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRouteWithChildren
+  BlogRoute: typeof BlogRoute
   CancellationPolicyRoute: typeof CancellationPolicyRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -578,6 +591,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cancellation-policy': {
@@ -898,6 +918,7 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRouteWithChildren,
+  BlogRoute: BlogRoute,
   CancellationPolicyRoute: CancellationPolicyRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
