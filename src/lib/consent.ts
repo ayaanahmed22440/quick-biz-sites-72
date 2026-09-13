@@ -60,9 +60,4 @@ export function setConsent(choice: ConsentChoice) {
   } catch {
     /* storage blocked */
   }
-  if (typeof window !== "undefined") {
-    const fbq = (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq;
-    fbq?.("consent", choice === "accepted" ? "grant" : "revoke");
-    if (choice === "accepted") fbq?.("track", "PageView");
-  }
 }

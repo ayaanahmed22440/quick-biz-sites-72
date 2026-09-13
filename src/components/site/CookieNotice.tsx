@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { getConsent, setConsent, type ConsentChoice } from "@/lib/consent";
+import { startMetaPixel } from "@/lib/meta-pixel";
 
 /**
  * Cookie notice. The app only sets cookies/storage that are needed to sign in
@@ -19,6 +20,7 @@ export function CookieNotice() {
   function choose(value: ConsentChoice) {
     setConsent(value);
     setVisible(false);
+    if (value === "accepted") void startMetaPixel();
   }
 
   if (!visible) return null;
