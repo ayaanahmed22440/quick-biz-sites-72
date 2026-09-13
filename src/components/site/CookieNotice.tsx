@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { getConsent, setConsent, type ConsentChoice } from "@/lib/tracking";
+import { getConsent, setConsent, type ConsentChoice } from "@/lib/consent";
 
 /**
  * Cookie notice. The app only sets cookies/storage that are needed to sign in
  * and remember a draft; the choice recorded here also controls whether
- * advertising measurement (Meta and Google Ads) may run. No advertising
- * scripts load before a visitor in a consent region accepts.
+ * advertising measurement (Meta Pixel) may run. No advertising events are sent
+ * before a visitor in a consent region accepts.
  */
 export function CookieNotice() {
   const [visible, setVisible] = useState(false);
@@ -28,7 +28,7 @@ export function CookieNotice() {
       <div className="mx-auto flex max-w-3xl flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           We use essential cookies to keep you signed in. Optional ones help us understand how the
-          site is used and measure our advertising on Google and Meta. See our{" "}
+          site is used and measure our advertising on Meta (Facebook and Instagram). See our{" "}
           <Link to="/privacy" className="underline underline-offset-2">
             privacy policy
           </Link>

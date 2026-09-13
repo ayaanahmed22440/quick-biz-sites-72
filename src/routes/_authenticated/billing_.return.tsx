@@ -7,7 +7,7 @@ import { z } from "zod";
 import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functions";
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
-import { trackPaidSignup } from "@/lib/tracking";
+import { trackPurchase } from "@/lib/meta-pixel";
 
 const search = z.object({ session: z.string().optional() });
 
@@ -58,7 +58,7 @@ function BillingReturnPage() {
             await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
             if (cancelled) return;
             // Primary ad conversion — a payment the backend has confirmed.
-            trackPaidSignup(session ? { id: session } : {});
+            trackPurchase();
             setState("active");
             setTimeout(() => void navigate({ to: destination }), 1200);
             return;

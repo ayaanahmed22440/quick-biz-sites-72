@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { initTracking } from "@/lib/tracking";
+import { META_PIXEL_ID, metaPixelSnippet, startMetaPixel } from "@/lib/meta-pixel";
 
 function NotFoundComponent() {
   return (
@@ -105,6 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "shortcut icon", type: "image/png", href: "/favicon-96.png" },
     ],
     scripts: [
+      ...(META_PIXEL_ID ? [{ children: metaPixelSnippet(META_PIXEL_ID) }] : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -141,10 +142,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Ad measurement: only loads when real IDs are configured and the visitor
-  // may be tracked (see src/lib/tracking.ts).
+  // Meta Pixel: the tag is in the page head; events start once the visitor
+  // may be measured (see src/lib/meta-pixel.ts).
   useEffect(() => {
-    void initTracking();
+    void startMetaPixel();
   }, []);
 
   useEffect(() => {

@@ -20,7 +20,7 @@ import { BrowserPreview } from "@/components/app/BrowserPreview";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
-import { trackOnboardingStarted } from "@/lib/tracking";
+import { trackLead } from "@/lib/meta-pixel";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
 import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
@@ -240,7 +240,7 @@ function OnboardingPage() {
 
   // Secondary ad conversion — someone started building a site.
   useEffect(() => {
-    trackOnboardingStarted();
+    trackLead();
   }, []);
 
   const [index, setIndex] = useState(0);
