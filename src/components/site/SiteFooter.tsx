@@ -27,6 +27,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link to="/blog" className="hover:text-navy-foreground">
+                Blog
+              </Link>
+            </li>
+            <li>
               <Link to="/auth" className="hover:text-navy-foreground">
                 Log in
               </Link>
