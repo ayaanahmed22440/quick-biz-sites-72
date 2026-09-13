@@ -19,6 +19,7 @@ export function CookieNotice() {
   function choose(value: ConsentChoice) {
     setConsent(value);
     setVisible(false);
+    if (value === "accepted") void startMetaPixel();
   }
 
   if (!visible) return null;
