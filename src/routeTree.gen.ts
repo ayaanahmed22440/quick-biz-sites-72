@@ -46,6 +46,7 @@ import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticate
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedAdminBlogPostIdRouteImport } from './routes/_authenticated/admin-blog_.$postId'
 import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_authenticated/admin-site.$businessId'
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
@@ -241,6 +242,12 @@ const SSlugRoute = SSlugRouteImport.update({
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminBlogPostIdRoute =
+  AuthenticatedAdminBlogPostIdRouteImport.update({
+    id: '/admin-blog_/$postId',
+    path: '/admin-blog/$postId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSiteBusinessIdRoute =
   AuthenticatedAdminSiteBusinessIdRouteImport.update({
     id: '/admin-site/$businessId',
@@ -316,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-blog/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -361,6 +369,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-blog/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -408,6 +417,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/_authenticated/admin-blog_/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/_authenticated/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/s/$slug'
+    | '/admin-blog/$postId'
     | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/polar-webhook'
@@ -500,6 +511,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/s/$slug'
+    | '/admin-blog/$postId'
     | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/polar-webhook'
@@ -546,6 +558,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/s/$slug'
+    | '/_authenticated/admin-blog_/$postId'
     | '/_authenticated/admin-site/$businessId'
     | '/_authenticated/billing_/return'
     | '/api/public/polar-webhook'
@@ -841,6 +854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin-blog_/$postId': {
+      id: '/_authenticated/admin-blog_/$postId'
+      path: '/admin-blog/$postId'
+      fullPath: '/admin-blog/$postId'
+      preLoaderRoute: typeof AuthenticatedAdminBlogPostIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin-site/$businessId': {
       id: '/_authenticated/admin-site/$businessId'
       path: '/admin-site/$businessId'
@@ -912,6 +932,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWebsiteRoute: typeof AuthenticatedWebsiteRoute
+  AuthenticatedAdminBlogPostIdRoute: typeof AuthenticatedAdminBlogPostIdRoute
   AuthenticatedAdminSiteBusinessIdRoute: typeof AuthenticatedAdminSiteBusinessIdRoute
   AuthenticatedBillingReturnRoute: typeof AuthenticatedBillingReturnRoute
 }
@@ -935,6 +956,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWebsiteRoute: AuthenticatedWebsiteRoute,
+  AuthenticatedAdminBlogPostIdRoute: AuthenticatedAdminBlogPostIdRoute,
   AuthenticatedAdminSiteBusinessIdRoute: AuthenticatedAdminSiteBusinessIdRoute,
   AuthenticatedBillingReturnRoute: AuthenticatedBillingReturnRoute,
 }
