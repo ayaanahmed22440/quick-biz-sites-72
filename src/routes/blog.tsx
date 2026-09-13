@@ -97,7 +97,7 @@ function BlogIndex() {
       <Shell>
         {data.categories.length ? (
           <div className="mb-10 flex flex-wrap gap-2">
-            <CategoryPill to={undefined} active={!category} label="All posts" />
+            <CategoryPill active={!category} label="All posts" />
             {data.categories.map((c) => (
               <CategoryPill key={c} to={c} active={category === c} label={c} />
             ))}
