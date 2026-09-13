@@ -13,6 +13,7 @@ import {
   Mail,
   Menu,
   MessageCircle,
+  Newspaper,
   UserPlus,
   Search,
   Settings,

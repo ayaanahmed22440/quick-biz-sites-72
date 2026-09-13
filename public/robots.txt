@@ -8,6 +8,7 @@ Disallow: /admin-emails
 Disallow: /admin-team
 Disallow: /admin-site
 Disallow: /admin-templates
+Disallow: /admin-blog
 Disallow: /billing
 Disallow: /business
 Disallow: /leads
