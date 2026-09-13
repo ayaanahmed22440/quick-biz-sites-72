@@ -43,6 +43,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
 import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_authenticated/admin-site.$businessId'
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
@@ -224,6 +225,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const SSlugRoute = SSlugRouteImport.update({
   id: '/s/$slug',
   path: '/s/$slug',
@@ -272,7 +278,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -301,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
@@ -315,7 +322,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
@@ -360,7 +368,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
   '/_authenticated/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
@@ -434,6 +443,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
     | '/admin-site/$businessId'
     | '/billing/return'
@@ -477,6 +487,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
     | '/admin-site/$businessId'
     | '/billing/return'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
     | '/_authenticated/admin-site/$businessId'
     | '/_authenticated/billing_/return'
@@ -537,7 +549,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRouteWithChildren
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CancellationPolicyRoute: typeof CancellationPolicyRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -796,6 +808,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/s/$slug': {
       id: '/s/$slug'
       path: '/s/$slug'
@@ -912,13 +931,23 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   SlugRoute: SlugRoute,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRouteWithChildren,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   CancellationPolicyRoute: CancellationPolicyRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
