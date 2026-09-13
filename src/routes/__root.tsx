@@ -105,6 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "shortcut icon", type: "image/png", href: "/favicon-96.png" },
     ],
     scripts: [
+      ...(META_PIXEL_ID ? [{ children: metaPixelSnippet(META_PIXEL_ID) }] : []),
       {
         type: "application/ld+json",
         children: JSON.stringify({
