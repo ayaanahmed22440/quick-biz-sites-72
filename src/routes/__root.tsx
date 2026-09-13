@@ -142,10 +142,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
-  // Ad measurement: only loads when real IDs are configured and the visitor
-  // may be tracked (see src/lib/tracking.ts).
+  // Meta Pixel: the tag is in the page head; events start once the visitor
+  // may be measured (see src/lib/meta-pixel.ts).
   useEffect(() => {
-    void initTracking();
+    void startMetaPixel();
   }, []);
 
   useEffect(() => {
