@@ -14,6 +14,7 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -25,6 +26,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin-blog'
 import { Route as AuthenticatedAdminChatRouteImport } from './routes/_authenticated/admin-chat'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin-team'
@@ -42,7 +44,9 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedWebsiteRouteImport } from './routes/_authenticated/website'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as SSlugRouteImport } from './routes/s.$slug'
+import { Route as AuthenticatedAdminBlogPostIdRouteImport } from './routes/_authenticated/admin-blog_.$postId'
 import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_authenticated/admin-site.$businessId'
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
@@ -73,6 +77,11 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CancellationPolicyRoute = CancellationPolicyRouteImport.update({
@@ -128,6 +137,11 @@ const TermsRoute = TermsRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
+  id: '/admin-blog',
+  path: '/admin-blog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminChatRoute = AuthenticatedAdminChatRouteImport.update({
@@ -218,11 +232,22 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const SSlugRoute = SSlugRouteImport.update({
   id: '/s/$slug',
   path: '/s/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminBlogPostIdRoute =
+  AuthenticatedAdminBlogPostIdRouteImport.update({
+    id: '/admin-blog_/$postId',
+    path: '/admin-blog/$postId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSiteBusinessIdRoute =
   AuthenticatedAdminSiteBusinessIdRouteImport.update({
     id: '/admin-site/$businessId',
@@ -266,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -277,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -294,7 +321,9 @@ export interface FileRoutesByFullPath {
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-blog/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -308,6 +337,7 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -319,6 +349,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -336,7 +367,9 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/admin-blog/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -352,6 +385,7 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRouteWithChildren
+  '/blog': typeof BlogRouteWithChildren
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -363,6 +397,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin-chat': typeof AuthenticatedAdminChatRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -380,7 +415,9 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/website': typeof AuthenticatedWebsiteRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/s/$slug': typeof SSlugRoute
+  '/_authenticated/admin-blog_/$postId': typeof AuthenticatedAdminBlogPostIdRoute
   '/_authenticated/admin-site/$businessId': typeof AuthenticatedAdminSiteBusinessIdRoute
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
@@ -396,6 +433,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -407,6 +445,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/admin-blog'
     | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
@@ -424,7 +463,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
+    | '/admin-blog/$postId'
     | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/polar-webhook'
@@ -438,6 +479,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -449,6 +491,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/admin-blog'
     | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
@@ -466,7 +509,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
+    | '/admin-blog/$postId'
     | '/admin-site/$businessId'
     | '/billing/return'
     | '/api/public/polar-webhook'
@@ -481,6 +526,7 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/admin-login'
     | '/auth'
+    | '/blog'
     | '/cancellation-policy'
     | '/contact'
     | '/how-it-works'
@@ -492,6 +538,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-blog'
     | '/_authenticated/admin-chat'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-team'
@@ -509,7 +556,9 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/website'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/s/$slug'
+    | '/_authenticated/admin-blog_/$postId'
     | '/_authenticated/admin-site/$businessId'
     | '/_authenticated/billing_/return'
     | '/api/public/polar-webhook'
@@ -525,6 +574,7 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRouteWithChildren
+  BlogRoute: typeof BlogRouteWithChildren
   CancellationPolicyRoute: typeof CancellationPolicyRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
@@ -578,6 +628,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cancellation-policy': {
@@ -655,6 +712,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-blog': {
+      id: '/_authenticated/admin-blog'
+      path: '/admin-blog'
+      fullPath: '/admin-blog'
+      preLoaderRoute: typeof AuthenticatedAdminBlogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-chat': {
@@ -776,12 +840,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/s/$slug': {
       id: '/s/$slug'
       path: '/s/$slug'
       fullPath: '/s/$slug'
       preLoaderRoute: typeof SSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin-blog_/$postId': {
+      id: '/_authenticated/admin-blog_/$postId'
+      path: '/admin-blog/$postId'
+      fullPath: '/admin-blog/$postId'
+      preLoaderRoute: typeof AuthenticatedAdminBlogPostIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-site/$businessId': {
       id: '/_authenticated/admin-site/$businessId'
@@ -837,6 +915,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminChatRoute: typeof AuthenticatedAdminChatRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
@@ -853,12 +932,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedWebsiteRoute: typeof AuthenticatedWebsiteRoute
+  AuthenticatedAdminBlogPostIdRoute: typeof AuthenticatedAdminBlogPostIdRoute
   AuthenticatedAdminSiteBusinessIdRoute: typeof AuthenticatedAdminSiteBusinessIdRoute
   AuthenticatedBillingReturnRoute: typeof AuthenticatedBillingReturnRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminChatRoute: AuthenticatedAdminChatRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
@@ -875,6 +956,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedWebsiteRoute: AuthenticatedWebsiteRoute,
+  AuthenticatedAdminBlogPostIdRoute: AuthenticatedAdminBlogPostIdRoute,
   AuthenticatedAdminSiteBusinessIdRoute: AuthenticatedAdminSiteBusinessIdRoute,
   AuthenticatedBillingReturnRoute: AuthenticatedBillingReturnRoute,
 }
@@ -892,12 +974,23 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   SlugRoute: SlugRoute,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRouteWithChildren,
+  BlogRoute: BlogRouteWithChildren,
   CancellationPolicyRoute: CancellationPolicyRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,

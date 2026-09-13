@@ -13,6 +13,7 @@ import {
   Mail,
   Menu,
   MessageCircle,
+  Newspaper,
   UserPlus,
   Search,
   Settings,
@@ -102,6 +103,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             <MessageCircle className="h-4 w-4" />
             Client chat
+          </Link>
+          <Link
+            to="/admin-blog"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            activeProps={{ className: "bg-sidebar-accent text-sidebar-foreground" }}
+          >
+            <Newspaper className="h-4 w-4" />
+            Blog
           </Link>
           <Link
             to="/admin-templates"

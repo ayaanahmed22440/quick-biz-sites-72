@@ -8,6 +8,7 @@ import { useSession } from "@/hooks/useSession";
 const NAV = [
   { to: "/how-it-works", label: "How it works" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/blog", label: "Blog" },
   { to: "/contact", label: "Talk to us" },
 ] as const;
 
