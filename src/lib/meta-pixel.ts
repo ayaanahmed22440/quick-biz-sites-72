@@ -25,25 +25,27 @@ declare global {
 export const META_PIXEL_ID =
   (import.meta.env as Record<string, string | undefined>)["VITE_META_PIXEL_ID"]?.trim() || "";
 
-/** Inline snippet injected into <head>. Inits the pixel with consent revoked. */
-export function metaPixelSnippet(pixelId: string) {
+/**
+ * Inline snippet injected into <head>. Loads Meta's library so the pixel is
+ * present in the page source; the pixel itself is initialised only once the
+ * visitor may be measured (see startMetaPixel).
+ */
+export function metaPixelSnippet(_pixelId: string) {
   return `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
 n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('consent','revoke');
-fbq('init','${pixelId}');`;
+document,'script','https://connect.facebook.net/en_US/fbevents.js');`;
 }
 
-let granted = false;
+let started = false;
 
-/** Grants consent and sends the page view when the visitor may be measured. */
+/** Initialises the pixel and sends the page view when measurement is allowed. */
 export async function startMetaPixel() {
-  if (granted || typeof window === "undefined" || !META_PIXEL_ID) return;
+  if (started || typeof window === "undefined" || !META_PIXEL_ID) return;
   if (!(await adTrackingAllowed())) return;
-  granted = true;
-  window.fbq?.("consent", "grant");
+  started = true;
+  window.fbq?.("init", META_PIXEL_ID);
   window.fbq?.("track", "PageView");
 }
 
