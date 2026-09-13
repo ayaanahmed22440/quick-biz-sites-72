@@ -26,6 +26,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin-blog'
 import { Route as AuthenticatedAdminChatRouteImport } from './routes/_authenticated/admin-chat'
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated/admin-emails'
 import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated/admin-team'
@@ -135,6 +136,11 @@ const TermsRoute = TermsRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
+  id: '/admin-blog',
+  path: '/admin-blog',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminChatRoute = AuthenticatedAdminChatRouteImport.update({
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -334,6 +341,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/admin-chat': typeof AuthenticatedAdminChatRoute
   '/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -380,6 +388,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin-blog': typeof AuthenticatedAdminBlogRoute
   '/_authenticated/admin-chat': typeof AuthenticatedAdminChatRoute
   '/_authenticated/admin-emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin-team': typeof AuthenticatedAdminTeamRoute
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/admin-blog'
     | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/admin-blog'
     | '/admin-chat'
     | '/admin-emails'
     | '/admin-team'
@@ -515,6 +526,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
+    | '/_authenticated/admin-blog'
     | '/_authenticated/admin-chat'
     | '/_authenticated/admin-emails'
     | '/_authenticated/admin-team'
@@ -687,6 +699,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin-blog': {
+      id: '/_authenticated/admin-blog'
+      path: '/admin-blog'
+      fullPath: '/admin-blog'
+      preLoaderRoute: typeof AuthenticatedAdminBlogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin-chat': {
@@ -876,6 +895,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRoute
   AuthenticatedAdminChatRoute: typeof AuthenticatedAdminChatRoute
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
@@ -898,6 +918,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRoute,
   AuthenticatedAdminChatRoute: AuthenticatedAdminChatRoute,
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
