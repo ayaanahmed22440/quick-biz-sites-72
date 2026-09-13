@@ -41,8 +41,21 @@ export const Route = createFileRoute("/sitemap.xml")({
             (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]!,
           );
 
+        // Blog articles that are live and allowed in search.
+        const { data: posts } = await supabase
+          .from("blog_posts")
+          .select("slug, published_at, updated_at")
+          .eq("status", "published")
+          .eq("indexable", true);
+
         const urls = [
           ...staticPaths.map((p) => `<url><loc>${escape(BASE_URL + p)}</loc></url>`),
+          ...(posts ?? []).map(
+            (p) =>
+              `<url><loc>${escape(`${BASE_URL}/blog/${p.slug}`)}</loc><lastmod>${new Date(
+                p.updated_at ?? p.published_at ?? Date.now(),
+              ).toISOString()}</lastmod></url>`,
+          ),
           ...slugs.map(
             (s) =>
               `<url><loc>${escape(`${BASE_URL}/${s.slug}`)}</loc>${
