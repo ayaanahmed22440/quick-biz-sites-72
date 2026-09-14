@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
     })) as HostedSite | null,
   head: ({ loaderData }) =>
     loaderData
-      ? publicSiteMeta(loaderData.site)
+      ? publicSiteMeta(loaderData.site, loaderData.slug)
       : {
           meta: [
             { title: TITLE },
