@@ -22,6 +22,7 @@ export const Route = createFileRoute("/pricing")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/pricing" }],
   }),
   component: PricingPage,
 });

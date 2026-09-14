@@ -15,6 +15,7 @@ export const Route = createFileRoute("/cancellation-policy")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/cancellation-policy" }],
   }),
   component: CancellationPolicyPage,
 });
