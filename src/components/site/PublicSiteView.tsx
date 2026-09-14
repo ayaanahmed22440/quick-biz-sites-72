@@ -26,6 +26,9 @@ export function publicSiteMeta(site: PublishedSite | null | undefined, slug?: st
         ? [{ name: "robots", content: "noindex" }]
         : []),
     ],
+    links: slug
+      ? [{ rel: "canonical", href: `https://www.webwarheads.com/${slug}` }]
+      : [],
   };
 }
 
