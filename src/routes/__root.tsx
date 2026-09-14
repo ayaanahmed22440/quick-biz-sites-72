@@ -100,10 +100,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Archivo+Black&family=Hind:wght@400;500;600;700&family=Poppins:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", type: "image/png", sizes: "96x96", href: "/favicon-96.png" },
+      {
+        rel: "icon",
+        type: "image/x-icon",
+        sizes: "16x16 32x32 48x48 96x96",
+        href: "https://www.webwarheads.com/favicon.ico",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "96x96",
+        href: "https://www.webwarheads.com/favicon-96.png",
+      },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
       { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-      { rel: "shortcut icon", type: "image/png", href: "/favicon-96.png" },
+      {
+        rel: "shortcut icon",
+        type: "image/x-icon",
+        href: "https://www.webwarheads.com/favicon.ico",
+      },
     ],
     scripts: [
       ...(META_PIXEL_ID ? [{ children: metaPixelSnippet(META_PIXEL_ID) }] : []),
