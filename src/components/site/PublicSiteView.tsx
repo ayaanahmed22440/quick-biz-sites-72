@@ -3,7 +3,7 @@ import { submitWebsiteLead, type PublishedSite } from "@/lib/public-site.functio
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
-export function publicSiteMeta(site: PublishedSite | null | undefined) {
+export function publicSiteMeta(site: PublishedSite | null | undefined, slug?: string) {
   if (!site) return {};
   const b = site.business;
   const place = b.city ?? site.seo?.primary_city ?? "";
