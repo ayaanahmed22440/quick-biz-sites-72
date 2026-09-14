@@ -8,7 +8,7 @@ export const Route = createFileRoute("/$slug")({
     if (!site) throw notFound();
     return site;
   },
-  head: ({ loaderData }) => publicSiteMeta(loaderData),
+  head: ({ loaderData, params }) => publicSiteMeta(loaderData, params.slug),
   errorComponent: () => (
     <div className="p-10 text-center text-sm">This website couldn't be loaded right now.</div>
   ),
