@@ -21,6 +21,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/contact" }],
   }),
   component: ContactPage,
 });

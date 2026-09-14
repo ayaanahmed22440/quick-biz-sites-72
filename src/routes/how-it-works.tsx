@@ -15,6 +15,7 @@ export const Route = createFileRoute("/how-it-works")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/how-it-works" }],
   }),
   component: HowItWorksPage,
 });

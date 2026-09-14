@@ -15,6 +15,7 @@ export const Route = createFileRoute("/refund-policy")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/refund-policy" }],
   }),
   component: RefundPolicyPage,
 });

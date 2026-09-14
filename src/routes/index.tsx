@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
     })) as HostedSite | null,
   head: ({ loaderData }) =>
     loaderData
-      ? publicSiteMeta(loaderData.site)
+      ? publicSiteMeta(loaderData.site, loaderData.slug)
       : {
           meta: [
             { title: TITLE },
@@ -47,12 +47,12 @@ export const Route = createFileRoute("/")({
             { property: "og:title", content: TITLE },
             { property: "og:description", content: DESCRIPTION },
             { property: "og:type", content: "website" },
-            { property: "og:url", content: "https://webwarheads.com/" },
-            { property: "og:image", content: "https://webwarheads.com/og-cover.jpg" },
+            { property: "og:url", content: "https://www.webwarheads.com/" },
+            { property: "og:image", content: "https://www.webwarheads.com/og-cover.jpg" },
             { name: "twitter:card", content: "summary_large_image" },
-            { name: "twitter:image", content: "https://webwarheads.com/og-cover.jpg" },
+            { name: "twitter:image", content: "https://www.webwarheads.com/og-cover.jpg" },
           ],
-          links: [{ rel: "canonical", href: "https://webwarheads.com/" }],
+          links: [{ rel: "canonical", href: "https://www.webwarheads.com/" }],
         },
   component: RootIndex,
 });

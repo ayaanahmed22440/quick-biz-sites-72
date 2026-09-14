@@ -7,7 +7,7 @@
  */
 import { sendGmail, emailShell } from "@/lib/gmail.server";
 
-const SITE_URL = "https://webwarheads.com";
+const SITE_URL = "https://www.webwarheads.com";
 export const ADMIN_ALERT_EMAIL = process.env["ADMIN_ALERT_EMAIL"] ?? "admin@webwarheads.com";
 
 const escape = (value: string) =>

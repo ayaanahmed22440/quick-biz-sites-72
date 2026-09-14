@@ -38,12 +38,12 @@ export const Route = createFileRoute("/blog")({
         content: "Practical guides on local websites, SEO and getting found on Google.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://webwarheads.com/blog" },
-      { property: "og:image", content: "https://webwarheads.com/og-cover.jpg" },
+      { property: "og:url", content: "https://www.webwarheads.com/blog" },
+      { property: "og:image", content: "https://www.webwarheads.com/og-cover.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://webwarheads.com/og-cover.jpg" },
+      { name: "twitter:image", content: "https://www.webwarheads.com/og-cover.jpg" },
     ],
-    links: [{ rel: "canonical", href: "https://webwarheads.com/blog" }],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/blog" }],
   }),
   errorComponent: () => (
     <PublicLayout>

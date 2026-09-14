@@ -13,6 +13,7 @@ export const Route = createFileRoute("/terms")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
     ],
+    links: [{ rel: "canonical", href: "https://www.webwarheads.com/terms" }],
   }),
   component: TermsPage,
 });
