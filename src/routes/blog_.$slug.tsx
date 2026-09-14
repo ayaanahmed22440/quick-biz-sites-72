@@ -12,7 +12,7 @@ const SITE = "https://www.webwarheads.com";
 const postQuery = (slug: string) =>
   queryOptions({ queryKey: ["blog", "post", slug], queryFn: () => getBlogPost({ data: { slug } }) });
 
-export const Route = createFileRoute("/blog/$slug")({
+export const Route = createFileRoute("/blog_/$slug")({
   loader: async ({ context, params }) => {
     const result = await context.queryClient.ensureQueryData(postQuery(params.slug));
     if (!result.post) throw notFound();
