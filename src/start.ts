@@ -4,6 +4,22 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
+// Canonical host: Google indexes www.webwarheads.com, so permanently redirect
+// the bare domain to it. API and webhook callers (Polar, email) are excluded —
+// a 301 could break their POSTs. Custom customer domains are untouched.
+const canonicalHostMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const url = new URL(request.url);
+  if (
+    url.hostname === "webwarheads.com" &&
+    !url.pathname.startsWith("/api/") &&
+    !url.pathname.startsWith("/lovable/")
+  ) {
+    url.hostname = "www.webwarheads.com";
+    return new Response(null, { status: 301, headers: { location: url.toString() } });
+  }
+  return next();
+});
+
 const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
   if (new URL(request.url).pathname.startsWith("/lovable/")) {
     return next();

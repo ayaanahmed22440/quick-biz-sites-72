@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getBlogPost } from "@/lib/blog.functions";
 import { Markdown, plainExcerpt, readingMinutes } from "@/lib/markdown";
 
-const SITE = "https://webwarheads.com";
+const SITE = "https://www.webwarheads.com";
 
 const postQuery = (slug: string) =>
   queryOptions({ queryKey: ["blog", "post", slug], queryFn: () => getBlogPost({ data: { slug } }) });
