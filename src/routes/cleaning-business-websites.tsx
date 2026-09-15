@@ -219,7 +219,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="border-y border-border bg-muted/50 py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <p className="text-sm font-bold uppercase text-accent">The first impression matters</p>
             <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">You're great at cleaning. Your website shouldn't make you look like you're not.</h2>
@@ -241,7 +241,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center"><p className="text-sm font-bold uppercase text-accent">The old way vs. a simpler way</p><h2 className="mx-auto mt-4 max-w-4xl text-3xl font-bold text-foreground sm:text-5xl">Getting a website shouldn't cost you $1,500+.</h2></div>
           <div className="mt-14 grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
             <div className="rounded-lg border border-border bg-muted/40 p-7 sm:p-9">
@@ -260,7 +260,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="overflow-hidden bg-navy py-20 text-navy-foreground sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center"><p className="text-sm font-bold uppercase text-accent">Preview before you pay</p><h2 className="mt-4 text-3xl font-bold sm:text-5xl">Don't pay for a website you haven't even seen yet.</h2><p className="mt-5 text-lg leading-8 text-navy-foreground/75">Build your website first. See exactly what it looks like. If you like it, choose your plan and launch.</p></div>
           <div className="mt-12 rounded-xl bg-background p-2 sm:p-5"><CleaningSiteMockup large /></div>
           <div className="mx-auto mt-12 flex max-w-4xl flex-wrap items-center justify-center gap-3 text-xs font-bold uppercase sm:gap-5">{["Build", "Customize", "Preview", "Like it?", "Launch"].map((item, index) => <div key={item} className="flex items-center gap-3 sm:gap-5"><span className="rounded-md border border-navy-foreground/20 px-4 py-2">{item}</span>{index < 4 ? <ArrowRight className="h-4 w-4 text-accent" /> : null}</div>)}</div>
@@ -270,7 +270,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center"><p className="text-sm font-bold uppercase text-accent">How it works</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Your cleaning website in a few simple steps.</h2></div>
           <ol className="mt-14 border-t border-border">{steps.map(([number, title, body]) => <li key={number} className="grid gap-4 border-b border-border py-7 sm:grid-cols-[80px_1fr_1.2fr] sm:items-center"><span className="font-display text-2xl font-bold text-accent">{number}</span><h3 className="text-xl font-bold text-foreground">{title}</h3><p className="leading-7 text-muted-foreground">{body}</p></li>)}</ol>
           <div className="mt-9 text-center"><BuildButton /></div>
@@ -278,7 +278,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="border-y border-border bg-muted/50 py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center"><p className="text-sm font-bold uppercase text-accent">Your complete cleaning website</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Everything a cleaning customer wants to see.</h2></div>
           <div className="mt-14 grid items-center gap-12 lg:grid-cols-[1.2fr_.8fr]">
             <div className="grid grid-cols-2 gap-3">
@@ -291,7 +291,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center"><p className="text-sm font-bold uppercase text-accent">Made for the way you work</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Built around what cleaning businesses actually need.</h2></div>
           <div className="mt-14 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">{benefits.map(([Icon, title, body]) => <article key={title} className="border-t-2 border-navy pt-6"><Icon className="h-6 w-6 text-accent" /><h3 className="mt-5 text-lg font-bold text-foreground">{title}</h3><p className="mt-2 leading-6 text-muted-foreground">{body}</p></article>)}</div>
           <div className="mt-12 text-center"><BuildButton /></div>
@@ -299,7 +299,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="border-y border-border bg-muted/50 py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
           <div><p className="text-sm font-bold uppercase text-accent">Your online home</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Your Facebook page isn't your website.</h2><p className="mt-5 text-lg leading-8 text-muted-foreground">Social media is great for marketing your cleaning business. Your website gives customers one professional place to learn about it.</p></div>
           <div className="grid overflow-hidden rounded-lg border border-border sm:grid-cols-2">
             <div className="bg-card p-7"><h3 className="text-lg font-bold text-foreground">Social media</h3><ul className="mt-6 space-y-3">{["Algorithm-controlled", "Customers dig through posts", "Services can be difficult to find", "Important information gets buried", "Less control over the experience"].map((item) => <li key={item} className="flex gap-3 text-muted-foreground"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground" />{item}</li>)}</ul></div>
@@ -309,7 +309,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 text-center sm:px-6 lg:px-8">
           <Search className="mx-auto h-10 w-10 text-accent" />
           <h2 className="mx-auto mt-6 max-w-4xl text-3xl font-bold text-foreground sm:text-5xl">Imagine a homeowner searching for a cleaner tonight.</h2>
           <div className="mx-auto mt-10 grid max-w-5xl gap-4 text-left md:grid-cols-3">
@@ -323,14 +323,14 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="border-y border-border bg-muted/50 py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[.75fr_1.25fr] lg:px-8">
+        <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[.75fr_1.25fr] lg:px-8">
           <div><p className="text-sm font-bold uppercase text-accent">Straight answers</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Think building a website is complicated?</h2><p className="mt-5 leading-7 text-muted-foreground">It doesn't have to be. These are the questions cleaning business owners ask us most.</p></div>
           <Accordion type="single" collapsible>{faqs.map(([question, answer]) => <AccordionItem key={question} value={question}><AccordionTrigger className="text-left text-base font-bold">{question}</AccordionTrigger><AccordionContent className="leading-7 text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
         </div>
       </section>
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="text-center"><p className="text-sm font-bold uppercase text-accent">Simple monthly pricing</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Professional website. Without the $1,500+ project.</h2></div>
           <div className="mx-auto mt-12 max-w-3xl overflow-hidden rounded-xl border-2 border-accent bg-card shadow-2xl shadow-accent/10">
             <div className="grid md:grid-cols-[.8fr_1.2fr]">
@@ -343,7 +343,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-navy py-20 text-navy-foreground sm:py-28" data-cleaning-reveal>
-        <div className="home-reveal mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           <Clock3 className="mx-auto h-9 w-9 text-accent" /><h2 className="mt-6 text-4xl font-bold sm:text-6xl">Your next customer is looking for a cleaner.</h2><p className="mx-auto mt-5 max-w-2xl text-xl text-navy-foreground/75">Give them somewhere professional to find your business.</p>
           <div className="mx-auto mt-8 max-w-xl space-y-2 text-lg font-semibold"><p>Build your cleaning business website.</p><p>Preview it before you pay.</p><p>Launch when you're ready.</p></div>
           <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month</p>
@@ -352,7 +352,7 @@ function CleaningBusinessLandingPage() {
       </section>
 
       <section className="bg-background py-16 sm:py-20" data-cleaning-reveal>
-        <div className="home-reveal mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 px-4 sm:px-6 md:flex-row md:items-center lg:px-8"><div><p className="text-sm font-bold uppercase text-accent">Built for small cleaning businesses</p><h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">You shouldn't need to understand web development to look professional online.</h2><p className="mt-3 max-w-3xl text-muted-foreground">WebWarHeads gives cleaning business owners a simpler way to build, preview and launch their own website.</p></div><BuildButton /></div>
+        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 px-4 sm:px-6 md:flex-row md:items-center lg:px-8"><div><p className="text-sm font-bold uppercase text-accent">Built for small cleaning businesses</p><h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">You shouldn't need to understand web development to look professional online.</h2><p className="mt-3 max-w-3xl text-muted-foreground">WebWarHeads gives cleaning business owners a simpler way to build, preview and launch their own website.</p></div><BuildButton /></div>
       </section>
     </PublicLayout>
   );
