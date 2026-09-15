@@ -4,16 +4,13 @@ import {
   ArrowDown,
   ArrowRight,
   BadgeCheck,
-  Building2,
   Check,
   CircleDollarSign,
   Clock3,
-  Code2,
   Image as ImageIcon,
   Laptop,
   MapPin,
   MessageSquareQuote,
-  Paintbrush,
   Phone,
   Search,
   ShieldCheck,
@@ -24,6 +21,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import cleaningHero from "@/assets/templates/cleaning-hero.jpg";
 import cleaningGalleryOne from "@/assets/templates/cleaning-gallery-1.jpg";
 import cleaningGalleryTwo from "@/assets/templates/cleaning-gallery-2.jpg";
@@ -92,6 +90,15 @@ const benefits = [
   [Laptop, "Preview Before You Pay", "See your website before committing to a plan."],
   [CircleDollarSign, "Start At $37/Month", "Skip the large upfront website project."],
 ] as const;
+
+const showcaseDetails: ReadonlyArray<readonly [LucideIcon, string, string]> = [
+  [Sparkles, "Your Services", "Make it obvious what you clean — from recurring and deep cleaning to move-out and commercial work."],
+  [ImageIcon, "Your Work", "Show real photos of your cleaning results."],
+  [Star, "Your Reviews", "Let potential customers see what previous customers think."],
+  [MapPin, "Your Service Area", "Show the cities and areas you serve."],
+  [UserRound, "About Your Company", "Tell customers who they'll be inviting into their home."],
+  [Phone, "Contact / Quote", "Make it easy for customers to get in touch."],
+];
 
 const faqs = [
   ["Do I need coding experience?", "No. WebWarHeads is designed for business owners who don't know how to code."],
@@ -273,14 +280,7 @@ function CleaningBusinessLandingPage() {
               <img src={cleaningGalleryOne} alt="Bright professionally cleaned bathroom" loading="lazy" className="aspect-[4/5] h-full w-full rounded-lg object-cover" />
               <div className="space-y-3"><img src={cleaningHero} alt="Professional residential cleaner" loading="lazy" className="aspect-square w-full rounded-lg object-cover" /><img src={cleaningGalleryTwo} alt="Professional commercial cleaner at work" loading="lazy" className="aspect-[4/3] w-full rounded-lg object-cover" /></div>
             </div>
-            <div className="space-y-7">{[
-              [Sparkles, "Your Services", "Make it obvious what you clean — from recurring and deep cleaning to move-out and commercial work."],
-              [ImageIcon, "Your Work", "Show real photos of your cleaning results."],
-              [Star, "Your Reviews", "Let potential customers see what previous customers think."],
-              [MapPin, "Your Service Area", "Show the cities and areas you serve."],
-              [UserRound, "About Your Company", "Tell customers who they'll be inviting into their home."],
-              [Phone, "Contact / Quote", "Make it easy for customers to get in touch."],
-            ].map(([Icon, title, body]) => <div key={String(title)} className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary text-accent"><Icon className="h-5 w-5" /></div><div><h3 className="font-bold text-foreground">{title}</h3><p className="mt-1 leading-6 text-muted-foreground">{body}</p></div></div>)}</div>
+            <div className="space-y-7">{showcaseDetails.map(([Icon, title, body]) => <div key={title} className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-secondary text-accent"><Icon className="h-5 w-5" /></div><div><h3 className="font-bold text-foreground">{title}</h3><p className="mt-1 leading-6 text-muted-foreground">{body}</p></div></div>)}</div>
           </div>
         </div>
       </section>
