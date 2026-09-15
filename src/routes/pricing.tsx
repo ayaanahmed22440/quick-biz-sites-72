@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Minus } from "lucide-react";
 import { PublicLayout } from "@/components/site/PublicLayout";
@@ -9,6 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { trackViewContent } from "@/lib/meta-pixel";
 
 const TITLE = "Pricing — WebWarheads websites from $37/month";
 const DESCRIPTION =
@@ -81,6 +83,10 @@ function Cell({ ok }: { ok: boolean }) {
 }
 
 function PricingPage() {
+  useEffect(() => {
+    trackViewContent("pricing");
+  }, []);
+
   return (
     <PublicLayout>
       <section className="border-b border-border bg-navy text-navy-foreground">

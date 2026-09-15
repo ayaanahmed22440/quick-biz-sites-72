@@ -3,7 +3,7 @@
  *
  * The pixel base code is inlined in the page head (see src/routes/__root.tsx)
  * so it is present in the HTML source and detectable by Meta's tools. Events
- * are held back with Meta's own consent API until the visitor may be measured.
+ * are held back until the visitor may be measured (see src/lib/consent.ts).
  *
  * Configure with: VITE_META_PIXEL_ID (e.g. 1634000254846601)
  */
@@ -40,24 +40,90 @@ document,'script','https://connect.facebook.net/en_US/fbevents.js');`;
 
 let started = false;
 
-/** Initialises the pixel and sends the page view when measurement is allowed. */
+/** Initialises the pixel and sends the first page view when measurement is allowed. */
 export async function startMetaPixel() {
   if (started || typeof window === "undefined" || !META_PIXEL_ID) return;
   if (!(await adTrackingAllowed())) return;
   started = true;
   window.fbq?.("init", META_PIXEL_ID);
-  window.fbq?.("track", "PageView");
-}
-
-/** Someone started building their website. */
-export function trackLead() {
-  window.fbq?.("track", "Lead");
+  trackEvent("PageView");
 }
 
 /** Debug payload logging only with ?fbdebug=1 — never in normal production use. */
 function metaPixelDebug(): boolean {
   if (typeof window === "undefined") return false;
   return new URLSearchParams(window.location.search).has("fbdebug");
+}
+
+function newEventId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `ww-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+}
+
+/** Remembers a one-time event so refreshes/back navigation don't double count. */
+function onceKey(key: string): boolean {
+  try {
+    if (window.sessionStorage.getItem(key)) return false;
+    window.sessionStorage.setItem(key, "1");
+    return true;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Sends a Meta standard event. Every event carries an eventID so a later
+ * server-side (Conversions API) copy of the same event can be deduplicated.
+ */
+export function trackEvent(
+  name: string,
+  params: Record<string, unknown> = {},
+  eventId: string = newEventId(),
+) {
+  if (typeof window === "undefined" || !started) return;
+  if (metaPixelDebug()) console.log("[meta-pixel]", name, params, { eventID: eventId });
+  window.fbq?.("track", name, params, { eventID: eventId });
+}
+
+/** Page view for in-app navigation (the first one comes from startMetaPixel). */
+export function trackPageView() {
+  trackEvent("PageView");
+}
+
+/** A key marketing page was viewed. */
+export function trackViewContent(contentName: string) {
+  trackEvent("ViewContent", { content_name: contentName });
+}
+
+/** Someone started building their website. */
+export function trackLead() {
+  trackEvent("Lead");
+}
+
+/** A new account was created. Fires at most once per account. */
+export function trackCompleteRegistration(userId: string, method: string) {
+  if (typeof window === "undefined") return;
+  if (!onceKey(`ww_registration_${userId}`)) return;
+  trackEvent("CompleteRegistration", { content_name: method, status: true });
+}
+
+/** A plan was chosen and checkout is about to open. */
+export function trackInitiateCheckout(opts: { planId: string; value: number }) {
+  trackEvent("InitiateCheckout", {
+    content_name: opts.planId,
+    content_category: "subscription",
+    value: opts.value,
+    currency: "USD",
+    num_items: 1,
+  });
+}
+
+/** A contact or support message was sent. */
+export function trackContact(source: string) {
+  trackEvent("Contact", { content_name: source });
 }
 
 /**
@@ -69,18 +135,11 @@ function metaPixelDebug(): boolean {
 export function trackPurchase(opts: { value?: number; currency?: string; eventId?: string } = {}) {
   if (typeof window === "undefined") return;
   const eventId = opts.eventId?.trim() || undefined;
-  if (eventId) {
-    const key = `ww_purchase_${eventId}`;
-    if (window.sessionStorage.getItem(key)) return;
-    window.sessionStorage.setItem(key, "1");
-  }
+  if (eventId && !onceKey(`ww_purchase_${eventId}`)) return;
   const params = { value: opts.value ?? 0, currency: opts.currency ?? "USD" };
-  if (metaPixelDebug()) {
-    console.log("[meta-pixel] Purchase", params, eventId ? { eventID: eventId } : {});
-  }
   if (eventId) {
-    window.fbq?.("track", "Purchase", params, { eventID: eventId });
+    trackEvent("Purchase", params, eventId);
   } else {
-    window.fbq?.("track", "Purchase", params);
+    trackEvent("Purchase", params);
   }
 }

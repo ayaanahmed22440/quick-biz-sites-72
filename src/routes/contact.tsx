@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { trackContact } from "@/lib/meta-pixel";
 
 const TITLE = "Contact WebWarheads";
 const DESCRIPTION =
@@ -66,6 +67,7 @@ function ContactPage() {
           business_name: parsed.data.business_name ?? "",
         },
       });
+      trackContact("contact_page");
       setSent(true);
     } catch {
       toast.error("We couldn't send that. Please try again.");
