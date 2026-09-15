@@ -65,7 +65,15 @@ function BillingReturnPage() {
             await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
             if (cancelled) return;
             // Primary ad conversion — a payment the backend has confirmed.
-            trackPurchase();
+            // Polar only appends checkout_id to the return URL (no amount), so
+            // the value comes from the confirmed plan's price.
+            const copy = planCopy(planId);
+            const value = copy ? (isYearly(planId) ? yearlyPrice(copy.price) : copy.price) : 0;
+            trackPurchase({
+              value,
+              currency: "USD",
+              eventId: polarCheckoutId ?? session ?? undefined,
+            });
             setState("active");
             setTimeout(() => void navigate({ to: destination }), 1200);
             return;
