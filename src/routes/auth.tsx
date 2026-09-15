@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { PLAN_COPY } from "@/lib/plans";
 import { GoogleIcon } from "@/components/brand/GoogleIcon";
 import { AppleIcon } from "@/components/brand/AppleIcon";
+import { trackCompleteRegistration } from "@/lib/meta-pixel";
 
 const TITLE = "Log in or create your WebWarheads account";
 const DESCRIPTION =
