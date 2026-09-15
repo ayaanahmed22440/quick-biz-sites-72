@@ -193,14 +193,14 @@ function CleaningBusinessLandingPage() {
             <div className="animate-hero-entry inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 text-xs font-bold uppercase text-accent">
               <Sparkles className="h-3.5 w-3.5" /> Built for cleaning businesses
             </div>
-            <h1 className="animate-hero-entry animate-hero-delay-1 mt-6 text-4xl font-bold leading-[1.04] text-foreground sm:text-6xl lg:text-7xl">
+            <h1 className="animate-hero-entry animate-hero-delay-1 mt-6 text-3xl font-bold leading-[1.08] text-foreground sm:text-6xl lg:text-7xl">
               Your cleaning business deserves a website that brings customers to you.
             </h1>
             <p className="animate-hero-entry animate-hero-delay-2 mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
               Build a professional cleaning business website in minutes — without hiring a developer or paying a $1,500+ agency bill.
             </p>
             <p className="mt-5 font-display text-2xl font-bold text-accent">Starting at $37/month</p>
-            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-foreground">
+            <div className="mt-5 grid gap-2 text-sm font-semibold text-foreground sm:flex sm:flex-wrap sm:gap-x-5">
               {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
             </div>
             <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col gap-3 sm:flex-row">
