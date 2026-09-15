@@ -109,6 +109,7 @@ function AuthPage() {
         setCheckEmail(true);
         return;
       }
+      if (data.user) trackCompleteRegistration(data.user.id, "email");
       toast.success("Account created");
       void navigate({ to: "/onboarding", replace: true });
       return;
