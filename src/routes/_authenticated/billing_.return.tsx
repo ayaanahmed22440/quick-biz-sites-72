@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/billing_/return")({
 type State = "checking" | "active" | "slow";
 
 function BillingReturnPage() {
-  const { session } = Route.useSearch();
+  const { session, checkout_id: polarCheckoutId } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const checkState = useServerFn(checkSubscriptionState);
