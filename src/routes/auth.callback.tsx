@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { trackCompleteRegistration } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
@@ -25,6 +26,12 @@ function CallbackPage() {
         const { data } = await supabase.auth.getSession();
         if (cancelled) return;
         if (data.session) {
+          // Brand-new accounts (social sign-up) count as a registration.
+          const user = data.session.user;
+          const createdAt = user.created_at ? Date.parse(user.created_at) : NaN;
+          if (!Number.isNaN(createdAt) && Date.now() - createdAt < 5 * 60 * 1000) {
+            trackCompleteRegistration(user.id, user.app_metadata?.provider ?? "social");
+          }
           const target = sessionStorage.getItem("ww:after-login");
           sessionStorage.removeItem("ww:after-login");
           void navigate({ to: target === "/admin" ? "/admin" : "/dashboard", replace: true });

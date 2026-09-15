@@ -13,7 +13,12 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { META_PIXEL_ID, metaPixelSnippet, startMetaPixel } from "@/lib/meta-pixel";
+import {
+  META_PIXEL_ID,
+  metaPixelSnippet,
+  startMetaPixel,
+  trackPageView,
+} from "@/lib/meta-pixel";
 
 function NotFoundComponent() {
   return (
@@ -163,6 +168,20 @@ function RootComponent() {
   useEffect(() => {
     void startMetaPixel();
   }, []);
+
+  // Single-page navigation still counts as a page view for Meta.
+  useEffect(() => {
+    let first = true;
+    const unsubscribe = router.subscribe("onResolved", ({ fromLocation, toLocation }) => {
+      if (first) {
+        first = false;
+        return;
+      }
+      if (fromLocation?.pathname === toLocation.pathname) return;
+      trackPageView();
+    });
+    return unsubscribe;
+  }, [router]);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {

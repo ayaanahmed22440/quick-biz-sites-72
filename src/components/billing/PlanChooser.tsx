@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { startCheckout } from "@/lib/billing.functions";
 import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
+import { trackInitiateCheckout } from "@/lib/meta-pixel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,13 @@ export function PlanChooser({
 
   async function choose(planId: string) {
     setPending(planId);
+    const copy = PLAN_COPY.find((p) => p.id === planId.replace(/_yearly$/, ""));
+    if (copy) {
+      trackInitiateCheckout({
+        planId,
+        value: planId.endsWith("_yearly") ? yearlyPrice(copy.price) : copy.price,
+      });
+    }
     try {
       const result = await checkout({
         data: { planId, returnPath, ...(businessId ? { businessId } : {}) },
