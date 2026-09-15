@@ -83,7 +83,7 @@ function isPlatformHost(host: string) {
   );
 }
 
-export type HostedSite = { slug: string; site: PublishedSite };
+export type HostedSite = { slug: string; site: PublishedSite; canonicalUrl: string };
 
 /**
  * Works out whether the current request arrived on a customer's own domain.
@@ -124,7 +124,11 @@ export const getSiteForHost = createServerFn({ method: "GET" })
     const supabase = publicClient();
     const { data: site } = await supabase.rpc("get_published_site", { p_slug: business.slug });
     if (!site) return null;
-    return { slug: business.slug, site: site as PublishedSite } satisfies HostedSite;
+    return {
+      slug: business.slug,
+      site: site as PublishedSite,
+      canonicalUrl: `https://${raw}/`,
+    } satisfies HostedSite;
   });
 
 export const submitWebsiteLead = createServerFn({ method: "POST" })
