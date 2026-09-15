@@ -46,10 +46,12 @@ function BillingReturnPage() {
 
     async function run() {
       let destination = "/dashboard";
+      let planId: string | null = null;
       if (session) {
         try {
           const info = await getReturn({ data: { sessionId: session } });
           destination = info.returnPath;
+          planId = info.planId;
         } catch {
           /* fall back to the dashboard */
         }
