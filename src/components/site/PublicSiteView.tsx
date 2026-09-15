@@ -3,7 +3,11 @@ import { submitWebsiteLead, type PublishedSite } from "@/lib/public-site.functio
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
-export function publicSiteMeta(site: PublishedSite | null | undefined, slug?: string) {
+export function publicSiteMeta(
+  site: PublishedSite | null | undefined,
+  slug?: string,
+  canonicalUrl?: string,
+) {
   if (!site) return {};
   const b = site.business;
   const place = b.city ?? site.seo?.primary_city ?? "";
@@ -26,8 +30,8 @@ export function publicSiteMeta(site: PublishedSite | null | undefined, slug?: st
         ? [{ name: "robots", content: "noindex" }]
         : []),
     ],
-    links: slug
-      ? [{ rel: "canonical", href: `https://www.webwarheads.com/${slug}` }]
+    links: canonicalUrl || slug
+      ? [{ rel: "canonical", href: canonicalUrl ?? `https://www.webwarheads.com/${slug}` }]
       : [],
   };
 }
