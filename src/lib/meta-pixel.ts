@@ -86,6 +86,46 @@ export function trackEvent(
   if (typeof window === "undefined" || !started) return;
   if (metaPixelDebug()) console.log("[meta-pixel]", name, params, { eventID: eventId });
   window.fbq?.("track", name, params, { eventID: eventId });
+  void sendServerCopy(name, params, eventId);
+}
+
+function cookie(name: string): string | undefined {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]!) : undefined;
+}
+
+/**
+ * Conversions API copy of the same event. Fire-and-forget: a failure here can
+ * never affect the page, and the shared eventID lets Meta deduplicate.
+ */
+async function sendServerCopy(
+  name: string,
+  params: Record<string, unknown>,
+  eventId: string,
+): Promise<void> {
+  try {
+    const { trackServerEvent } = await import("./meta-capi.functions");
+    const { value, currency, ...custom } = params as {
+      value?: number;
+      currency?: string;
+    } & Record<string, unknown>;
+    const fbp = cookie("_fbp");
+    const fbc = cookie("_fbc");
+    await trackServerEvent({
+      data: {
+        eventName: name,
+        eventId,
+        eventSourceUrl: window.location.href.slice(0, 500),
+        ...(typeof value === "number" ? { value } : {}),
+        ...(currency ? { currency } : {}),
+        ...(fbp ? { fbp } : {}),
+        ...(fbc ? { fbc } : {}),
+        ...(Object.keys(custom).length ? { customData: custom } : {}),
+      },
+    });
+  } catch (error) {
+    if (metaPixelDebug()) console.warn("[meta-capi] failed", error);
+  }
 }
 
 /** Page view for in-app navigation (the first one comes from startMetaPixel). */
