@@ -100,6 +100,14 @@ const showcaseDetails: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Phone, "Contact / Quote", "Make it easy for customers to get in touch."],
 ];
 
+const trustMarkers: ReadonlyArray<readonly [LucideIcon, string, string]> = [
+  [ShieldCheck, "Preview first", "See it before paying"],
+  [Smartphone, "Mobile-ready", "Looks sharp on phones"],
+  [MapPin, "Your own domain", "Use your business address"],
+  [Wrench, "Edit anytime", "Stay in control"],
+  [BadgeCheck, "Hosting included", "One less thing to manage"],
+];
+
 const faqs = [
   ["Do I need coding experience?", "No. WebWarHeads is designed for business owners who don't know how to code."],
   ["Do I need to hire a developer?", "No. You build and customize the website yourself."],
@@ -187,39 +195,50 @@ function CleaningBusinessLandingPage() {
 
   return (
     <PublicLayout>
+      <div className="font-cleaning-sans [&_h1]:font-cleaning-display [&_h2]:font-cleaning-display [&_h3]:font-cleaning-display">
       <section className="overflow-hidden bg-background">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 pb-20 pt-14 sm:px-6 sm:pt-20 lg:grid-cols-[.88fr_1.12fr] lg:px-8 lg:pb-28">
-          <div>
-            <div className="animate-hero-entry inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 text-xs font-bold uppercase text-accent">
-              <Sparkles className="h-3.5 w-3.5" /> Built for cleaning businesses
+        <div className="mx-auto max-w-7xl px-4 pb-20 pt-14 text-center sm:px-6 sm:pt-20 lg:px-8 lg:pb-28">
+          <div className="mx-auto max-w-5xl">
+            <div className="animate-hero-entry inline-flex items-center gap-2 rounded-full border border-accent/25 bg-cleaning-surface px-4 py-2 text-xs font-bold uppercase text-foreground">
+              <Sparkles className="h-3.5 w-3.5 text-accent" /> Built for cleaning businesses
             </div>
-            <h1 className="animate-hero-entry animate-hero-delay-1 mt-6 text-3xl font-bold leading-[1.08] text-foreground sm:text-6xl lg:text-7xl">
-              Your cleaning business deserves a website that brings customers to you.
+            <h1 className="animate-hero-entry animate-hero-delay-1 mx-auto mt-7 max-w-5xl text-4xl font-black leading-[1.05] text-foreground sm:text-6xl lg:text-7xl">
+              A professional cleaning website. <span className="text-accent">Without the $1,500+ agency bill.</span>
             </h1>
-            <p className="animate-hero-entry animate-hero-delay-2 mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-              Build a professional cleaning business website in minutes — without hiring a developer or paying a $1,500+ agency bill.
+            <p className="animate-hero-entry animate-hero-delay-2 mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
+              Build a website made for your cleaning business, add your services and photos, then preview the whole thing before you pay.
             </p>
-            <p className="mt-5 font-display text-2xl font-bold text-accent">Starting at $37/month</p>
-            <div className="mt-5 grid gap-2 text-sm font-semibold text-foreground sm:flex sm:flex-wrap sm:gap-x-5">
-              {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
+            <p className="mt-6 font-cleaning-display text-2xl text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
+            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <BuildButton className="h-14 px-10 text-base" />
+              <Button asChild size="lg" variant="outline" className="h-14 border-2 border-navy px-10 text-base text-navy"><Link to="/how-it-works">See How It Works</Link></Button>
             </div>
-            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col gap-3 sm:flex-row">
-              <BuildButton />
-              <Button asChild size="lg" variant="outline" className="h-12 px-7"><Link to="/how-it-works">See How It Works</Link></Button>
+            <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-foreground">
+              {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
             </div>
             <p className="mt-4 text-sm font-semibold text-muted-foreground">Build it. Preview it. Launch it.</p>
           </div>
-          <div className="animate-product-rise pb-6"><CleaningSiteMockup /></div>
+
+          <div className="animate-product-rise mx-auto mt-14 max-w-5xl pb-8 sm:mt-16"><CleaningSiteMockup large /></div>
+
+          <div className="mx-auto mt-4 grid max-w-5xl overflow-hidden rounded-xl border border-border bg-cleaning-surface sm:grid-cols-5">
+            {trustMarkers.map(([Icon, title, body], index) => (
+              <div key={String(title)} className={`flex items-center justify-center gap-3 px-4 py-5 text-left ${index > 0 ? "border-t border-border sm:border-l sm:border-t-0" : ""}`}>
+                <Icon className="h-5 w-5 shrink-0 text-accent" />
+                <div><p className="text-sm font-bold text-foreground">{title}</p><p className="text-xs text-muted-foreground">{body}</p></div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="border-y border-border bg-muted/50 py-20 sm:py-28" data-cleaning-reveal>
         <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
+          <div className="mx-auto max-w-4xl text-center">
             <p className="text-sm font-bold uppercase text-accent">The first impression matters</p>
             <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">You're great at cleaning. Your website shouldn't make you look like you're not.</h2>
             <p className="mt-5 text-xl font-semibold text-foreground">Your customers aren't just buying a clean house. They're trusting you with their home.</p>
-            <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">Before booking, homeowners often want to see who you are, what you offer, where you work, what other customers say and how to contact you. If they can't find that quickly, they may move on.</p>
+            <p className="mx-auto mt-4 max-w-3xl leading-7 text-muted-foreground">Before booking, homeowners often want to see who you are, what you offer, where you work, what other customers say and how to contact you. If they can't find that quickly, they may move on.</p>
           </div>
           <div className="mt-12 grid overflow-hidden rounded-lg border border-border lg:grid-cols-2">
             <div className="bg-card p-6 sm:p-9">
@@ -231,7 +250,7 @@ function CleaningBusinessLandingPage() {
               <div className="mt-6 space-y-3">{trustJourney.map((item, index) => <div key={item}><div className="flex items-center gap-3 font-semibold"><Check className="h-5 w-5 shrink-0 text-success" />{item}</div>{index < trustJourney.length - 1 ? <ArrowDown className="ml-1.5 mt-2 h-4 w-4 text-navy-foreground/50" /> : null}</div>)}</div>
             </div>
           </div>
-          <div className="mt-9"><BuildButton /></div>
+          <div className="mt-9 text-center"><BuildButton /></div>
         </div>
       </section>
 
@@ -266,9 +285,9 @@ function CleaningBusinessLandingPage() {
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
         <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl"><p className="text-sm font-bold uppercase text-accent">How it works</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Your cleaning website in a few simple steps.</h2></div>
+          <div className="mx-auto max-w-3xl text-center"><p className="text-sm font-bold uppercase text-accent">How it works</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Your cleaning website in a few simple steps.</h2></div>
           <ol className="mt-14 border-t border-border">{steps.map(([number, title, body]) => <li key={number} className="grid gap-4 border-b border-border py-7 sm:grid-cols-[80px_1fr_1.2fr] sm:items-center"><span className="font-display text-2xl font-bold text-accent">{number}</span><h3 className="text-xl font-bold text-foreground">{title}</h3><p className="leading-7 text-muted-foreground">{body}</p></li>)}</ol>
-          <div className="mt-9"><BuildButton /></div>
+          <div className="mt-9 text-center"><BuildButton /></div>
         </div>
       </section>
 
@@ -287,9 +306,9 @@ function CleaningBusinessLandingPage() {
 
       <section className="bg-background py-20 sm:py-28" data-cleaning-reveal>
         <div className="home-reveal mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl"><p className="text-sm font-bold uppercase text-accent">Made for the way you work</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Built around what cleaning businesses actually need.</h2></div>
+          <div className="mx-auto max-w-3xl text-center"><p className="text-sm font-bold uppercase text-accent">Made for the way you work</p><h2 className="mt-4 text-3xl font-bold text-foreground sm:text-5xl">Built around what cleaning businesses actually need.</h2></div>
           <div className="mt-14 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">{benefits.map(([Icon, title, body]) => <article key={title} className="border-t-2 border-navy pt-6"><Icon className="h-6 w-6 text-accent" /><h3 className="mt-5 text-lg font-bold text-foreground">{title}</h3><p className="mt-2 leading-6 text-muted-foreground">{body}</p></article>)}</div>
-          <div className="mt-12"><BuildButton /></div>
+          <div className="mt-12 text-center"><BuildButton /></div>
         </div>
       </section>
 
@@ -349,6 +368,7 @@ function CleaningBusinessLandingPage() {
       <section className="bg-background py-16 sm:py-20" data-cleaning-reveal>
         <div className="home-reveal mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 px-4 sm:px-6 md:flex-row md:items-center lg:px-8"><div><p className="text-sm font-bold uppercase text-accent">Built for small cleaning businesses</p><h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">You shouldn't need to understand web development to look professional online.</h2><p className="mt-3 max-w-3xl text-muted-foreground">WebWarHeads gives cleaning business owners a simpler way to build, preview and launch their own website.</p></div><BuildButton /></div>
       </section>
+      </div>
     </PublicLayout>
   );
 }
