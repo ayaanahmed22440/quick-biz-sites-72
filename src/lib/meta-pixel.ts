@@ -54,10 +54,33 @@ export function trackLead() {
   window.fbq?.("track", "Lead");
 }
 
-/** A plan payment completed. */
-export function trackPurchase(opts: { value?: number; currency?: string } = {}) {
-  window.fbq?.("track", "Purchase", {
-    value: opts.value ?? 0,
-    currency: opts.currency ?? "USD",
-  });
+/** Debug payload logging only with ?fbdebug=1 — never in normal production use. */
+function metaPixelDebug(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).has("fbdebug");
+}
+
+/**
+ * A plan payment completed. When an eventId (the Polar checkout/order id) is
+ * given, the event fires at most once per order per tab session — refreshes of
+ * the success page don't double-count — and is sent with Meta's eventID so it
+ * can be deduplicated against a server-side event later.
+ */
+export function trackPurchase(opts: { value?: number; currency?: string; eventId?: string } = {}) {
+  if (typeof window === "undefined") return;
+  const eventId = opts.eventId?.trim() || undefined;
+  if (eventId) {
+    const key = `ww_purchase_${eventId}`;
+    if (window.sessionStorage.getItem(key)) return;
+    window.sessionStorage.setItem(key, "1");
+  }
+  const params = { value: opts.value ?? 0, currency: opts.currency ?? "USD" };
+  if (metaPixelDebug()) {
+    console.log("[meta-pixel] Purchase", params, eventId ? { eventID: eventId } : {});
+  }
+  if (eventId) {
+    window.fbq?.("track", "Purchase", params, { eventID: eventId });
+  } else {
+    window.fbq?.("track", "Purchase", params);
+  }
 }
