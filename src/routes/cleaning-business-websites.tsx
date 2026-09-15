@@ -100,6 +100,14 @@ const showcaseDetails: ReadonlyArray<readonly [LucideIcon, string, string]> = [
   [Phone, "Contact / Quote", "Make it easy for customers to get in touch."],
 ];
 
+const trustMarkers: ReadonlyArray<readonly [LucideIcon, string, string]> = [
+  [ShieldCheck, "Preview first", "See it before paying"],
+  [Smartphone, "Mobile-ready", "Looks sharp on phones"],
+  [MapPin, "Your own domain", "Use your business address"],
+  [Wrench, "Edit anytime", "Stay in control"],
+  [BadgeCheck, "Hosting included", "One less thing to manage"],
+];
+
 const faqs = [
   ["Do I need coding experience?", "No. WebWarHeads is designed for business owners who don't know how to code."],
   ["Do I need to hire a developer?", "No. You build and customize the website yourself."],
@@ -214,13 +222,7 @@ function CleaningBusinessLandingPage() {
           <div className="animate-product-rise mx-auto mt-14 max-w-5xl pb-8 sm:mt-16"><CleaningSiteMockup large /></div>
 
           <div className="mx-auto mt-4 grid max-w-5xl overflow-hidden rounded-xl border border-border bg-cleaning-surface sm:grid-cols-5">
-            {[
-              [ShieldCheck, "Preview first", "See it before paying"],
-              [Smartphone, "Mobile-ready", "Looks sharp on phones"],
-              [MapPin, "Your own domain", "Use your business address"],
-              [Wrench, "Edit anytime", "Stay in control"],
-              [BadgeCheck, "Hosting included", "One less thing to manage"],
-            ].map(([Icon, title, body], index) => (
+            {trustMarkers.map(([Icon, title, body], index) => (
               <div key={String(title)} className={`flex items-center justify-center gap-3 px-4 py-5 text-left ${index > 0 ? "border-t border-border sm:border-l sm:border-t-0" : ""}`}>
                 <Icon className="h-5 w-5 shrink-0 text-accent" />
                 <div><p className="text-sm font-bold text-foreground">{title}</p><p className="text-xs text-muted-foreground">{body}</p></div>
