@@ -8,8 +8,13 @@ import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functio
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { trackPurchase } from "@/lib/meta-pixel";
+import { isYearly, planCopy, yearlyPrice } from "@/lib/plans";
 
-const search = z.object({ session: z.string().optional() });
+const search = z.object({
+  session: z.string().optional(),
+  /** Appended by Polar to the success URL after payment. */
+  checkout_id: z.string().optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/billing_/return")({
   validateSearch: search,
@@ -26,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/billing_/return")({
 type State = "checking" | "active" | "slow";
 
 function BillingReturnPage() {
-  const { session } = Route.useSearch();
+  const { session, checkout_id: polarCheckoutId } = Route.useSearch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const checkState = useServerFn(checkSubscriptionState);
@@ -41,10 +46,12 @@ function BillingReturnPage() {
 
     async function run() {
       let destination = "/dashboard";
+      let planId: string | null = null;
       if (session) {
         try {
           const info = await getReturn({ data: { sessionId: session } });
           destination = info.returnPath;
+          planId = info.planId;
         } catch {
           /* fall back to the dashboard */
         }
@@ -58,7 +65,16 @@ function BillingReturnPage() {
             await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
             if (cancelled) return;
             // Primary ad conversion — a payment the backend has confirmed.
-            trackPurchase();
+            // Polar only appends checkout_id to the return URL (no amount), so
+            // the value comes from the confirmed plan's price.
+            const copy = planCopy(planId);
+            const value = copy ? (isYearly(planId) ? yearlyPrice(copy.price) : copy.price) : 0;
+            const eventId = polarCheckoutId ?? session;
+            trackPurchase({
+              value,
+              currency: "USD",
+              ...(eventId ? { eventId } : {}),
+            });
             setState("active");
             setTimeout(() => void navigate({ to: destination }), 1200);
             return;
