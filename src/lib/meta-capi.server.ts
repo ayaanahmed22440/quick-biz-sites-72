@@ -18,15 +18,15 @@ async function sha256(value: string): Promise<string> {
 export type ServerEventInput = {
   eventName: string;
   eventId: string;
-  eventSourceUrl?: string;
-  email?: string;
-  externalId?: string;
-  fbp?: string;
-  fbc?: string;
-  value?: number;
-  currency?: string;
-  customData?: Record<string, unknown>;
-  testEventCode?: string;
+  eventSourceUrl?: string | undefined;
+  email?: string | undefined;
+  externalId?: string | undefined;
+  fbp?: string | undefined;
+  fbc?: string | undefined;
+  value?: number | undefined;
+  currency?: string | undefined;
+  customData?: Record<string, unknown> | undefined;
+  testEventCode?: string | undefined;
 };
 
 /** Posts one event to Meta. Never throws — tracking must not break a request. */
