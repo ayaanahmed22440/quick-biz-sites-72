@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -25,8 +25,13 @@ import type { LucideIcon } from "lucide-react";
 import cleaningHero from "@/assets/templates/cleaning-hero.jpg";
 import cleaningGalleryOne from "@/assets/templates/cleaning-gallery-1.jpg";
 import cleaningGalleryTwo from "@/assets/templates/cleaning-gallery-2.jpg";
+import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { PublicLayout } from "@/components/site/PublicLayout";
+import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { Button } from "@/components/ui/button";
+import { defaultSiteContent } from "@/lib/site-content";
+import { previewDataFor } from "@/lib/template-preview-data";
+import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 import {
   Accordion,
   AccordionContent,
@@ -130,6 +135,20 @@ function BuildButton({ label = "Build My Website", className = "" }: { label?: s
 }
 
 function CleaningSiteMockup({ large = false }: { large?: boolean }) {
+  const cleaningPreset = TEMPLATE_PRESETS.find((preset) => preset.niche === "cleaning");
+  const previewData = previewDataFor("cleaning");
+  const content = useMemo(
+    () =>
+      defaultSiteContent({
+        businessName: previewData.business.name,
+        city: previewData.business.city,
+        primaryService: cleaningPreset?.copy.service ?? "Residential cleaning",
+        primaryColor: cleaningPreset?.accent ?? null,
+        templateId: cleaningPreset?.templateId ?? "cleaning-01",
+      }),
+    [cleaningPreset, previewData.business.city, previewData.business.name],
+  );
+
   return (
     <div className={large ? "mx-auto w-full max-w-6xl" : "w-full"}>
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-navy/15">
@@ -139,45 +158,30 @@ function CleaningSiteMockup({ large = false }: { large?: boolean }) {
           <span className="h-2.5 w-2.5 rounded-full bg-success" />
           <div className="mx-auto rounded-md border border-border bg-background px-5 py-1 text-[10px] text-muted-foreground sm:text-xs">sparkleandshinecleaning.com</div>
         </div>
-        <div className="bg-background">
-          <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
-            <div className="font-display text-sm font-bold text-navy sm:text-base">SPARKLE & SHINE</div>
-            <div className="hidden gap-5 text-xs font-semibold text-muted-foreground sm:flex"><span>Services</span><span>About</span><span>Reviews</span></div>
-            <span className="rounded-md bg-navy px-3 py-2 text-[10px] font-bold text-navy-foreground sm:text-xs">GET A FREE QUOTE</span>
-          </div>
-          <div className="relative aspect-[16/8] min-h-56 overflow-hidden sm:min-h-72">
-            <img src={cleaningHero} alt="Professional cleaner working in a bright American kitchen" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/50 to-transparent" />
-            <div className="absolute inset-y-0 left-0 flex max-w-[78%] flex-col justify-center p-5 text-navy-foreground sm:max-w-[62%] sm:p-10">
-              <span className="text-[9px] font-bold uppercase sm:text-xs">Charlotte's trusted cleaning team</span>
-              <h3 className="mt-2 text-xl font-bold leading-tight sm:text-4xl">A cleaner home. More time for what matters.</h3>
-              <p className="mt-3 hidden max-w-md text-sm text-navy-foreground/80 sm:block">Reliable residential and commercial cleaning with clear communication from start to finish.</p>
-              <span className="mt-4 w-fit rounded-md bg-accent px-4 py-2 text-[10px] font-bold text-accent-foreground sm:text-xs">REQUEST A QUOTE</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-px bg-border">
-            {["Residential Cleaning", "Deep Cleaning", "Move-In / Move-Out"].map((service) => (
-              <div key={service} className="bg-card px-2 py-4 text-center text-[9px] font-bold text-foreground sm:px-4 sm:py-6 sm:text-xs">{service}</div>
-            ))}
+        <div className="bg-muted/40 p-2 sm:p-5">
+          <div className="overflow-hidden rounded-lg border border-border bg-background shadow-xl">
+            <PreviewFrame width={1280} height={large ? 900 : 760}>
+              <LocalBusinessTemplate
+                business={previewData.business}
+                content={content}
+                services={previewData.services}
+                areas={previewData.areas}
+                hours={previewData.hours}
+                reviews={previewData.reviews}
+                previewOnly
+              />
+            </PreviewFrame>
           </div>
         </div>
       </div>
-      <div className="relative mx-auto -mt-24 mr-2 w-[30%] min-w-28 overflow-hidden rounded-[1.35rem] border-4 border-navy bg-background shadow-2xl sm:-mt-36 sm:mr-5">
-        <div className="mx-auto mt-1 h-1.5 w-10 rounded-full bg-navy" />
-        <img src={cleaningHero} alt="Mobile view of the cleaning company website" className="mt-1 aspect-[4/5] w-full object-cover" />
-        <div className="space-y-1.5 p-2">
-          <div className="h-1.5 w-4/5 rounded-full bg-navy" />
-          <div className="h-1.5 w-3/5 rounded-full bg-muted" />
-          <div className="mt-2 rounded bg-accent py-1 text-center text-[7px] font-bold text-accent-foreground">GET A QUOTE</div>
-        </div>
-      </div>
+      <div className="mx-auto h-8 w-[82%] rounded-b-full bg-navy/10 blur-xl" aria-hidden="true" />
     </div>
   );
 }
 
 function CleaningBusinessLandingPage() {
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-cleaning-reveal]"));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-cleaning-reveal] .home-reveal"));
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       sections.forEach((section) => section.classList.add("is-visible"));
       return;
@@ -195,7 +199,6 @@ function CleaningBusinessLandingPage() {
 
   return (
     <PublicLayout>
-      <div className="font-cleaning-sans [&_h1]:font-cleaning-display [&_h2]:font-cleaning-display [&_h3]:font-cleaning-display">
       <section className="overflow-hidden bg-background">
         <div className="mx-auto max-w-7xl px-4 pb-20 pt-14 text-center sm:px-6 sm:pt-20 lg:px-8 lg:pb-28">
           <div className="mx-auto max-w-5xl">
@@ -208,7 +211,7 @@ function CleaningBusinessLandingPage() {
             <p className="animate-hero-entry animate-hero-delay-2 mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
               Build a website made for your cleaning business, add your services and photos, then preview the whole thing before you pay.
             </p>
-            <p className="mt-6 font-cleaning-display text-2xl text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
+            <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
             <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <BuildButton className="h-14 px-10 text-base" />
               <Button asChild size="lg" variant="outline" className="h-14 border-2 border-navy px-10 text-base text-navy"><Link to="/how-it-works">See How It Works</Link></Button>
@@ -368,7 +371,6 @@ function CleaningBusinessLandingPage() {
       <section className="bg-background py-16 sm:py-20" data-cleaning-reveal>
         <div className="home-reveal mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 px-4 sm:px-6 md:flex-row md:items-center lg:px-8"><div><p className="text-sm font-bold uppercase text-accent">Built for small cleaning businesses</p><h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">You shouldn't need to understand web development to look professional online.</h2><p className="mt-3 max-w-3xl text-muted-foreground">WebWarHeads gives cleaning business owners a simpler way to build, preview and launch their own website.</p></div><BuildButton /></div>
       </section>
-      </div>
     </PublicLayout>
   );
 }
