@@ -13,6 +13,8 @@
 @theme inline {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-cleaning-display: "Archivo Black", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-cleaning-sans: "Hind", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -46,6 +48,7 @@
   --color-navy-muted: var(--navy-muted);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+  --color-cleaning-surface: var(--cleaning-surface);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
@@ -60,6 +63,7 @@
   --navy-foreground: oklch(0.99 0 0);
   --brand: oklch(0.63 0.24 356);
   --brand-foreground: oklch(0.99 0 0);
+  --cleaning-surface: oklch(0.97 0.018 178);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.22 0.06 274);
