@@ -181,6 +181,10 @@ function CleaningSiteMockup({ large = false }: { large?: boolean }) {
 }
 
 function CleaningBusinessLandingPage() {
+  useEffect(() => {
+    trackViewContent("cleaning_business_websites");
+  }, []);
+
   return (
     <PublicLayout>
       <section className="overflow-hidden bg-background">
