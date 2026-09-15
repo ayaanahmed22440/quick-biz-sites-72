@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -180,23 +180,6 @@ function CleaningSiteMockup({ large = false }: { large?: boolean }) {
 }
 
 function CleaningBusinessLandingPage() {
-  useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-cleaning-reveal] .home-reveal"));
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      sections.forEach((section) => section.classList.add("is-visible"));
-      return;
-    }
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        observer.unobserve(entry.target);
-      });
-    }, { rootMargin: "0px 0px -10%", threshold: 0.08 });
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <PublicLayout>
       <section className="overflow-hidden bg-background">
