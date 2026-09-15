@@ -169,15 +169,13 @@ function RootComponent() {
     void startMetaPixel();
   }, []);
 
-  // Single-page navigation still counts as a page view for Meta.
+  // Single-page navigation still counts as a page view for Meta. The very
+  // first page view comes from startMetaPixel, so only path changes count.
   useEffect(() => {
-    let first = true;
-    const unsubscribe = router.subscribe("onResolved", ({ fromLocation, toLocation }) => {
-      if (first) {
-        first = false;
-        return;
-      }
-      if (fromLocation?.pathname === toLocation.pathname) return;
+    let lastPath = window.location.pathname;
+    const unsubscribe = router.subscribe("onResolved", ({ toLocation }) => {
+      if (toLocation.pathname === lastPath) return;
+      lastPath = toLocation.pathname;
       trackPageView();
     });
     return unsubscribe;
