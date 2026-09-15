@@ -69,10 +69,11 @@ function BillingReturnPage() {
             // the value comes from the confirmed plan's price.
             const copy = planCopy(planId);
             const value = copy ? (isYearly(planId) ? yearlyPrice(copy.price) : copy.price) : 0;
+            const eventId = polarCheckoutId ?? session;
             trackPurchase({
               value,
               currency: "USD",
-              eventId: polarCheckoutId ?? session ?? undefined,
+              ...(eventId ? { eventId } : {}),
             });
             setState("active");
             setTimeout(() => void navigate({ to: destination }), 1200);
