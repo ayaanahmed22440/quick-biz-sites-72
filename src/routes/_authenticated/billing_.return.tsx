@@ -8,8 +8,13 @@ import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functio
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { trackPurchase } from "@/lib/meta-pixel";
+import { isYearly, planCopy, yearlyPrice } from "@/lib/plans";
 
-const search = z.object({ session: z.string().optional() });
+const search = z.object({
+  session: z.string().optional(),
+  /** Appended by Polar to the success URL after payment. */
+  checkout_id: z.string().optional(),
+});
 
 export const Route = createFileRoute("/_authenticated/billing_/return")({
   validateSearch: search,
