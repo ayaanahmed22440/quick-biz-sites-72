@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowDown,
@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button";
 import { defaultSiteContent } from "@/lib/site-content";
 import { previewDataFor } from "@/lib/template-preview-data";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
+import { trackViewContent } from "@/lib/meta-pixel";
 import {
   Accordion,
   AccordionContent,
