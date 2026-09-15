@@ -16,6 +16,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
+import { Route as CleaningBusinessWebsitesRouteImport } from './routes/cleaning-business-websites'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -89,6 +90,12 @@ const CancellationPolicyRoute = CancellationPolicyRouteImport.update({
   path: '/cancellation-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CleaningBusinessWebsitesRoute =
+  CleaningBusinessWebsitesRouteImport.update({
+    id: '/cleaning-business-websites',
+    path: '/cleaning-business-websites',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -293,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
+  '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
@@ -339,6 +347,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteWithChildren
   '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
+  '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
@@ -387,6 +396,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/blog': typeof BlogRoute
   '/cancellation-policy': typeof CancellationPolicyRoute
+  '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/cancellation-policy'
+    | '/cleaning-business-websites'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/cancellation-policy'
+    | '/cleaning-business-websites'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
@@ -528,6 +540,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/cancellation-policy'
+    | '/cleaning-business-websites'
     | '/contact'
     | '/how-it-works'
     | '/onboarding'
@@ -576,6 +589,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   BlogRoute: typeof BlogRoute
   CancellationPolicyRoute: typeof CancellationPolicyRoute
+  CleaningBusinessWebsitesRoute: typeof CleaningBusinessWebsitesRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
   OnboardingRoute: typeof OnboardingRoute
@@ -643,6 +657,13 @@ declare module '@tanstack/react-router' {
       path: '/cancellation-policy'
       fullPath: '/cancellation-policy'
       preLoaderRoute: typeof CancellationPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cleaning-business-websites': {
+      id: '/cleaning-business-websites'
+      path: '/cleaning-business-websites'
+      fullPath: '/cleaning-business-websites'
+      preLoaderRoute: typeof CleaningBusinessWebsitesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -983,6 +1004,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   BlogRoute: BlogRoute,
   CancellationPolicyRoute: CancellationPolicyRoute,
+  CleaningBusinessWebsitesRoute: CleaningBusinessWebsitesRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
   OnboardingRoute: OnboardingRoute,
