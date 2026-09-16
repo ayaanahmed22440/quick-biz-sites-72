@@ -226,11 +226,28 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
                 <td className="px-4 py-3 text-muted-foreground">
                   {user.lastSignInAt ? when(user.lastSignInAt) : "—"}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Button variant="outline" size="sm" onClick={() => setOpen(user)}>
-                    Answers
-                  </Button>
+                <td className="px-4 py-3">
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setOpen(user)}>
+                      Answers
+                    </Button>
+                    {user.isStaff ? null : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setConfirmed(false);
+                          setToDelete(user);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete account</span>
+                      </Button>
+                    )}
+                  </div>
                 </td>
+
               </tr>
             ))}
             {rows.length === 0 ? (
