@@ -1,16 +1,27 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Bell, CheckCircle2, PauseCircle, UserPlus } from "lucide-react";
+import { Bell, CheckCircle2, PauseCircle, Trash2, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 import { listPlatformUsers, type PlatformUser } from "@/lib/users.functions";
+import { deleteUserAccount } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const ADMIN_USERS_KEY = ["admin-users"] as const;
 const SEEN_KEY = "ww-admin-notifications-seen";
+
 
 export function useAdminUsers(enabled: boolean) {
   const load = useServerFn(listPlatformUsers);
