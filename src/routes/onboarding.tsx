@@ -491,6 +491,55 @@ function OnboardingPage() {
     }
   }
 
+  /**
+   * Records how far this person got and what they answered, so the team can
+   * see who finished and where anyone dropped out. Never blocks the wizard.
+   */
+  async function saveProgress(stepIdx: number, completed: boolean) {
+    try {
+      const { data } = await supabase.auth.getUser();
+      const user = data.user;
+      if (!user) return;
+      const current = STEPS[stepIdx];
+      const answers: Record<string, string> = {};
+      const entries: [string, string][] = [
+        ["Trade", draft.niche],
+        ["Business name", draft.name],
+        ["Main service", draft.primary_service],
+        ["About the business", draft.description],
+        ["Phone", draft.phone],
+        ["Email", draft.email],
+        ["Town", draft.city],
+        ["State", draft.state],
+        ["Services", draft.services],
+        ["Other areas", draft.areas],
+        ["Main colour", draft.primary_color],
+        ["Google reviews link", draft.google_url],
+      ];
+      for (const [label, value] of entries) {
+        if (value && value.trim()) answers[label] = value.trim().slice(0, 500);
+      }
+      await supabase.from("onboarding_progress").upsert(
+        {
+          user_id: user.id,
+          business_id: businessId,
+          email: draft.email.trim() || user.email || null,
+          full_name: draft.name.trim() || null,
+          last_step: current?.key ?? "niche",
+          last_step_label: current?.question ?? null,
+          step_index: stepIdx,
+          total_steps: STEPS.length,
+          answers: answers as never,
+          completed,
+          completed_at: completed ? new Date().toISOString() : null,
+        },
+        { onConflict: "user_id" },
+      );
+    } catch (progressError) {
+      console.error("Onboarding progress not saved", progressError);
+    }
+  }
+
   async function next() {
     const message = step.validate?.(draft) ?? null;
     if (message) {
@@ -506,6 +555,7 @@ function OnboardingPage() {
       if (!id) return;
     }
     if (businessId) await persistStep(step.key, businessId);
+    await saveProgress(index, false);
     if (isLast) {
       await finish();
       return;
