@@ -1,16 +1,27 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Bell, CheckCircle2, PauseCircle, UserPlus } from "lucide-react";
+import { Bell, CheckCircle2, PauseCircle, Trash2, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 import { listPlatformUsers, type PlatformUser } from "@/lib/users.functions";
+import { deleteUserAccount } from "@/lib/admin.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const ADMIN_USERS_KEY = ["admin-users"] as const;
 const SEEN_KEY = "ww-admin-notifications-seen";
+
 
 export function useAdminUsers(enabled: boolean) {
   const load = useServerFn(listPlatformUsers);
@@ -117,6 +128,23 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
   const users = useAdminUsers(enabled);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState<PlatformUser | null>(null);
+  const [toDelete, setToDelete] = useState<PlatformUser | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const queryClient = useQueryClient();
+  const removeUser = useServerFn(deleteUserAccount);
+
+  const deletion = useMutation({
+    mutationFn: (userId: string) => removeUser({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Account deleted for good");
+      setToDelete(null);
+      setConfirmed(false);
+      void queryClient.invalidateQueries({ queryKey: ADMIN_USERS_KEY });
+      void queryClient.invalidateQueries();
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not delete that account"),
+  });
+
 
   const rows = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -198,11 +226,28 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
                 <td className="px-4 py-3 text-muted-foreground">
                   {user.lastSignInAt ? when(user.lastSignInAt) : "—"}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Button variant="outline" size="sm" onClick={() => setOpen(user)}>
-                    Answers
-                  </Button>
+                <td className="px-4 py-3">
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setOpen(user)}>
+                      Answers
+                    </Button>
+                    {user.isStaff ? null : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setConfirmed(false);
+                          setToDelete(user);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete account</span>
+                      </Button>
+                    )}
+                  </div>
                 </td>
+
               </tr>
             ))}
             {rows.length === 0 ? (
@@ -244,6 +289,54 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(toDelete)}
+        onOpenChange={(value) => {
+          if (!value) {
+            setToDelete(null);
+            setConfirmed(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this account permanently?</DialogTitle>
+            <DialogDescription>
+              This erases {toDelete?.email} from the database for good — their answers, website,
+              photos, leads and sign-in. Payment history is kept for your records. This cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+            <Checkbox
+              checked={confirmed}
+              onCheckedChange={(value) => setConfirmed(value === true)}
+              className="mt-0.5"
+            />
+            <span>Yes, I understand this permanently deletes this person and their website.</span>
+          </label>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setToDelete(null);
+                setConfirmed(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!confirmed || deletion.isPending}
+              onClick={() => toDelete && deletion.mutate(toDelete.id)}
+            >
+              {deletion.isPending ? "Deleting…" : "Delete permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }

@@ -125,7 +125,110 @@ export const deleteCustomer = createServerFn({ method: "POST" })
     return { deleted: true, accountRemoved };
   });
 
+const deleteUserSchema = z.object({ userId: z.string().uuid() });
+
+/**
+ * Permanently removes a person and everything they own, whether or not they
+ * ever finished setting up a business. Billing history is kept but unlinked.
+ */
+export const deleteUserAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => deleteUserSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (roleError) throw roleError;
+    if (!isAdmin) throw new Error("Administrator access required");
+
+    const userId = data.userId;
+    if (userId === context.userId) throw new Error("You cannot delete your own account");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: roles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if ((roles ?? []).some((r) => r.role === "admin")) {
+      throw new Error("That account is an administrator — remove its admin access first");
+    }
+
+    const { data: businesses } = await supabaseAdmin
+      .from("businesses")
+      .select("id")
+      .eq("owner_id", userId);
+
+    for (const business of businesses ?? []) {
+      const businessId = business.id;
+
+      const { data: mediaRows } = await supabaseAdmin
+        .from("media")
+        .select("storage_path")
+        .eq("business_id", businessId);
+      const paths = (mediaRows ?? [])
+        .map((m) => m.storage_path)
+        .filter((p): p is string => Boolean(p));
+      if (paths.length) await supabaseAdmin.storage.from("business-media").remove(paths);
+
+      await supabaseAdmin.from("billing_events").update({ business_id: null }).eq("business_id", businessId);
+      await supabaseAdmin.from("sent_emails").update({ business_id: null }).eq("business_id", businessId);
+      await supabaseAdmin.from("activity_logs").update({ business_id: null }).eq("business_id", businessId);
+
+      const scoped = [
+        "ticket_messages",
+        "support_tickets",
+        "website_customizations",
+        "media",
+        "leads",
+        "seo_targets",
+        "seo_settings",
+        "service_areas",
+        "services",
+        "business_hours",
+        "business_reviews",
+        "domains",
+        "integrations",
+        "notifications",
+        "checkout_sessions",
+        "subscriptions",
+        "business_members",
+        "websites",
+      ] as const;
+
+      for (const table of scoped) {
+        const { error } = await supabaseAdmin.from(table).delete().eq("business_id", businessId);
+        if (error) throw error;
+      }
+
+      const { error: businessError } = await supabaseAdmin
+        .from("businesses")
+        .delete()
+        .eq("id", businessId);
+      if (businessError) throw businessError;
+    }
+
+    await supabaseAdmin.from("onboarding_progress").delete().eq("user_id", userId);
+    await supabaseAdmin.from("notifications").delete().eq("user_id", userId);
+    await supabaseAdmin.from("business_members").delete().eq("user_id", userId);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", userId);
+    await supabaseAdmin.from("profiles").delete().eq("id", userId);
+
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (authError) throw new Error(authError.message);
+
+    await supabaseAdmin.from("activity_logs").insert({
+      actor_id: context.userId,
+      action: "admin.delete_user",
+      meta: { user_id: userId, businesses_removed: businesses?.length ?? 0 },
+    });
+
+    return { deleted: true };
+  });
+
 const clearCooldownSchema = z.object({ businessId: z.string().uuid() });
+
 
 async function requireStaff(context: { supabase: { rpc: Function }; userId: string }) {
   const { data: isStaff, error } = await (context.supabase as any).rpc("is_platform_staff", {
