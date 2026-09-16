@@ -22,7 +22,7 @@ import { BrowserPreview } from "@/components/app/BrowserPreview";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
-import { trackLead } from "@/lib/meta-pixel";
+import { trackLead, trackCompleteRegistration } from "@/lib/meta-pixel";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
 import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
@@ -317,6 +317,24 @@ function OnboardingPage() {
       </div>
     );
   }
+
+  if (magicLinkSent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <div className="max-w-sm text-center">
+          <h1 className="text-2xl font-semibold">You already have an account</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We've emailed a sign-in link to {magicLinkSent}. Open it and you'll come straight back
+            here with your answers saved.
+          </p>
+          <Button variant="link" className="mt-4" onClick={() => setMagicLinkSent(null)}>
+            Use a different email
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
