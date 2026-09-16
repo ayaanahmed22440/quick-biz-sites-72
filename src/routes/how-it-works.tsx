@@ -108,7 +108,7 @@ function HowItWorksPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between">
           <h2 className="text-2xl font-bold tracking-tight">Start with your business details.</h2>
           <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link to="/auth" search={{ mode: "signup" }}>
+            <Link to="/onboarding">
               Get your website live <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
