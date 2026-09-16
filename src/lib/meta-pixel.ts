@@ -7,7 +7,7 @@
  *
  * Configure with: VITE_META_PIXEL_ID (e.g. 1634000254846601)
  */
-import { adTrackingAllowed } from "./consent";
+import { adTrackingAllowed, getConsent, setConsent } from "./consent";
 
 declare global {
   interface Window {
@@ -43,6 +43,7 @@ let started = false;
 /** Initialises the pixel and sends the first page view when measurement is allowed. */
 export async function startMetaPixel() {
   if (started || typeof window === "undefined" || !META_PIXEL_ID) return;
+  if (!getConsent()) setConsent("accepted");
   if (!(await adTrackingAllowed())) return;
   started = true;
   window.fbq?.("init", META_PIXEL_ID);
@@ -83,7 +84,7 @@ export function trackEvent(
   params: Record<string, unknown> = {},
   eventId: string = newEventId(),
 ) {
-  if (typeof window === "undefined" || !started) return;
+  if (typeof window === "undefined" || !started || getConsent() === "essential") return;
   if (metaPixelDebug()) console.log("[meta-pixel]", name, params, { eventID: eventId });
   window.fbq?.("track", name, params, { eventID: eventId });
   void sendServerCopy(name, params, eventId);

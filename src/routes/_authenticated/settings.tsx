@@ -8,6 +8,9 @@ import { LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { getConsent, setConsent } from "@/lib/consent";
+import { startMetaPixel } from "@/lib/meta-pixel";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -28,10 +31,22 @@ function SettingsPage() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [savingPassword, setSavingPassword] = useState(false);
+  const [adMeasurement, setAdMeasurement] = useState(true);
 
   useEffect(() => {
     if (workspace?.fullName) setFullName(workspace.fullName);
   }, [workspace?.fullName]);
+
+  useEffect(() => {
+    setAdMeasurement(getConsent() !== "essential");
+  }, []);
+
+  function updateAdMeasurement(enabled: boolean) {
+    setAdMeasurement(enabled);
+    setConsent(enabled ? "accepted" : "essential");
+    if (enabled) void startMetaPixel();
+    toast.success(enabled ? "Ad measurement enabled" : "Ad measurement disabled");
+  }
 
   if (isLoading) return <LoadingBlock rows={3} />;
 
@@ -132,6 +147,25 @@ function SettingsPage() {
         <p className="mt-3 text-xs text-muted-foreground">
           If you signed in with Google, you can set a password here to also log in with email.
         </p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between gap-6">
+          <div>
+            <Label htmlFor="ad-measurement" className="text-sm font-semibold">
+              Ad measurement
+            </Label>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Allow WebWarheads to measure advertising performance on this device.
+            </p>
+          </div>
+          <Switch
+            id="ad-measurement"
+            checked={adMeasurement}
+            onCheckedChange={updateAdMeasurement}
+            aria-label="Allow advertising measurement"
+          />
+        </div>
       </div>
     </>
   );
