@@ -715,6 +715,65 @@ export type Database = {
           },
         ]
       }
+      onboarding_progress: {
+        Row: {
+          answers: Json
+          business_id: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          last_step: string
+          last_step_label: string | null
+          step_index: number
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          business_id?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          last_step?: string
+          last_step_label?: string | null
+          step_index?: number
+          total_steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          business_id?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          last_step?: string
+          last_step_label?: string | null
+          step_index?: number
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_progress_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           created_at: string

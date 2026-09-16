@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
+import { AdminNotificationBell, AdminUsersTab } from "@/components/admin/AdminUsers";
 import { checkDomain, listAllDomains, setDomainVerification } from "@/lib/domains.functions";
 import {
   Dialog,
@@ -399,10 +400,13 @@ function AdminPage() {
 
   return (
     <>
-      <PageHeader
-        title="Admin panel"
-        description="Revenue, clients, their websites and support — with the controls to act on them."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader
+          title="Admin panel"
+          description="Revenue, clients, their websites and support — with the controls to act on them."
+        />
+        <AdminNotificationBell enabled={Boolean(workspace?.isStaff)} />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
@@ -431,12 +435,17 @@ function AdminPage() {
       <Tabs defaultValue="clients">
         <TabsList>
           <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
           <TabsTrigger value="payments">Payment attempts</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="users">
+          <AdminUsersTab enabled={Boolean(workspace?.isStaff)} />
+        </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
