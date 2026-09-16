@@ -7,7 +7,7 @@
  *
  * Configure with: VITE_META_PIXEL_ID (e.g. 1634000254846601)
  */
-import { adTrackingAllowed } from "./consent";
+import { adTrackingAllowed, getConsent } from "./consent";
 
 declare global {
   interface Window {
@@ -83,7 +83,7 @@ export function trackEvent(
   params: Record<string, unknown> = {},
   eventId: string = newEventId(),
 ) {
-  if (typeof window === "undefined" || !started) return;
+  if (typeof window === "undefined" || !started || getConsent() === "essential") return;
   if (metaPixelDebug()) console.log("[meta-pixel]", name, params, { eventID: eventId });
   window.fbq?.("track", name, params, { eventID: eventId });
   void sendServerCopy(name, params, eventId);

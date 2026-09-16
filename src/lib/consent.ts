@@ -46,12 +46,13 @@ export function getConsent(): ConsentChoice | null {
   }
 }
 
-/** Resolves to true when advertising measurement may run for this visitor. */
+/**
+ * Advertising measurement is enabled by default. A signed-in customer may
+ * opt out from Account settings; that preference is stored on this device.
+ */
 export async function adTrackingAllowed(): Promise<boolean> {
   const choice = getConsent();
-  if (choice === "accepted") return true;
-  if (choice === "essential") return false;
-  return !(await requiresConsent());
+  return choice !== "essential";
 }
 
 export function setConsent(choice: ConsentChoice) {
