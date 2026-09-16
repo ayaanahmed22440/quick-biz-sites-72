@@ -128,7 +128,7 @@ const faqs = [
 function BuildButton({ label = "Build My Website", className = "" }: { label?: string; className?: string }) {
   return (
     <Button asChild size="lg" className={`group h-12 bg-accent px-7 text-accent-foreground shadow-lg shadow-accent/20 hover:bg-accent/90 ${className}`}>
-      <Link to="/auth" search={{ mode: "signup" }}>
+      <Link to="/onboarding">
         {label}<ArrowRight className="transition-transform group-hover:translate-x-1" />
       </Link>
     </Button>

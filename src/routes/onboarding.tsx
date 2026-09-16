@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyWelcome } from "@/lib/notify.functions";
+import { startOnboardingAccount } from "@/lib/signup.functions";
+
 
 import { z } from "zod";
 import { toast } from "sonner";
@@ -20,7 +22,7 @@ import { BrowserPreview } from "@/components/app/BrowserPreview";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
-import { trackLead } from "@/lib/meta-pixel";
+import { trackLead, trackCompleteRegistration } from "@/lib/meta-pixel";
 import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
 import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
@@ -81,11 +83,8 @@ const DEMO: Omit<Draft, "niche"> = {
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
-  },
+  // No account needed to start. One is created silently at the email step.
+
   head: () => ({
     meta: [
       { title: "Set up your website — WebWarheads" },
@@ -234,7 +233,8 @@ function OnboardingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const sendWelcome = useServerFn(notifyWelcome);
-  
+  const createAccount = useServerFn(startOnboardingAccount);
+
   const { data: workspace, isLoading } = useWorkspace();
 
 
@@ -250,6 +250,8 @@ function OnboardingPage() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
   const [nicheSearch, setNicheSearch] = useState("");
+  const [magicLinkSent, setMagicLinkSent] = useState<string | null>(null);
+
 
   const groupedNiches = useMemo(() => {
     const query = nicheSearch.trim().toLowerCase();
@@ -315,6 +317,24 @@ function OnboardingPage() {
       </div>
     );
   }
+
+  if (magicLinkSent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
+        <div className="max-w-sm text-center">
+          <h1 className="text-2xl font-semibold">You already have an account</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            We've emailed a sign-in link to {magicLinkSent}. Open it and you'll come straight back
+            here with your answers saved.
+          </p>
+          <Button variant="link" className="mt-4" onClick={() => setMagicLinkSent(null)}>
+            Use a different email
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [key]: value }));
@@ -419,11 +439,67 @@ function OnboardingPage() {
     }
   }
 
+  /**
+   * Creates the account from the enquiry email the first time we see it.
+   * Existing addresses are never signed in here — they get a link by email.
+   */
+  async function ensureAccount(): Promise<boolean> {
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user) return true;
+
+    const email = draft.email.trim().toLowerCase();
+    setSaving(true);
+    try {
+      const result = await createAccount({
+        data: { email, ...(draft.name.trim() ? { fullName: draft.name.trim() } : {}) },
+      });
+
+      if (result.status === "created") {
+        const { error: sessionError } = await supabase.auth.verifyOtp({
+          type: "email",
+          token_hash: result.tokenHash,
+        });
+        if (sessionError) {
+          setError("We couldn't finish setting up your account. Please try again.");
+          return false;
+        }
+        trackCompleteRegistration(email, "onboarding");
+        await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
+        return true;
+      }
+
+      if (result.status === "existing") {
+        await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        setMagicLinkSent(email);
+        return false;
+      }
+
+      setError(result.message ?? "We couldn't set that up. Please try again.");
+      return false;
+    } catch (err) {
+      console.error("Onboarding account failed", err);
+      setError("We couldn't set that up. Please try again.");
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function next() {
     const message = step.validate?.(draft) ?? null;
     if (message) {
       setError(message);
       return;
+    }
+    if (step.key === "email") {
+      const ok = await ensureAccount();
+      if (!ok) return;
     }
     if (step.createsBusiness) {
       const id = await ensureBusiness();
@@ -436,6 +512,7 @@ function OnboardingPage() {
     }
     setIndex((i) => Math.min(STEPS.length - 1, i + 1));
   }
+
 
   async function finish() {
     const id = businessId ?? (await ensureBusiness());

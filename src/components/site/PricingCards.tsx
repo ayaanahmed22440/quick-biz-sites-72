@@ -40,7 +40,7 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
             )}
             variant={plan.recommended ? "default" : "outline"}
           >
-            <Link to="/auth" search={{ mode: "signup", plan: plan.id }}>
+            <Link to="/onboarding">
               Choose {plan.name}
             </Link>
           </Button>

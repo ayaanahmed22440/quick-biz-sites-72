@@ -50,7 +50,7 @@ export function SiteHeader() {
                   <Link to="/auth">Log in</Link>
                 </Button>
                 <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link to="/auth" search={{ mode: "signup" }}>
+                  <Link to="/onboarding">
                     Start building
                   </Link>
                 </Button>
@@ -105,7 +105,7 @@ export function SiteHeader() {
                       className="bg-accent text-accent-foreground hover:bg-accent/90"
                       onClick={() => setOpen(false)}
                     >
-                      <Link to="/auth" search={{ mode: "signup" }}>
+                      <Link to="/onboarding">
                         Start building
                       </Link>
                     </Button>

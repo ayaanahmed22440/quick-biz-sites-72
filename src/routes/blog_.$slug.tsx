@@ -190,7 +190,7 @@ function BlogPostPage() {
               Pick a design, add your details, publish. From $37 a month.
             </p>
             <Button asChild size="lg" className="mt-6">
-              <Link to="/auth" search={{ mode: "signup" }}>
+              <Link to="/onboarding">
                 Preview my website <ArrowRight className="ml-1.5 h-4 w-4" />
               </Link>
             </Button>
