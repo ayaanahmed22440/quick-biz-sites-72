@@ -289,6 +289,54 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={Boolean(toDelete)}
+        onOpenChange={(value) => {
+          if (!value) {
+            setToDelete(null);
+            setConfirmed(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this account permanently?</DialogTitle>
+            <DialogDescription>
+              This erases {toDelete?.email} from the database for good — their answers, website,
+              photos, leads and sign-in. Payment history is kept for your records. This cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+            <Checkbox
+              checked={confirmed}
+              onCheckedChange={(value) => setConfirmed(value === true)}
+              className="mt-0.5"
+            />
+            <span>Yes, I understand this permanently deletes this person and their website.</span>
+          </label>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setToDelete(null);
+                setConfirmed(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={!confirmed || deletion.isPending}
+              onClick={() => toDelete && deletion.mutate(toDelete.id)}
+            >
+              {deletion.isPending ? "Deleting…" : "Delete permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
