@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyWelcome } from "@/lib/notify.functions";
+import { startOnboardingAccount } from "@/lib/signup.functions";
+
 
 import { z } from "zod";
 import { toast } from "sonner";
@@ -81,11 +83,8 @@ const DEMO: Omit<Draft, "niche"> = {
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
-  },
+  // No account needed to start. One is created silently at the email step.
+
   head: () => ({
     meta: [
       { title: "Set up your website — WebWarheads" },
