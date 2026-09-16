@@ -128,6 +128,23 @@ export function AdminUsersTab({ enabled }: { enabled: boolean }) {
   const users = useAdminUsers(enabled);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState<PlatformUser | null>(null);
+  const [toDelete, setToDelete] = useState<PlatformUser | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+  const queryClient = useQueryClient();
+  const removeUser = useServerFn(deleteUserAccount);
+
+  const deletion = useMutation({
+    mutationFn: (userId: string) => removeUser({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Account deleted for good");
+      setToDelete(null);
+      setConfirmed(false);
+      void queryClient.invalidateQueries({ queryKey: ADMIN_USERS_KEY });
+      void queryClient.invalidateQueries();
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not delete that account"),
+  });
+
 
   const rows = useMemo(() => {
     const query = search.trim().toLowerCase();
