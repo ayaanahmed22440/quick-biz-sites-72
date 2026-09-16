@@ -34,8 +34,15 @@ function CallbackPage() {
           }
           const target = sessionStorage.getItem("ww:after-login");
           sessionStorage.removeItem("ww:after-login");
-          void navigate({ to: target === "/admin" ? "/admin" : "/dashboard", replace: true });
+          if (target === "/admin") {
+            void navigate({ to: "/admin", replace: true });
+            return;
+          }
+          // Someone mid-way through building a site comes back to the questionnaire.
+          const hasDraft = Boolean(localStorage.getItem("ww-onboarding-draft"));
+          void navigate({ to: hasDraft ? "/onboarding" : "/dashboard", replace: true });
           return;
+
         }
         await new Promise((r) => setTimeout(r, 250));
       }
