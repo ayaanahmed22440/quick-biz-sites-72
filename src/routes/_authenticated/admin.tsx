@@ -399,10 +399,13 @@ function AdminPage() {
 
   return (
     <>
-      <PageHeader
-        title="Admin panel"
-        description="Revenue, clients, their websites and support — with the controls to act on them."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PageHeader
+          title="Admin panel"
+          description="Revenue, clients, their websites and support — with the controls to act on them."
+        />
+        <AdminNotificationBell enabled={Boolean(workspace?.isStaff)} />
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
