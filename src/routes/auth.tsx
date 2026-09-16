@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { Logo } from "@/components/brand/Logo";
@@ -11,11 +10,10 @@ import { Label } from "@/components/ui/label";
 import { PLAN_COPY } from "@/lib/plans";
 import { GoogleIcon } from "@/components/brand/GoogleIcon";
 import { AppleIcon } from "@/components/brand/AppleIcon";
-import { trackCompleteRegistration } from "@/lib/meta-pixel";
 
-const TITLE = "Log in or create your WebWarheads account";
+const TITLE = "Log in to your WebWarheads account";
 const DESCRIPTION =
-  "Sign in to manage your business website, leads and subscription, or create a new WebWarheads account.";
+  "Sign in with a one-time link to manage your business website, leads and subscription.";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup", "forgot"]).optional(),
@@ -36,21 +34,12 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const credentials = z.object({
-  email: z.string().trim().email("Enter a valid email address").max(255),
-  password: z.string().min(8, "Use at least 8 characters").max(72),
-});
-
-
-
-
 function AuthPage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">(search.mode ?? "login");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [checkEmail, setCheckEmail] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -66,63 +55,22 @@ function AuthPage() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "").trim();
 
-    if (mode === "forgot") {
-      if (!z.string().email().safeParse(email).success) {
-        setError("Enter a valid email address");
-        return;
-      }
-      setBusy(true);
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      setBusy(false);
-      if (resetError) {
-        setError(resetError.message);
-        return;
-      }
-      setCheckEmail(true);
-      return;
-    }
-
-    const parsed = credentials.safeParse({ email, password: form.get("password") });
-    if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Check your details");
+    if (!z.string().email().max(255).safeParse(email).success) {
+      setError("Enter a valid email address");
       return;
     }
 
     setBusy(true);
-    if (mode === "signup") {
-      const fullName = String(form.get("full_name") ?? "").trim();
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: parsed.data.email,
-        password: parsed.data.password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: fullName },
-        },
-      });
-      setBusy(false);
-      if (signUpError) {
-        setError(signUpError.message);
-        return;
-      }
-      if (!data.session) {
-        setCheckEmail(true);
-        return;
-      }
-      if (data.user) trackCompleteRegistration(data.user.id, "email");
-      toast.success("Account created");
-      void navigate({ to: "/onboarding", replace: true });
-      return;
-    }
-
-    const { error: signInError } = await supabase.auth.signInWithPassword(parsed.data);
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
     setBusy(false);
-    if (signInError) {
-      setError("That email and password combination didn't work.");
+    if (otpError) {
+      setError("We couldn't send that link. Please try again in a moment.");
       return;
     }
-    void navigate({ to: "/dashboard", replace: true });
+    setSentTo(email);
   }
 
   async function handleGoogle() {
@@ -163,50 +111,26 @@ function AuthPage() {
 
       <main className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md rounded-xl border border-border bg-card p-7">
-          {checkEmail ? (
+          {sentTo ? (
             <div className="text-center">
               <h1 className="text-lg font-semibold">Check your email</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                We sent a link to your inbox. Open it to continue.
+                We sent a sign-in link to {sentTo}. Open it on this device to log in.
               </p>
-              <Button
-                variant="link"
-                className="mt-4"
-                onClick={() => {
-                  setCheckEmail(false);
-                  setMode("login");
-                }}
-              >
-                Back to log in
+              <Button variant="link" className="mt-4" onClick={() => setSentTo(null)}>
+                Use a different email
               </Button>
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-bold tracking-tight">
-                {mode === "signup"
-                  ? "Create your account"
-                  : mode === "forgot"
-                    ? "Reset your password"
-                    : "Log in to WebWarheads"}
-              </h1>
+              <h1 className="text-xl font-bold tracking-tight">Log in to WebWarheads</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {mode === "signup"
-                  ? selectedPlan
-                    ? `You picked the ${selectedPlan.name} plan at $${selectedPlan.price}/month. Create your account to continue.`
-                    : "A few details and you can start building your website."
-                  : mode === "forgot"
-                    ? "We'll email you a link to set a new password."
-                    : "Manage your website, leads and subscription."}
+                {selectedPlan
+                  ? `You picked the ${selectedPlan.name} plan at $${selectedPlan.price}/month. Log in to continue.`
+                  : "Enter your email and we'll send you a one-time sign-in link. No password needed."}
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                {mode === "signup" ? (
-                  <div>
-                    <Label htmlFor="full_name">Your name</Label>
-                    <Input id="full_name" name="full_name" maxLength={100} className="mt-1.5" />
-                  </div>
-                ) : null}
-
                 <div>
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -219,88 +143,34 @@ function AuthPage() {
                   />
                 </div>
 
-                {mode !== "forgot" ? (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                      {mode === "login" ? (
-                        <button
-                          type="button"
-                          className="text-xs text-muted-foreground hover:text-foreground"
-                          onClick={() => setMode("forgot")}
-                        >
-                          Forgot password?
-                        </button>
-                      ) : null}
-                    </div>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                      maxLength={72}
-                      className="mt-1.5"
-                    />
-                  </div>
-                ) : null}
-
                 {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
                 <Button type="submit" disabled={busy} className="w-full">
-                  {busy
-                    ? "Working…"
-                    : mode === "signup"
-                      ? "Create account"
-                      : mode === "forgot"
-                        ? "Send reset link"
-                        : "Log in"}
+                  {busy ? "Sending…" : "Email me a login link"}
                 </Button>
               </form>
 
-              {mode !== "forgot" ? (
-                <>
-                  <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="h-px flex-1 bg-border" />
-                    or
-                    <span className="h-px flex-1 bg-border" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" className="w-full gap-2" onClick={handleGoogle}>
-                      <GoogleIcon />
-                      Google
-                    </Button>
-                    <Button variant="outline" className="w-full gap-2" onClick={handleApple}>
-                      <AppleIcon />
-                      Apple
-                    </Button>
-                  </div>
-                </>
-              ) : null}
+              <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                or
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="w-full gap-2" onClick={handleGoogle}>
+                  <GoogleIcon />
+                  Google
+                </Button>
+                <Button variant="outline" className="w-full gap-2" onClick={handleApple}>
+                  <AppleIcon />
+                  Apple
+                </Button>
+              </div>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                {mode === "signup" ? (
-                  <>
-                    Already have an account?{" "}
-                    <button
-                      type="button"
-                      className="font-medium text-foreground hover:underline"
-                      onClick={() => setMode("login")}
-                    >
-                      Log in
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    New to WebWarheads?{" "}
-                    <button
-                      type="button"
-                      className="font-medium text-foreground hover:underline"
-                      onClick={() => setMode("signup")}
-                    >
-                      Create an account
-                    </button>
-                  </>
-                )}
+                New to WebWarheads?{" "}
+                <Link to="/onboarding" className="font-medium text-foreground hover:underline">
+                  Build your website
+                </Link>
               </p>
             </>
           )}
