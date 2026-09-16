@@ -7,7 +7,7 @@
  *
  * Configure with: VITE_META_PIXEL_ID (e.g. 1634000254846601)
  */
-import { adTrackingAllowed, getConsent } from "./consent";
+import { adTrackingAllowed, getConsent, setConsent } from "./consent";
 
 declare global {
   interface Window {
@@ -43,6 +43,7 @@ let started = false;
 /** Initialises the pixel and sends the first page view when measurement is allowed. */
 export async function startMetaPixel() {
   if (started || typeof window === "undefined" || !META_PIXEL_ID) return;
+  if (!getConsent()) setConsent("accepted");
   if (!(await adTrackingAllowed())) return;
   started = true;
   window.fbq?.("init", META_PIXEL_ID);
