@@ -434,12 +434,17 @@ function AdminPage() {
       <Tabs defaultValue="clients">
         <TabsList>
           <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
           <TabsTrigger value="payments">Payment attempts</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="users">
+          <AdminUsersTab enabled={Boolean(workspace?.isStaff)} />
+        </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
