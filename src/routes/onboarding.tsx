@@ -621,6 +621,8 @@ function OnboardingPage() {
       console.error("Welcome email failed", mailError);
     }
 
+    await saveProgress(STEPS.length - 1, true);
+
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {
