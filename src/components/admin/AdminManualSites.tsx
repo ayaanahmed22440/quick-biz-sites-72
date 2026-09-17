@@ -484,7 +484,7 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
             </div>
             <div className="space-y-1.5">
               <Label>Business type</Label>
-              <Select value={form.niche} onValueChange={(v) => set("niche", v)}>
+              <Select value={form.niche} onValueChange={chooseNiche}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a trade" />
                 </SelectTrigger>
