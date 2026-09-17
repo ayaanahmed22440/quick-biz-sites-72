@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Copy, Mail, PlusCircle, Timer, Trash2 } from "lucide-react";
+import { Copy, Loader2, Mail, Plus, PlusCircle, Timer, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   createManualSite,
@@ -10,9 +10,10 @@ import {
   extendManualSite,
   listManualSites,
   resendManualLink,
+  uploadManualImage,
   type ManualSite,
 } from "@/lib/manual-sites.functions";
-import { INDUSTRY_OPTIONS } from "@/lib/template-registry";
+import { INDUSTRY_OPTIONS, defaultServicesForNiche } from "@/lib/template-registry";
 import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
