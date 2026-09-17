@@ -239,7 +239,9 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
   const remove = useServerFn(deleteManualSite);
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ ...EMPTY });
+  const [form, setForm] = useState<FormState>({ ...EMPTY });
+  // Uploads happen before the business exists, so they live in their own folder.
+  const [folder, setFolder] = useState(() => crypto.randomUUID());
   const [search, setSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState<ManualSite | null>(null);
   const [confirmed, setConfirmed] = useState(false);
