@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
+import { FeaturedOnSection } from "@/components/site/FeaturedOnSection";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
 import { getSiteForHost, type HostedSite } from "@/lib/public-site.functions";
@@ -232,6 +233,8 @@ function HomePage() {
         </div>
         <ProductPreview />
       </section>
+
+      <FeaturedOnSection />
 
       <section data-home-reveal className="home-reveal border-y border-border bg-navy text-navy-foreground">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-5 text-center sm:grid-cols-3 sm:px-6 lg:px-8">
