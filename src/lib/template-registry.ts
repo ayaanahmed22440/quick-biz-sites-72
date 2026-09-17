@@ -331,6 +331,24 @@ export function templateIdForNiche(niche?: string | null): string {
   return (niche ? BY_NICHE.get(niche)?.templateId : null) ?? DEFAULT_TEMPLATE_ID;
 }
 
+/** Sensible starting service list for a niche, used to prefill forms. */
+const FALLBACK_SERVICES: Record<string, string[]> = {
+  cleaning: ["Regular home cleaning", "Deep cleaning", "End of tenancy cleaning", "Office cleaning"],
+  landscaping: ["Garden design", "Lawn care", "Patios & paving", "Planting & borders"],
+  roofing: ["Roof repairs", "Full roof replacement", "Flat roofing", "Gutter work"],
+  plumbing: ["Leak repairs", "Boiler service", "Bathroom installation", "Blocked drains"],
+  renovation: ["Kitchen renovation", "Bathroom renovation", "Extensions", "Full home refurbishment"],
+  construction: ["New builds", "Extensions", "Groundworks", "Commercial fit-outs"],
+  junk_removal: ["House clearance", "Furniture removal", "Appliance disposal", "Garden waste"],
+};
+
+export function defaultServicesForNiche(niche?: string | null): string[] {
+  if (!niche) return [];
+  const catalog = NICHE_CATALOG.find((item) => item.niche === niche);
+  if (catalog) return [...catalog.services];
+  return FALLBACK_SERVICES[niche] ? [...FALLBACK_SERVICES[niche]!] : [];
+}
+
 export const INDUSTRY_OPTIONS = TEMPLATE_PRESETS.map((p) => ({
   value: p.niche,
   label: p.industryLabel,
