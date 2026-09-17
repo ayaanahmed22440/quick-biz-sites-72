@@ -630,6 +630,72 @@ export type Database = {
           },
         ]
       }
+      manual_sites: {
+        Row: {
+          business_id: string
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          notes: string | null
+          owner_user_id: string
+          paid_at: string | null
+          plan_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          notes?: string | null
+          owner_user_id: string
+          paid_at?: string | null
+          plan_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          notes?: string | null
+          owner_user_id?: string
+          paid_at?: string | null
+          plan_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_sites_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_sites_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media: {
         Row: {
           alt_text: string | null
