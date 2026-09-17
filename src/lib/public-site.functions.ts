@@ -33,6 +33,8 @@ export type PublishedSite = {
     primary_service: string | null;
   };
   website: { id: string; template_id: string | null; published_at: string | null };
+  /** Present only while a team-built demo site is awaiting payment. */
+  manual?: { id: string; status: string; expires_at: string; plan_id: string } | null;
   content: JsonValue | null;
   services: { id: string; name: string; description: string | null; price_note: string | null }[];
   service_areas: { id: string; city: string; state: string | null }[];
