@@ -81,6 +81,13 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
 
   return (
     <>
+      {site.manual && site.manual.status !== "paid" ? (
+        <ManualSiteBanner
+          manualId={site.manual.id}
+          expiresAt={site.manual.expires_at}
+          paidJustNow={justPaid}
+        />
+      ) : null}
       {schema ? (
         <script
           type="application/ld+json"
