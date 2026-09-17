@@ -319,8 +319,24 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
     );
   }, [sites.data, search]);
 
-  const set = (key: keyof typeof EMPTY, value: string | number) =>
+  const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  /** Picking a trade prefills its usual services; the team can edit or remove them. */
+  const chooseNiche = (niche: string) =>
+    setForm((prev) => ({
+      ...prev,
+      niche,
+      services: prev.services.length
+        ? prev.services
+        : defaultServicesForNiche(niche).map((name) => ({ name, description: "" })),
+    }));
+
+  const setService = (index: number, patch: Partial<ServiceRow>) =>
+    setForm((prev) => ({
+      ...prev,
+      services: prev.services.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    }));
 
   return (
     <div className="space-y-4">
