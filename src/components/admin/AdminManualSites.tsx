@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Copy, Mail, PlusCircle, Timer, Trash2 } from "lucide-react";
+import { Copy, Loader2, Mail, Plus, PlusCircle, Timer, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   createManualSite,
@@ -10,9 +10,10 @@ import {
   extendManualSite,
   listManualSites,
   resendManualLink,
+  uploadManualImage,
   type ManualSite,
 } from "@/lib/manual-sites.functions";
-import { INDUSTRY_OPTIONS } from "@/lib/template-registry";
+import { INDUSTRY_OPTIONS, defaultServicesForNiche } from "@/lib/template-registry";
 import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,34 @@ const PLAN_OPTIONS = [
   })),
 ];
 
-const EMPTY = {
+type ServiceRow = { name: string; description: string };
+
+type FormState = {
+  businessName: string;
+  niche: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  city: string;
+  state: string;
+  primaryService: string;
+  tagline: string;
+  description: string;
+  services: ServiceRow[];
+  areas: string;
+  primaryColor: string;
+  logoUrl: string;
+  heroImageUrl: string;
+  aboutImageUrl: string;
+  galleryUrls: string[];
+  planId: string;
+  hours: number;
+  notes: string;
+};
+
+const DEFAULT_COLOR = "#1f6feb";
+
+const EMPTY: FormState = {
   businessName: "",
   niche: "",
   contactName: "",
@@ -57,17 +85,121 @@ const EMPTY = {
   primaryService: "",
   tagline: "",
   description: "",
-  services: "",
+  services: [],
   areas: "",
-  primaryColor: "",
+  primaryColor: DEFAULT_COLOR,
   logoUrl: "",
   heroImageUrl: "",
   aboutImageUrl: "",
-  galleryUrls: "",
+  galleryUrls: [],
   planId: "basic",
   hours: 12,
   notes: "",
 };
+
+const ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
+
+/** Upload control used while building a demo site — no URL typing needed. */
+function ManualUpload({
+  label,
+  hint,
+  kind,
+  folder,
+  value,
+  square,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  kind: string;
+  folder: string;
+  value: string;
+  square?: boolean;
+  onChange: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const upload = useServerFn(uploadManualImage);
+
+  async function handleFile(file: File) {
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("That image is larger than 8 MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      for (let i = 0; i < buffer.length; i += 1) binary += String.fromCharCode(buffer[i]!);
+      const result = await upload({
+        data: {
+          folder,
+          kind,
+          contentType: file.type,
+          dataBase64: btoa(binary),
+        },
+      });
+      onChange(result.url);
+      toast.success("Image uploaded");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "That upload didn't work.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <div
+          className={`flex items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/40 ${
+            square ? "h-20 w-20" : "h-20 w-32"
+          }`}
+        >
+          {value ? (
+            <img src={value} alt="" className="h-full w-full object-contain" />
+          ) : (
+            <span className="text-xs text-muted-foreground">No image</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {busy ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 h-4 w-4" />
+            )}
+            {value ? "Replace" : "Upload"}
+          </Button>
+          {value ? (
+            <Button type="button" size="sm" variant="ghost" onClick={() => onChange("")}>
+              <X className="mr-1.5 h-4 w-4" /> Remove
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPT}
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) void handleFile(file);
+        }}
+      />
+    </div>
+  );
+}
 
 /** Live "11:42:08" style countdown to an expiry timestamp. */
 function Countdown({ iso, status }: { iso: string; status: ManualSite["status"] }) {
@@ -107,7 +239,9 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
   const remove = useServerFn(deleteManualSite);
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ ...EMPTY });
+  const [form, setForm] = useState<FormState>({ ...EMPTY });
+  // Uploads happen before the business exists, so they live in their own folder.
+  const [folder, setFolder] = useState(() => crypto.randomUUID());
   const [search, setSearch] = useState("");
   const [pendingDelete, setPendingDelete] = useState<ManualSite | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -126,11 +260,8 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
       create({
         data: {
           ...form,
-          galleryUrls: form.galleryUrls
-            .split("\n")
-            .map((s) => s.trim())
-            .filter(Boolean)
-            .slice(0, 6),
+          services: form.services.filter((s) => s.name.trim()),
+          galleryUrls: form.galleryUrls.filter(Boolean).slice(0, 6),
           ...(form.primaryColor ? { primaryColor: form.primaryColor } : {}),
           hours: Number(form.hours) || 12,
         },
@@ -139,6 +270,7 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
       await refresh();
       setOpen(false);
       setForm({ ...EMPTY });
+      setFolder(crypto.randomUUID());
       try {
         await navigator.clipboard.writeText(result.url);
         toast.success("Demo site created — link copied to your clipboard");
@@ -187,8 +319,24 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
     );
   }, [sites.data, search]);
 
-  const set = (key: keyof typeof EMPTY, value: string | number) =>
+  const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  /** Picking a trade prefills its usual services; the team can edit or remove them. */
+  const chooseNiche = (niche: string) =>
+    setForm((prev) => ({
+      ...prev,
+      niche,
+      services: prev.services.length
+        ? prev.services
+        : defaultServicesForNiche(niche).map((name) => ({ name, description: "" })),
+    }));
+
+  const setService = (index: number, patch: Partial<ServiceRow>) =>
+    setForm((prev) => ({
+      ...prev,
+      services: prev.services.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    }));
 
   return (
     <div className="space-y-4">
@@ -336,7 +484,7 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
             </div>
             <div className="space-y-1.5">
               <Label>Business type</Label>
-              <Select value={form.niche} onValueChange={(v) => set("niche", v)}>
+              <Select value={form.niche} onValueChange={chooseNiche}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a trade" />
                 </SelectTrigger>
@@ -397,48 +545,150 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
                 onChange={(e) => set("description", e.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>Services (one per line)</Label>
-              <Textarea
-                rows={4}
-                value={form.services}
-                onChange={(e) => set("services", e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Other areas covered (comma separated)</Label>
-              <Textarea rows={4} value={form.areas} onChange={(e) => set("areas", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Brand colour (hex, optional)</Label>
-              <Input
-                value={form.primaryColor}
-                onChange={(e) => set("primaryColor", e.target.value)}
-                placeholder="#1f6feb"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Logo image URL (optional)</Label>
-              <Input value={form.logoUrl} onChange={(e) => set("logoUrl", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Hero image URL (optional)</Label>
-              <Input value={form.heroImageUrl} onChange={(e) => set("heroImageUrl", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>About image URL (optional)</Label>
-              <Input
-                value={form.aboutImageUrl}
-                onChange={(e) => set("aboutImageUrl", e.target.value)}
-              />
+            <div className="space-y-2 sm:col-span-2">
+              <div className="flex items-center gap-2">
+                <Label>Services on the services section</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto gap-1.5"
+                  onClick={() =>
+                    set("services", [...form.services, { name: "", description: "" }])
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add service
+                </Button>
+              </div>
+              {form.services.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Choose a business type to load the usual services, or add your own.
+                </p>
+              ) : null}
+              <div className="space-y-2">
+                {form.services.map((service, index) => (
+                  <div
+                    key={index}
+                    className="grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_auto]"
+                  >
+                    <Input
+                      value={service.name}
+                      placeholder="Service name"
+                      onChange={(e) => setService(index, { name: e.target.value })}
+                    />
+                    <Input
+                      value={service.description}
+                      placeholder="Short description (optional)"
+                      onChange={(e) => setService(index, { description: e.target.value })}
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remove service"
+                      onClick={() =>
+                        set(
+                          "services",
+                          form.services.filter((_, i) => i !== index),
+                        )
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Gallery image URLs (one per line, optional)</Label>
-              <Textarea
-                rows={3}
-                value={form.galleryUrls}
-                onChange={(e) => set("galleryUrls", e.target.value)}
-              />
+              <Label>Other areas covered (comma separated)</Label>
+              <Textarea rows={3} value={form.areas} onChange={(e) => set("areas", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Brand colour</Label>
+              <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+                <input
+                  type="color"
+                  aria-label="Brand colour"
+                  value={/^#[0-9a-fA-F]{6}$/.test(form.primaryColor) ? form.primaryColor : DEFAULT_COLOR}
+                  onChange={(e) => set("primaryColor", e.target.value)}
+                  className="h-10 w-14 shrink-0 cursor-pointer rounded border border-input bg-background"
+                />
+                <Input
+                  value={form.primaryColor}
+                  onChange={(e) => set("primaryColor", e.target.value)}
+                  placeholder="#1f6feb"
+                />
+              </div>
+            </div>
+            <ManualUpload
+              label="Logo"
+              hint="Shown in the header of their website."
+              kind="logo"
+              folder={folder}
+              square
+              value={form.logoUrl}
+              onChange={(url) => set("logoUrl", url)}
+            />
+            <ManualUpload
+              label="Main photo (top of the page)"
+              kind="hero"
+              folder={folder}
+              value={form.heroImageUrl}
+              onChange={(url) => set("heroImageUrl", url)}
+            />
+            <ManualUpload
+              label="About photo"
+              kind="about"
+              folder={folder}
+              value={form.aboutImageUrl}
+              onChange={(url) => set("aboutImageUrl", url)}
+            />
+            <div className="space-y-2 sm:col-span-2">
+              <div className="flex items-center gap-2">
+                <Label>Gallery photos</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto gap-1.5"
+                  disabled={form.galleryUrls.length >= 6}
+                  onClick={() => set("galleryUrls", [...form.galleryUrls, ""])}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add photo
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {form.galleryUrls.map((url, index) => (
+                  <div key={index} className="flex items-end gap-2">
+                    <ManualUpload
+                      label={`Photo ${index + 1}`}
+                      kind="gallery"
+                      folder={folder}
+                      value={url}
+                      onChange={(next) =>
+                        set(
+                          "galleryUrls",
+                          form.galleryUrls.map((v, i) => (i === index ? next : v)),
+                        )
+                      }
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remove photo"
+                      onClick={() =>
+                        set(
+                          "galleryUrls",
+                          form.galleryUrls.filter((_, i) => i !== index),
+                        )
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Plan the pay button charges</Label>

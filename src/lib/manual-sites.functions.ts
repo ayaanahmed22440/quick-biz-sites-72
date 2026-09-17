@@ -93,7 +93,16 @@ const createInput = z.object({
   primaryService: z.string().trim().max(120).optional().default(""),
   tagline: z.string().trim().max(200).optional().default(""),
   description: z.string().trim().max(2000).optional().default(""),
-  services: z.string().trim().max(2000).optional().default(""),
+  services: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(120),
+        description: z.string().trim().max(500).optional().default(""),
+      }),
+    )
+    .max(20)
+    .optional()
+    .default([]),
   areas: z.string().trim().max(1000).optional().default(""),
   primaryColor: z
     .string()
@@ -174,15 +183,16 @@ export const createManualSite = createServerFn({ method: "POST" })
 
     const businessId = business.id;
 
-    const services = data.services
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 20);
+    const services = data.services.filter((s) => s.name.trim()).slice(0, 20);
     if (services.length) {
-      await supabaseAdmin
-        .from("services")
-        .insert(services.map((name, i) => ({ business_id: businessId, name, sort_order: i })));
+      await supabaseAdmin.from("services").insert(
+        services.map((service, i) => ({
+          business_id: businessId,
+          name: service.name,
+          description: service.description || null,
+          sort_order: i,
+        })),
+      );
     }
 
     const areas = data.areas
@@ -289,6 +299,54 @@ export const createManualSite = createServerFn({ method: "POST" })
       url: `${SITE_URL}/${business.slug}`,
       expiresAt,
     };
+  });
+
+/* ----------------------------------------------------------------- upload */
+
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/avif"];
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+
+/**
+ * Lets the team attach photos while building a demo site, before the business
+ * row exists. Files land in a per-form folder in the same private media bucket
+ * and are served through the existing public media proxy.
+ */
+export const uploadManualImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        folder: z.string().uuid(),
+        kind: z
+          .string()
+          .trim()
+          .regex(/^[a-z0-9-]{1,20}$/),
+        contentType: z.string().trim().max(60),
+        dataBase64: z.string().min(16).max(14_000_000),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as never);
+    if (!ALLOWED_IMAGE_TYPES.includes(data.contentType)) {
+      throw new Error("Please choose a PNG, JPG, WebP or AVIF image.");
+    }
+
+    const binary = atob(data.dataBase64);
+    if (binary.length > MAX_IMAGE_BYTES) throw new Error("That image is larger than 8 MB.");
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+
+    const ext = data.contentType.split("/")[1]?.replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${data.folder}/${data.kind}-${Date.now()}.${ext}`;
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage
+      .from("business-media")
+      .upload(path, bytes, { contentType: data.contentType, upsert: true, cacheControl: "3600" });
+    if (error) throw new Error("That upload didn't work. Please try again.");
+
+    return { url: `/api/public/media/${path}` };
   });
 
 /* ---------------------------------------------------------------- actions */
