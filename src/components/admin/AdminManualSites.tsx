@@ -47,7 +47,34 @@ const PLAN_OPTIONS = [
   })),
 ];
 
-const EMPTY = {
+type ServiceRow = { name: string; description: string };
+
+type FormState = {
+  businessName: string;
+  niche: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  city: string;
+  state: string;
+  primaryService: string;
+  tagline: string;
+  description: string;
+  services: ServiceRow[];
+  areas: string;
+  primaryColor: string;
+  logoUrl: string;
+  heroImageUrl: string;
+  aboutImageUrl: string;
+  galleryUrls: string[];
+  planId: string;
+  hours: number;
+  notes: string;
+};
+
+const DEFAULT_COLOR = "#1f6feb";
+
+const EMPTY: FormState = {
   businessName: "",
   niche: "",
   contactName: "",
@@ -58,17 +85,121 @@ const EMPTY = {
   primaryService: "",
   tagline: "",
   description: "",
-  services: "",
+  services: [],
   areas: "",
-  primaryColor: "",
+  primaryColor: DEFAULT_COLOR,
   logoUrl: "",
   heroImageUrl: "",
   aboutImageUrl: "",
-  galleryUrls: "",
+  galleryUrls: [],
   planId: "basic",
   hours: 12,
   notes: "",
 };
+
+const ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
+
+/** Upload control used while building a demo site — no URL typing needed. */
+function ManualUpload({
+  label,
+  hint,
+  kind,
+  folder,
+  value,
+  square,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  kind: string;
+  folder: string;
+  value: string;
+  square?: boolean;
+  onChange: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const upload = useServerFn(uploadManualImage);
+
+  async function handleFile(file: File) {
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("That image is larger than 8 MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const buffer = new Uint8Array(await file.arrayBuffer());
+      let binary = "";
+      for (let i = 0; i < buffer.length; i += 1) binary += String.fromCharCode(buffer[i]!);
+      const result = await upload({
+        data: {
+          folder,
+          kind,
+          contentType: file.type,
+          dataBase64: btoa(binary),
+        },
+      });
+      onChange(result.url);
+      toast.success("Image uploaded");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "That upload didn't work.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <div
+          className={`flex items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/40 ${
+            square ? "h-20 w-20" : "h-20 w-32"
+          }`}
+        >
+          {value ? (
+            <img src={value} alt="" className="h-full w-full object-contain" />
+          ) : (
+            <span className="text-xs text-muted-foreground">No image</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => inputRef.current?.click()}
+          >
+            {busy ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 h-4 w-4" />
+            )}
+            {value ? "Replace" : "Upload"}
+          </Button>
+          {value ? (
+            <Button type="button" size="sm" variant="ghost" onClick={() => onChange("")}>
+              <X className="mr-1.5 h-4 w-4" /> Remove
+            </Button>
+          ) : null}
+        </div>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={ACCEPT}
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (file) void handleFile(file);
+        }}
+      />
+    </div>
+  );
+}
 
 /** Live "11:42:08" style countdown to an expiry timestamp. */
 function Countdown({ iso, status }: { iso: string; status: ManualSite["status"] }) {
