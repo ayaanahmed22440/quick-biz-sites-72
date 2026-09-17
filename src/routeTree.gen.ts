@@ -52,6 +52,7 @@ import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
+import { Route as ApiPublicManualCheckoutIdRouteImport } from './routes/api/public/manual-checkout.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -277,6 +278,12 @@ const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   path: '/api/public/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicManualCheckoutIdRoute =
+  ApiPublicManualCheckoutIdRouteImport.update({
+    id: '/api/public/manual-checkout/$id',
+    path: '/api/public/manual-checkout/$id',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   id: '/api/public/media/$',
   path: '/api/public/media/$',
@@ -336,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -383,6 +391,7 @@ export interface FileRoutesByTo {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -432,6 +441,7 @@ export interface FileRoutesById {
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -528,6 +539,7 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -576,6 +588,7 @@ export interface FileRouteTypes {
     | '/_authenticated/billing_/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -603,6 +616,7 @@ export interface RootRouteChildren {
   SSlugRoute: typeof SSlugRoute
   ApiPublicPolarWebhookRoute: typeof ApiPublicPolarWebhookRoute
   ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
+  ApiPublicManualCheckoutIdRoute: typeof ApiPublicManualCheckoutIdRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -911,6 +925,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/manual-checkout/$id': {
+      id: '/api/public/manual-checkout/$id'
+      path: '/api/public/manual-checkout/$id'
+      fullPath: '/api/public/manual-checkout/$id'
+      preLoaderRoute: typeof ApiPublicManualCheckoutIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/media/$': {
       id: '/api/public/media/$'
       path: '/api/public/media/$'
@@ -1018,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugRoute: SSlugRoute,
   ApiPublicPolarWebhookRoute: ApiPublicPolarWebhookRoute,
   ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
+  ApiPublicManualCheckoutIdRoute: ApiPublicManualCheckoutIdRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
