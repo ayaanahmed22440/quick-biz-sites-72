@@ -82,7 +82,9 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
       (roles.data ?? []).filter((r) => r.role !== "customer").map((r) => r.user_id),
     );
 
-    const users: PlatformUser[] = (authUsers.data?.users ?? []).map((user) => {
+    const users: PlatformUser[] = (authUsers.data?.users ?? [])
+      .filter((user) => !pendingProspects.has(user.id))
+      .map((user) => {
       const profile = profileBy.get(user.id);
       const business = businessBy.get(user.id) ?? null;
       const sub = business ? (subBy.get(business.id) ?? null) : null;
