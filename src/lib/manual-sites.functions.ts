@@ -183,15 +183,16 @@ export const createManualSite = createServerFn({ method: "POST" })
 
     const businessId = business.id;
 
-    const services = data.services
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 20);
+    const services = data.services.filter((s) => s.name.trim()).slice(0, 20);
     if (services.length) {
-      await supabaseAdmin
-        .from("services")
-        .insert(services.map((name, i) => ({ business_id: businessId, name, sort_order: i })));
+      await supabaseAdmin.from("services").insert(
+        services.map((service, i) => ({
+          business_id: businessId,
+          name: service.name,
+          description: service.description || null,
+          sort_order: i,
+        })),
+      );
     }
 
     const areas = data.areas
