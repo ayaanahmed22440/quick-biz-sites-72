@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitWebsiteLead, type PublishedSite } from "@/lib/public-site.functions";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
+import { ManualSiteBanner } from "@/components/site/ManualSiteBanner";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
 export function publicSiteMeta(
@@ -39,6 +41,12 @@ export function publicSiteMeta(
 export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: string }) {
   const send = useServerFn(submitWebsiteLead);
   const b = site.business;
+
+  // Set after hydration so the server and client render the same first pass.
+  const [justPaid, setJustPaid] = useState(false);
+  useEffect(() => {
+    setJustPaid(new URLSearchParams(window.location.search).get("paid") === "1");
+  }, []);
 
   const content = normaliseContent(
     site.content,
