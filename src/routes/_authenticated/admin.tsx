@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
 import { AdminNotificationBell, AdminUsersTab } from "@/components/admin/AdminUsers";
+import { AdminManualSitesTab } from "@/components/admin/AdminManualSites";
 import { checkDomain, listAllDomains, setDomainVerification } from "@/lib/domains.functions";
 import {
   Dialog,
