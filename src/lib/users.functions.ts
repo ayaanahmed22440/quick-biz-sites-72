@@ -64,6 +64,15 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
         supabaseAdmin.from("user_roles").select("user_id, role"),
       ]);
 
+    // Prospects with an unpaid team-built demo aren't customers yet — they live
+    // in Manual Sites until their payment lands.
+    const { data: manual } = await supabaseAdmin
+      .from("manual_sites")
+      .select("owner_user_id, status");
+    const pendingProspects = new Set(
+      (manual ?? []).filter((m) => m.status !== "paid").map((m) => m.owner_user_id),
+    );
+
     const profileBy = new Map((profiles.data ?? []).map((p) => [p.id, p]));
     const businessBy = new Map((businesses.data ?? []).map((b) => [b.owner_id, b]));
     const subBy = new Map((subscriptions.data ?? []).map((s) => [s.business_id, s]));
@@ -73,7 +82,9 @@ export const listPlatformUsers = createServerFn({ method: "POST" })
       (roles.data ?? []).filter((r) => r.role !== "customer").map((r) => r.user_id),
     );
 
-    const users: PlatformUser[] = (authUsers.data?.users ?? []).map((user) => {
+    const users: PlatformUser[] = (authUsers.data?.users ?? [])
+      .filter((user) => !pendingProspects.has(user.id))
+      .map((user) => {
       const profile = profileBy.get(user.id);
       const business = businessBy.get(user.id) ?? null;
       const sub = business ? (subBy.get(business.id) ?? null) : null;

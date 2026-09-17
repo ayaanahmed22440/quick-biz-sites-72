@@ -340,6 +340,70 @@ export function sendEnquiryReplyEmail(opts: {
   });
 }
 
+/* ---------------------------------------------------------- manual sites */
+
+/** Sends a prospect the demo site we built for them, with the expiry. */
+export function sendManualPreviewEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+  slug: string;
+  expiresAt: string;
+  contactName?: string | null;
+}) {
+  const url = `${SITE_URL}/${opts.slug}`;
+  const expires = new Date(opts.expiresAt).toUTCString();
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "manual_preview",
+    subject: `Your ${opts.businessName} website is ready to view`,
+    title: "Here's your website",
+    replyTo: ADMIN_ALERT_EMAIL,
+    body: [
+      paragraph(`Hi ${escape(opts.contactName?.trim() || "there")},`),
+      paragraph(
+        `We've built a full website for <strong>${escape(opts.businessName)}</strong>. Have a look:`,
+      ),
+      paragraph(`<a href="${url}" style="color:#1f6feb;font-weight:700;">${url}</a>`),
+      button("View my website", url),
+      paragraph(
+        `<span style="color:#64748b;font-size:14px;">This preview stays online until ${escape(expires)}. Tap “Pay now” on the site to keep it live permanently.</span>`,
+      ),
+    ].join(""),
+  });
+}
+
+/** Sent the moment a manual demo site is paid for and becomes permanent. */
+export function sendManualSiteActivatedEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+  slug: string;
+}) {
+  const url = `${SITE_URL}/${opts.slug}`;
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "manual_site_activated",
+    subject: "Your website is live and yours",
+    title: "You're live",
+    body: [
+      paragraph(
+        `Payment received — <strong>${escape(opts.businessName)}</strong> is now permanently online at:`,
+      ),
+      paragraph(`<a href="${url}" style="color:#1f6feb;font-weight:700;">${url}</a>`),
+      paragraph(
+        "Your account is ready too. Sign in with this email address — we'll send you a one-time login link, no password needed.",
+      ),
+      button("Sign in to my dashboard", `${SITE_URL}/auth`),
+      paragraph(
+        `<span style="color:#64748b;font-size:14px;">From there you can edit wording and photos, see enquiries, and connect your own domain.</span>`,
+      ),
+    ].join(""),
+  });
+}
+
 /* ------------------------------------------------------------------ admin */
 
 function adminNote(opts: {

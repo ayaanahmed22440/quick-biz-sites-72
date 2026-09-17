@@ -139,6 +139,16 @@ export async function syncSubscription(
     .eq("business_id", owner.businessId)
     .eq("status", "pending");
 
+  // A team-built demo site becomes a permanent customer site on first payment.
+  if (status === "active" || status === "trialing") {
+    try {
+      const { markManualSitePaid } = await import("./manual-sites.server");
+      await markManualSitePaid(owner.businessId);
+    } catch (error) {
+      console.error("[manual site] activation failed", error);
+    }
+  }
+
   const ended = status === "canceled" || status === "expired";
   if (status === "active" && previous !== "active") {
     await notifyBilling(owner.businessId, "received", owner.planId);
