@@ -260,11 +260,8 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
       create({
         data: {
           ...form,
-          galleryUrls: form.galleryUrls
-            .split("\n")
-            .map((s) => s.trim())
-            .filter(Boolean)
-            .slice(0, 6),
+          services: form.services.filter((s) => s.name.trim()),
+          galleryUrls: form.galleryUrls.filter(Boolean).slice(0, 6),
           ...(form.primaryColor ? { primaryColor: form.primaryColor } : {}),
           hours: Number(form.hours) || 12,
         },
@@ -273,6 +270,7 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
       await refresh();
       setOpen(false);
       setForm({ ...EMPTY });
+      setFolder(crypto.randomUUID());
       try {
         await navigator.clipboard.writeText(result.url);
         toast.success("Demo site created — link copied to your clipboard");
