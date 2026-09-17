@@ -545,48 +545,150 @@ export function AdminManualSitesTab({ enabled }: { enabled: boolean }) {
                 onChange={(e) => set("description", e.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
-              <Label>Services (one per line)</Label>
-              <Textarea
-                rows={4}
-                value={form.services}
-                onChange={(e) => set("services", e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Other areas covered (comma separated)</Label>
-              <Textarea rows={4} value={form.areas} onChange={(e) => set("areas", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Brand colour (hex, optional)</Label>
-              <Input
-                value={form.primaryColor}
-                onChange={(e) => set("primaryColor", e.target.value)}
-                placeholder="#1f6feb"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Logo image URL (optional)</Label>
-              <Input value={form.logoUrl} onChange={(e) => set("logoUrl", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Hero image URL (optional)</Label>
-              <Input value={form.heroImageUrl} onChange={(e) => set("heroImageUrl", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>About image URL (optional)</Label>
-              <Input
-                value={form.aboutImageUrl}
-                onChange={(e) => set("aboutImageUrl", e.target.value)}
-              />
+            <div className="space-y-2 sm:col-span-2">
+              <div className="flex items-center gap-2">
+                <Label>Services on the services section</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto gap-1.5"
+                  onClick={() =>
+                    set("services", [...form.services, { name: "", description: "" }])
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add service
+                </Button>
+              </div>
+              {form.services.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Choose a business type to load the usual services, or add your own.
+                </p>
+              ) : null}
+              <div className="space-y-2">
+                {form.services.map((service, index) => (
+                  <div
+                    key={index}
+                    className="grid gap-2 rounded-lg border border-border p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_auto]"
+                  >
+                    <Input
+                      value={service.name}
+                      placeholder="Service name"
+                      onChange={(e) => setService(index, { name: e.target.value })}
+                    />
+                    <Input
+                      value={service.description}
+                      placeholder="Short description (optional)"
+                      onChange={(e) => setService(index, { description: e.target.value })}
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remove service"
+                      onClick={() =>
+                        set(
+                          "services",
+                          form.services.filter((_, i) => i !== index),
+                        )
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Gallery image URLs (one per line, optional)</Label>
-              <Textarea
-                rows={3}
-                value={form.galleryUrls}
-                onChange={(e) => set("galleryUrls", e.target.value)}
-              />
+              <Label>Other areas covered (comma separated)</Label>
+              <Textarea rows={3} value={form.areas} onChange={(e) => set("areas", e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Brand colour</Label>
+              <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+                <input
+                  type="color"
+                  aria-label="Brand colour"
+                  value={/^#[0-9a-fA-F]{6}$/.test(form.primaryColor) ? form.primaryColor : DEFAULT_COLOR}
+                  onChange={(e) => set("primaryColor", e.target.value)}
+                  className="h-10 w-14 shrink-0 cursor-pointer rounded border border-input bg-background"
+                />
+                <Input
+                  value={form.primaryColor}
+                  onChange={(e) => set("primaryColor", e.target.value)}
+                  placeholder="#1f6feb"
+                />
+              </div>
+            </div>
+            <ManualUpload
+              label="Logo"
+              hint="Shown in the header of their website."
+              kind="logo"
+              folder={folder}
+              square
+              value={form.logoUrl}
+              onChange={(url) => set("logoUrl", url)}
+            />
+            <ManualUpload
+              label="Main photo (top of the page)"
+              kind="hero"
+              folder={folder}
+              value={form.heroImageUrl}
+              onChange={(url) => set("heroImageUrl", url)}
+            />
+            <ManualUpload
+              label="About photo"
+              kind="about"
+              folder={folder}
+              value={form.aboutImageUrl}
+              onChange={(url) => set("aboutImageUrl", url)}
+            />
+            <div className="space-y-2 sm:col-span-2">
+              <div className="flex items-center gap-2">
+                <Label>Gallery photos</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="ml-auto gap-1.5"
+                  disabled={form.galleryUrls.length >= 6}
+                  onClick={() => set("galleryUrls", [...form.galleryUrls, ""])}
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add photo
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {form.galleryUrls.map((url, index) => (
+                  <div key={index} className="flex items-end gap-2">
+                    <ManualUpload
+                      label={`Photo ${index + 1}`}
+                      kind="gallery"
+                      folder={folder}
+                      value={url}
+                      onChange={(next) =>
+                        set(
+                          "galleryUrls",
+                          form.galleryUrls.map((v, i) => (i === index ? next : v)),
+                        )
+                      }
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Remove photo"
+                      onClick={() =>
+                        set(
+                          "galleryUrls",
+                          form.galleryUrls.filter((_, i) => i !== index),
+                        )
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Plan the pay button charges</Label>
