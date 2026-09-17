@@ -93,7 +93,16 @@ const createInput = z.object({
   primaryService: z.string().trim().max(120).optional().default(""),
   tagline: z.string().trim().max(200).optional().default(""),
   description: z.string().trim().max(2000).optional().default(""),
-  services: z.string().trim().max(2000).optional().default(""),
+  services: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1).max(120),
+        description: z.string().trim().max(500).optional().default(""),
+      }),
+    )
+    .max(20)
+    .optional()
+    .default([]),
   areas: z.string().trim().max(1000).optional().default(""),
   primaryColor: z
     .string()
