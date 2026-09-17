@@ -436,6 +436,7 @@ function AdminPage() {
         <TabsList>
           <TabsTrigger value="clients">Clients</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="manual">Manual sites</TabsTrigger>
           <TabsTrigger value="renewals">Revenue &amp; renewals</TabsTrigger>
           <TabsTrigger value="support">Support ({openTickets.length})</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
@@ -445,6 +446,10 @@ function AdminPage() {
 
         <TabsContent value="users">
           <AdminUsersTab enabled={Boolean(workspace?.isStaff)} />
+        </TabsContent>
+
+        <TabsContent value="manual">
+          <AdminManualSitesTab enabled={Boolean(workspace?.isStaff)} />
         </TabsContent>
 
         <TabsContent value="clients" className="space-y-4">
