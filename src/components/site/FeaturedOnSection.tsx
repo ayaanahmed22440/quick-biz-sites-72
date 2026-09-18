@@ -119,7 +119,14 @@ export function FeaturedOnSection() {
                 width={width}
                 height={height}
                 loading={loading}
-                className="max-sm:h-10 max-sm:w-auto max-sm:max-w-[70vw] object-contain"
+                className="max-sm:h-10! max-sm:w-auto! max-sm:max-w-[70vw]! object-contain"
+                style={
+                  width && height
+                    ? undefined
+                    : height
+                      ? { height, width: "auto" }
+                      : { width, height: "auto" }
+                }
               />
             </a>
           ))}
