@@ -28,9 +28,6 @@ function SettingsPage() {
   const queryClient = useQueryClient();
   const [fullName, setFullName] = useState("");
   const [savingName, setSavingName] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [savingPassword, setSavingPassword] = useState(false);
   const [adMeasurement, setAdMeasurement] = useState(true);
 
   useEffect(() => {
@@ -70,26 +67,6 @@ function SettingsPage() {
     await queryClient.invalidateQueries({ queryKey: workspaceQueryKey });
   }
 
-  async function savePassword() {
-    if (newPassword.length < 8) {
-      toast.error("Your new password needs at least 8 characters");
-      return;
-    }
-    setSavingPassword(true);
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-      ...(currentPassword ? { current_password: currentPassword } : {}),
-    } as { password: string });
-    setSavingPassword(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setCurrentPassword("");
-    setNewPassword("");
-    toast.success("Password updated");
-  }
-
   return (
     <>
       <PageHeader title="Account settings" description="Your login details and profile." />
@@ -115,38 +92,6 @@ function SettingsPage() {
         <Button onClick={saveName} disabled={savingName} className="mt-5">
           {savingName ? "Saving…" : "Save profile"}
         </Button>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-sm font-semibold">Change password</h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="current-password">Current password</Label>
-            <Input
-              id="current-password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="new-password">New password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="mt-1.5"
-            />
-          </div>
-        </div>
-        <Button onClick={savePassword} disabled={savingPassword} className="mt-5">
-          {savingPassword ? "Updating…" : "Update password"}
-        </Button>
-        <p className="mt-3 text-xs text-muted-foreground">
-          If you signed in with Google, you can set a password here to also log in with email.
-        </p>
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
