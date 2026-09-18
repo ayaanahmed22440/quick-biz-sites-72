@@ -32,7 +32,8 @@ import { Button } from "@/components/ui/button";
 import { defaultSiteContent } from "@/lib/site-content";
 import { previewDataFor } from "@/lib/template-preview-data";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
-import { trackViewContent } from "@/lib/meta-pixel";
+import { trackViewContent, trackLead } from "@/lib/meta-pixel";
+import { BusinessNameStart } from "@/components/site/BusinessNameStart";
 import {
   Accordion,
   AccordionContent,
