@@ -205,7 +205,6 @@ function CleaningBusinessLandingPage() {
               <BuildButton />
             </div>
             <TrustPoints className="mt-10 sm:mt-9" />
-            <p className="mt-4 text-sm font-semibold text-muted-foreground">Build it. Preview it. Launch it.</p>
           </div>
 
           <div className="animate-product-rise mx-auto mt-14 max-w-5xl pb-8 sm:mt-16"><CleaningSiteMockup large /></div>
