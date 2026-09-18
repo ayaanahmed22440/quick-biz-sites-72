@@ -28,7 +28,6 @@ import cleaningGalleryTwo from "@/assets/templates/cleaning-gallery-2.jpg";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
-import { Button } from "@/components/ui/button";
 import { defaultSiteContent } from "@/lib/site-content";
 import { previewDataFor } from "@/lib/template-preview-data";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
