@@ -13,6 +13,7 @@ import {
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { FeaturedOnSection } from "@/components/site/FeaturedOnSection";
 import { BusinessNameStart } from "@/components/site/BusinessNameStart";
+import { TrustPoints } from "@/components/site/TrustPoints";
 import { trackLead } from "@/lib/meta-pixel";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
@@ -226,9 +227,7 @@ function HomePage() {
           <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
             <BusinessNameStart onSubmitTrack={() => trackLead()} />
           </div>
-          <div className="animate-hero-entry animate-hero-delay-4 mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-foreground">
-            {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
-          </div>
+          <TrustPoints className="animate-hero-entry animate-hero-delay-4 mt-6" />
         </div>
         <ProductPreview />
       </section>
