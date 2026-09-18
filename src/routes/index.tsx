@@ -227,7 +227,7 @@ function HomePage() {
           <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
             <BusinessNameStart onSubmitTrack={() => trackLead()} />
           </div>
-          <TrustPoints className="animate-hero-entry animate-hero-delay-4 mt-6" />
+          <TrustPoints className="animate-hero-entry animate-hero-delay-4 mt-10 sm:mt-9" />
         </div>
         <ProductPreview />
       </section>
