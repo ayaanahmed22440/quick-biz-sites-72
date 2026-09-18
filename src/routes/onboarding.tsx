@@ -138,7 +138,7 @@ type Step = {
   createsBusiness?: boolean;
 };
 
-const STEPS: Step[] = [
+const ALL_STEPS: Step[] = [
   {
     key: "niche",
     stage: "trade",
