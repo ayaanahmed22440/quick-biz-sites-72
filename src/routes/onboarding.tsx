@@ -272,15 +272,26 @@ function OnboardingPage() {
     [],
   );
 
+  // Business name typed on the landing page: prefill it and skip that question.
+  const { name: prefilledName } = Route.useSearch();
+  const startName = (prefilledName ?? "").trim();
+  const STEPS = useMemo(
+    () => (startName.length >= 2 ? ALL_STEPS.filter((s) => s.key !== "name") : ALL_STEPS),
+    [startName],
+  );
+
   useEffect(() => {
+    let next = EMPTY;
     try {
       const stored = localStorage.getItem(DRAFT_KEY);
-      if (stored) setDraft({ ...EMPTY, ...(JSON.parse(stored) as Partial<Draft>) });
+      if (stored) next = { ...EMPTY, ...(JSON.parse(stored) as Partial<Draft>) };
     } catch {
       /* ignore unreadable drafts */
     }
+    if (startName.length >= 2) next = { ...next, name: startName };
+    setDraft(next);
     setRestored(true);
-  }, []);
+  }, [startName]);
 
   useEffect(() => {
     if (!restored) return;
