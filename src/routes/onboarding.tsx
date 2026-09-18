@@ -83,6 +83,9 @@ const DEMO: Omit<Draft, "niche"> = {
 
 export const Route = createFileRoute("/onboarding")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    name: typeof search['name'] === "string" ? (search['name'] as string).trim().slice(0, 120) : undefined,
+  }),
   // No account needed to start. One is created silently at the email step.
 
   head: () => ({
