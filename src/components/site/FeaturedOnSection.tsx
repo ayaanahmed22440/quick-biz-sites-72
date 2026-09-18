@@ -11,7 +11,6 @@ const BADGES: ReadonlyArray<{
     src: "https://tinylaunch.com/tinylaunch_badge_launching_soon.svg",
     alt: "TinyLaunch Badge",
     width: 202,
-    height: 56,
     loading: "lazy",
   },
   {
@@ -33,7 +32,6 @@ const BADGES: ReadonlyArray<{
     src: "https://neeed.directory/badges/neeed-badge-light.svg",
     alt: "Featured on neeed.directory",
     width: 139,
-    height: 44,
     loading: "lazy",
   },
   {
@@ -121,7 +119,7 @@ export function FeaturedOnSection() {
                 width={width}
                 height={height}
                 loading={loading}
-                className="h-10 w-auto max-w-[70vw] object-contain sm:h-auto sm:max-w-none"
+                className="max-sm:h-10 max-sm:w-auto max-sm:max-w-[70vw] object-contain"
               />
             </a>
           ))}
