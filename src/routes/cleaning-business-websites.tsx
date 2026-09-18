@@ -33,6 +33,7 @@ import { previewDataFor } from "@/lib/template-preview-data";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
 import { trackViewContent, trackLead } from "@/lib/meta-pixel";
 import { BusinessNameStart } from "@/components/site/BusinessNameStart";
+import { TrustPoints } from "@/components/site/TrustPoints";
 import {
   Accordion,
   AccordionContent,
