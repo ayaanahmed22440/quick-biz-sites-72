@@ -11,6 +11,7 @@ const BADGES: ReadonlyArray<{
     src: "https://tinylaunch.com/tinylaunch_badge_launching_soon.svg",
     alt: "TinyLaunch Badge",
     width: 202,
+    height: 56,
     loading: "lazy",
   },
   {
@@ -32,6 +33,7 @@ const BADGES: ReadonlyArray<{
     src: "https://neeed.directory/badges/neeed-badge-light.svg",
     alt: "Featured on neeed.directory",
     width: 139,
+    height: 44,
     loading: "lazy",
   },
   {
