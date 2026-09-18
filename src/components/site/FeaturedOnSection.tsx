@@ -104,7 +104,7 @@ export function FeaturedOnSection() {
         <h2 className="text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
           Featured on
         </h2>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-4 sm:gap-8">
           {BADGES.map(({ href, alt, src, width, height, loading }) => (
             <a
               key={href}
@@ -119,7 +119,7 @@ export function FeaturedOnSection() {
                 width={width}
                 height={height}
                 loading={loading}
-                className="h-auto max-w-full"
+                className="max-sm:h-10! max-sm:w-auto! max-sm:max-w-[70vw]! object-contain"
                 style={
                   width && height
                     ? undefined
