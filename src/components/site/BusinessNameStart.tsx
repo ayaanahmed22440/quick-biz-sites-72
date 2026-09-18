@@ -53,7 +53,7 @@ export function BusinessNameStart({
     let timer: number;
 
     const tick = () => {
-      const current = EXAMPLE_NAMES[nameIndex];
+      const current = EXAMPLE_NAMES[nameIndex] ?? "Sparkle Clean Co.";
       if (!deleting) {
         charIndex += 1;
         setTyped(current.slice(0, charIndex));
