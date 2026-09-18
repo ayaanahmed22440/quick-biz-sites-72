@@ -39,7 +39,7 @@ export function BusinessNameStart({
     <div className={cn("mx-auto w-full max-w-xl", className)}>
       <form
         onSubmit={submit}
-        className="flex items-center gap-2 rounded-full border border-border bg-card p-2 pl-5 shadow-lg shadow-navy/10 transition-shadow focus-within:border-accent/50 focus-within:shadow-xl"
+        className="flex items-center gap-2 rounded-2xl border border-border bg-card p-2 pl-5 shadow-lg shadow-navy/10 transition-shadow focus-within:border-accent/50 focus-within:shadow-xl"
       >
         <input
           value={value}
@@ -54,7 +54,7 @@ export function BusinessNameStart({
         <button
           type="submit"
           aria-label="Start building my website"
-          className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-all duration-300 hover:bg-accent/90"
+          className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-all duration-300 hover:bg-accent/90"
         >
           <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
