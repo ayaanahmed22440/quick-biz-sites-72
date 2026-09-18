@@ -96,7 +96,7 @@ export function BusinessNameStart({
     <div className={cn("mx-auto w-full max-w-xl", className)}>
       <form
         onSubmit={submit}
-        className="flex items-center gap-2 rounded-2xl border border-navy/15 bg-card p-2 pl-5 shadow-lg shadow-navy/10 transition-shadow focus-within:border-accent/50 focus-within:shadow-xl"
+        className="flex items-center gap-2 rounded-2xl border border-navy/25 bg-card p-2.5 pl-5 shadow-lg shadow-navy/10 transition-all focus-within:border-accent/60 focus-within:ring-2 focus-within:ring-accent/25"
       >
         <div className="relative min-w-0 flex-1">
           <input
@@ -109,7 +109,7 @@ export function BusinessNameStart({
             onBlur={() => setFocused(false)}
             placeholder={animating ? "" : placeholder}
             aria-label="Your business name"
-            className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+            className="h-12 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
           />
           {animating && (
             <span
@@ -124,12 +124,12 @@ export function BusinessNameStart({
         <button
           type="submit"
           aria-label="Start building my website"
-          className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-navy-foreground transition-all duration-300 hover:bg-navy-muted"
+          className="group flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy text-navy-foreground transition-all duration-300 hover:bg-navy-muted"
         >
           <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
       </form>
-      <p className={cn("mt-2 text-xs", error ? "text-destructive" : "text-muted-foreground")}>
+      <p className={cn("mt-3 text-xs", error ? "text-destructive" : "text-muted-foreground")}>
         {error ?? "Type your business name and press Enter"}
       </p>
     </div>
