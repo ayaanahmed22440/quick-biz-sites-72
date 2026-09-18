@@ -96,7 +96,7 @@ export function BusinessNameStart({
     <div className={cn("mx-auto w-full max-w-xl", className)}>
       <form
         onSubmit={submit}
-        className="flex items-center gap-2 rounded-2xl border border-navy/15 bg-card p-2 pl-5 shadow-lg shadow-navy/10 transition-shadow focus-within:border-accent/50 focus-within:shadow-xl"
+        className="flex items-center gap-2 rounded-2xl border-2 border-accent/35 bg-card p-2 pl-5 shadow-lg shadow-accent/10 transition-all focus-within:border-accent focus-within:shadow-xl focus-within:shadow-accent/20"
       >
         <div className="relative min-w-0 flex-1">
           <input
