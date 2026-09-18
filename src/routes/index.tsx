@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { FeaturedOnSection } from "@/components/site/FeaturedOnSection";
+import { BusinessNameStart } from "@/components/site/BusinessNameStart";
+import { trackLead } from "@/lib/meta-pixel";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
 import { getSiteForHost, type HostedSite } from "@/lib/public-site.functions";
