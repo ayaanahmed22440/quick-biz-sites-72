@@ -23,7 +23,7 @@ export function ManualSiteBanner({
 
   if (paidJustNow) {
     return (
-      <div className="sticky top-0 z-50 bg-emerald-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
+      <div className="relative bg-emerald-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
         Payment received — activating your website now. This page will update in a moment.
       </div>
     );
@@ -35,7 +35,7 @@ export function ManualSiteBanner({
   const ss = String(total % 60).padStart(2, "0");
 
   return (
-    <div className="sticky top-0 z-50 bg-slate-900 px-4 py-2.5 text-white">
+    <div className="relative bg-slate-900 px-4 py-2.5 text-white">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center">
         <p className="text-sm font-medium">
           Payment pending — this preview expires in{" "}

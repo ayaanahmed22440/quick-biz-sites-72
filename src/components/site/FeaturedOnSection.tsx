@@ -43,8 +43,8 @@ const BADGES: ReadonlyArray<{
     loading: "lazy",
   },
   {
-    href: "https://thesaasdir.com/product/your-product?ref=badge",
-    src: "https://thesaasdir.com/badge/your-product.svg",
+    href: "https://thesaasdir.com/product/webwarheads?ref=badge",
+    src: "https://thesaasdir.com/badge/webwarheads.svg",
     alt: "Featured on TheSaaSDir",
     width: 160,
     height: 44,
