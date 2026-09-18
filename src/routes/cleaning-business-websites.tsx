@@ -203,9 +203,7 @@ function CleaningBusinessLandingPage() {
             <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex justify-center">
               <BuildButton />
             </div>
-            <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-foreground">
-              {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
-            </div>
+            <TrustPoints className="mt-6" />
             <p className="mt-4 text-sm font-semibold text-muted-foreground">Build it. Preview it. Launch it.</p>
           </div>
 
