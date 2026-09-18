@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { FeaturedOnSection } from "@/components/site/FeaturedOnSection";
+import { BusinessNameStart } from "@/components/site/BusinessNameStart";
+import { trackLead } from "@/lib/meta-pixel";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { PublicSiteView, publicSiteMeta } from "@/components/site/PublicSiteView";
 import { getSiteForHost, type HostedSite } from "@/lib/public-site.functions";
@@ -221,10 +223,8 @@ function HomePage() {
           <p className="animate-hero-entry animate-hero-delay-2 mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
             Build, preview and publish a professional website without hiring a developer. Everything you need, from <strong className="font-semibold text-foreground">$37 a month.</strong>
           </p>
-          <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="group h-12 bg-accent px-7 text-accent-foreground shadow-lg shadow-accent/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent/90 hover:shadow-xl hover:shadow-accent/25">
-              <Link to="/onboarding">Preview my website <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1" /></Link>
-            </Button>
+          <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
+            <BusinessNameStart onSubmitTrack={() => trackLead()} />
             <Button asChild size="lg" variant="outline" className="h-12 px-7">
               <Link to="/how-it-works">See how it works</Link>
             </Button>
@@ -316,7 +316,7 @@ function HomePage() {
             <h2 className="text-3xl font-bold sm:text-4xl">See your business online today.</h2>
             <p className="mt-3 text-navy-foreground/70">Build the preview free. Pay only when it is ready to publish.</p>
           </div>
-          <Button asChild size="lg" className="h-12 shrink-0 bg-accent px-7 text-accent-foreground hover:bg-accent/90"><Link to="/onboarding">Start building <ArrowRight /></Link></Button>
+          <BusinessNameStart onSubmitTrack={() => trackLead()} className="md:max-w-md" />
         </div>
       </section>
     </PublicLayout>
