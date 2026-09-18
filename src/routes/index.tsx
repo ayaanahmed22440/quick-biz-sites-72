@@ -225,11 +225,10 @@ function HomePage() {
           </p>
           <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
             <BusinessNameStart onSubmitTrack={() => trackLead()} />
-            <Button asChild size="lg" variant="outline" className="h-12 px-7">
-              <Link to="/how-it-works">See how it works</Link>
-            </Button>
           </div>
-          <p className="animate-hero-entry animate-hero-delay-4 mt-4 text-xs text-muted-foreground">No setup fee · Preview before you pay · Cancel anytime</p>
+          <div className="animate-hero-entry animate-hero-delay-4 mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-foreground">
+            {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
+          </div>
         </div>
         <ProductPreview />
       </section>

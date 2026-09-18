@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowDown,
   ArrowRight,
@@ -28,7 +28,6 @@ import cleaningGalleryTwo from "@/assets/templates/cleaning-gallery-2.jpg";
 import { PreviewFrame } from "@/components/app/PreviewFrame";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
-import { Button } from "@/components/ui/button";
 import { defaultSiteContent } from "@/lib/site-content";
 import { previewDataFor } from "@/lib/template-preview-data";
 import { TEMPLATE_PRESETS } from "@/lib/template-registry";
@@ -201,9 +200,8 @@ function CleaningBusinessLandingPage() {
               Build a website made for your cleaning business, add your services and photos, then preview the whole thing before you pay.
             </p>
             <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
-            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <BuildButton className="h-14 px-10 text-base" />
-              <Button asChild size="lg" variant="outline" className="h-14 border-2 border-navy px-10 text-base text-navy"><Link to="/how-it-works">See How It Works</Link></Button>
+            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex justify-center">
+              <BuildButton />
             </div>
             <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-foreground">
               {["No coding", "No developer", "Preview before you pay"].map((item) => <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-success" />{item}</span>)}
@@ -353,7 +351,7 @@ function CleaningBusinessLandingPage() {
           <Clock3 className="mx-auto h-9 w-9 text-accent" /><h2 className="mt-6 text-4xl font-bold sm:text-6xl">Your next customer is looking for a cleaner.</h2><p className="mx-auto mt-5 max-w-2xl text-xl text-navy-foreground/75">Give them somewhere professional to find your business.</p>
           <div className="mx-auto mt-8 max-w-xl space-y-2 text-lg font-semibold"><p>Build your cleaning business website.</p><p>Preview it before you pay.</p><p>Launch when you're ready.</p></div>
           <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><BuildButton /><Button asChild size="lg" variant="outline" className="h-12 border-navy-foreground/30 bg-transparent px-7 text-navy-foreground hover:bg-navy-muted hover:text-navy-foreground"><Link to="/how-it-works">See How It Works</Link></Button></div>
+          <div className="mt-8 flex justify-center"><BuildButton /></div>
         </div>
       </section>
 
