@@ -1,10 +1,14 @@
-import { Check } from "lucide-react";
+import { CodeXml, Hammer, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const POINTS = ["No coding", "No developer", "Preview before you pay"] as const;
+const POINTS = [
+  { label: "No coding", Icon: CodeXml },
+  { label: "No developer", Icon: Hammer },
+  { label: "No card required", Icon: CreditCard },
+] as const;
 
 /**
- * Trust checkmarks under the hero starter input. Stacks as a centered list on
+ * Trust points under the hero starter input. Stacks as a centered list on
  * mobile, spreads into an evenly-spaced row from `sm` up.
  */
 export function TrustPoints({ className }: { className?: string }) {
@@ -15,10 +19,10 @@ export function TrustPoints({ className }: { className?: string }) {
         className,
       )}
     >
-      {POINTS.map((item) => (
-        <li key={item} className="flex items-center gap-1.5">
-          <Check className="h-4 w-4 shrink-0 text-success" />
-          {item}
+      {POINTS.map(({ label, Icon }) => (
+        <li key={label} className="flex items-center gap-2">
+          <Icon className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+          {label}
         </li>
       ))}
     </ul>
