@@ -125,13 +125,13 @@ const faqs = [
   ["What if I don't like the website?", "Preview it before you pay. You don't have to commit to a plan before seeing your website."],
 ] as const;
 
-function BuildButton({ label = "Build My Website", className = "" }: { label?: string; className?: string }) {
+function BuildButton({ className = "" }: { label?: string; className?: string }) {
   return (
-    <Button asChild size="lg" className={`group h-12 bg-accent px-7 text-accent-foreground shadow-lg shadow-accent/20 hover:bg-accent/90 ${className}`}>
-      <Link to="/onboarding">
-        {label}<ArrowRight className="transition-transform group-hover:translate-x-1" />
-      </Link>
-    </Button>
+    <BusinessNameStart
+      className={className}
+      onSubmitTrack={() => trackLead()}
+      placeholder="Enter your cleaning business name..."
+    />
   );
 }
 
