@@ -314,7 +314,7 @@ function HomePage() {
             <h2 className="text-3xl font-bold sm:text-4xl">See your business online today.</h2>
             <p className="mt-3 text-navy-foreground/70">Build the preview free. Pay only when it is ready to publish.</p>
           </div>
-          <Button asChild size="lg" className="h-12 shrink-0 bg-accent px-7 text-accent-foreground hover:bg-accent/90"><Link to="/onboarding">Start building <ArrowRight /></Link></Button>
+          <BusinessNameStart onSubmitTrack={() => trackLead()} className="md:max-w-md" />
         </div>
       </section>
     </PublicLayout>
