@@ -113,6 +113,11 @@ export const checkDomain = createServerFn({ method: "POST" })
           ok: txt.length > 0,
           observed: txt.map((t) => t.replace(/^"|"$/g, "")),
         },
+        {
+          label: `TXT _lovable.www.${row.domain}`,
+          ok: txtWww.length > 0,
+          observed: txtWww.map((t) => t.replace(/^"|"$/g, "")),
+        },
       ],
       message: apexOk
         ? wwwOk
