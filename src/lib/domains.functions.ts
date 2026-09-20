@@ -7,7 +7,7 @@ export const DOMAIN_TARGET_IP = "185.158.133.1";
 
 type DnsAnswer = { name: string; type: number; data: string };
 
-async function resolve(name: string, type: "A" | "CNAME"): Promise<string[]> {
+async function resolve(name: string, type: "A" | "CNAME" | "TXT"): Promise<string[]> {
   try {
     const response = await fetch(
       `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`,
