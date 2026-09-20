@@ -75,3 +75,9 @@
 - Two customer options: buy-for-me ($20 Polar) and bring-your-own; hide DNS/token from customers.
 - Admin queue for fulfilment + token entry + release-records toggle.
 - ONE-TIME manual step: unset www.webwarheads.com as primary domain in Project Settings → Domains, or every client domain redirects to our homepage.
+
+## Domain flow (customer-facing, Sep 2026)
+- Customers now choose: "Get a domain for me — $20" (Polar one-off, product 9e89d168-24c6-4406-b880-286665d523e9) or "I already have a domain".
+- Paid/BYO requests alert the team by email; DNS records stay hidden until staff release them in Admin → Domains.
+- MANUAL per customer: buy/connect the name in Project Settings → Domains, paste the ownership token, then release records or mark connected & live.
+- STILL OPEN: unset www.webwarheads.com as primary domain, or every client domain redirects to our homepage.

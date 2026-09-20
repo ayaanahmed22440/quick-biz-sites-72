@@ -457,14 +457,21 @@ export type Database = {
         Row: {
           admin_notes: string | null
           business_id: string
+          checkout_url: string | null
           created_at: string
           dns_notes: string | null
           domain: string
           expires_at: string | null
+          fulfilled_at: string | null
           id: string
           kind: Database["public"]["Enums"]["domain_kind"]
           last_checked_at: string | null
+          paid_at: string | null
+          polar_checkout_id: string | null
+          purchase_status: string
+          records_released: boolean
           reminded_at: string | null
+          request_type: string
           ssl_active: boolean
           ssl_status: string
           status: Database["public"]["Enums"]["domain_status"]
@@ -474,14 +481,21 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           business_id: string
+          checkout_url?: string | null
           created_at?: string
           dns_notes?: string | null
           domain: string
           expires_at?: string | null
+          fulfilled_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
           last_checked_at?: string | null
+          paid_at?: string | null
+          polar_checkout_id?: string | null
+          purchase_status?: string
+          records_released?: boolean
           reminded_at?: string | null
+          request_type?: string
           ssl_active?: boolean
           ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
@@ -491,14 +505,21 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           business_id?: string
+          checkout_url?: string | null
           created_at?: string
           dns_notes?: string | null
           domain?: string
           expires_at?: string | null
+          fulfilled_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
           last_checked_at?: string | null
+          paid_at?: string | null
+          polar_checkout_id?: string | null
+          purchase_status?: string
+          records_released?: boolean
           reminded_at?: string | null
+          request_type?: string
           ssl_active?: boolean
           ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]

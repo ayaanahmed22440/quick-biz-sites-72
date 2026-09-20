@@ -10,6 +10,8 @@ import {
   checkDomain,
   DOMAIN_TARGET_IP,
   listDomainOverview,
+  markDomainFulfilled,
+  setDomainRecordsReleased,
   setDomainVerification,
 } from "@/lib/domains.functions";
 import { ErrorBlock, LoadingBlock } from "@/components/app/StateBlocks";
@@ -38,6 +40,11 @@ type DomainRow = {
   verification_token: string | null;
   admin_notes: string | null;
   last_checked_at: string | null;
+  request_type?: string | null;
+  purchase_status?: string | null;
+  records_released?: boolean | null;
+  paid_at?: string | null;
+  fulfilled_at?: string | null;
 };
 
 type SiteRow = {
@@ -125,6 +132,8 @@ function DomainCard({
   const save = useServerFn(setDomainVerification);
   const rename = useServerFn(adminUpdateDomain);
   const remove = useServerFn(adminRemoveDomain);
+  const release = useServerFn(setDomainRecordsReleased);
+  const fulfil = useServerFn(markDomainFulfilled);
 
   const [token, setToken] = useState(domain.verification_token ?? "");
   const [notes, setNotes] = useState(domain.admin_notes ?? "");
@@ -161,6 +170,24 @@ function DomainCard({
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update that domain"),
   });
 
+  const toggleRelease = useMutation({
+    mutationFn: (released: boolean) => release({ data: { domainId: domain.id, released } }),
+    onSuccess: () => {
+      toast.success("Customer view updated");
+      onDone();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update that"),
+  });
+
+  const markLive = useMutation({
+    mutationFn: () => fulfil({ data: { domainId: domain.id } }),
+    onSuccess: () => {
+      toast.success("Marked live — the customer has been emailed");
+      onDone();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not mark that live"),
+  });
+
   const dropDomain = useMutation({
     mutationFn: () => remove({ data: { domainId: domain.id } }),
     onSuccess: () => {
@@ -186,6 +213,20 @@ function DomainCard({
         </Badge>
         <Badge variant={domain.ssl_active ? "default" : "outline"}>
           {domain.ssl_active ? "SSL issued" : "SSL pending"}
+        </Badge>
+        {domain.request_type === "purchase" ? (
+          <Badge variant={domain.purchase_status === "awaiting_payment" ? "secondary" : "default"}>
+            {domain.purchase_status === "awaiting_payment"
+              ? "Bought by us — unpaid"
+              : domain.purchase_status === "paid"
+                ? "Paid $20 — buy & attach in Lovable"
+                : "Purchase fulfilled"}
+          </Badge>
+        ) : (
+          <Badge variant="outline">Customer owns it</Badge>
+        )}
+        <Badge variant={domain.records_released ? "default" : "secondary"}>
+          {domain.records_released ? "Records shown to customer" : "Records hidden"}
         </Badge>
         <span className="ml-auto text-xs text-muted-foreground">
           {domain.last_checked_at
@@ -286,6 +327,24 @@ function DomainCard({
             <a href={`https://${domain.domain}`} target="_blank" rel="noreferrer">
               Open <ExternalLink className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
             </a>
+          </Button>
+        ) : null}
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={toggleRelease.isPending}
+          onClick={() => toggleRelease.mutate(!domain.records_released)}
+        >
+          {domain.records_released ? "Hide records from customer" : "Release records to customer"}
+        </Button>
+        {domain.status !== "active" ? (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={markLive.isPending}
+            onClick={() => markLive.mutate()}
+          >
+            Mark connected &amp; live
           </Button>
         ) : null}
         <Button

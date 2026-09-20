@@ -2,10 +2,17 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, ExternalLink } from "lucide-react";
+import { Check, Copy, ExternalLink, Loader2, Search, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { checkDomain, DOMAIN_TARGET_IP } from "@/lib/domains.functions";
+import {
+  checkDomain,
+  checkDomainAvailability,
+  DOMAIN_SETUP_FEE_USD,
+  DOMAIN_TARGET_IP,
+  listMyDomains,
+  requestDomainPurchase,
+  requestOwnDomain,
+} from "@/lib/domains.functions";
 import { useWorkspace } from "@/hooks/useWorkspace";
 import { EmptyState, ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/domains")({
   head: () => ({
     meta: [
       { title: "Domains — WebWarheads" },
-      { name: "description", content: "Connect your domain to your WebWarheads website." },
+      { name: "description", content: "Get a domain for your WebWarheads website." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -26,11 +33,14 @@ export const Route = createFileRoute("/_authenticated/domains")({
 
 const DOMAIN_PATTERN = /^(?!-)[a-z0-9-]+(\.[a-z0-9-]+)+$/;
 
-const STATUS_COPY: Record<string, string> = {
-  pending: "Added — waiting for the two records at your domain provider.",
-  verifying: "Records spotted. They can take an hour or two to spread across the internet.",
-  active: "Live and secured. Visitors see your site on this name.",
-};
+function clean(raw: string) {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/^www\./, "")
+    .replace(/\/.*$/, "");
+}
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -81,61 +91,94 @@ function RecordRow({
   );
 }
 
+type DomainRow = Awaited<ReturnType<typeof listMyDomains>>[number];
+
+function statusLabel(d: DomainRow) {
+  if (d.status === "active") return { text: "Live", tone: "default" as const };
+  if (d.request_type === "purchase" && d.purchase_status === "awaiting_payment")
+    return { text: "Payment needed", tone: "secondary" as const };
+  if (d.request_type === "purchase" && d.purchase_status === "paid")
+    return { text: "Being set up", tone: "secondary" as const };
+  if (!d.records_released) return { text: "We're on it", tone: "secondary" as const };
+  if (d.status === "verifying") return { text: "Almost there", tone: "secondary" as const };
+  return { text: "Waiting on records", tone: "secondary" as const };
+}
+
+function statusCopy(d: DomainRow) {
+  if (d.status === "active") return "Live and secured. Visitors see your site on this name.";
+  if (d.request_type === "purchase" && d.purchase_status === "awaiting_payment")
+    return "Finish the one-off payment and we'll take it from there.";
+  if (d.request_type === "purchase")
+    return "Paid — our team is registering this name and pointing it at your site. Usually live within 24 hours.";
+  if (!d.records_released)
+    return "Our team is preparing this one. If we need anything from you, we'll email you simple steps.";
+  if (d.status === "verifying")
+    return "Records spotted. They can take an hour or two to spread across the internet.";
+  return "Add the records below at your domain provider and we'll do the rest.";
+}
+
 function DomainsPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const businessId = workspace?.business?.id;
   const slug = workspace?.business?.slug;
   const queryClient = useQueryClient();
-  const [value, setValue] = useState("");
+
   const check = useServerFn(checkDomain);
+  const listMine = useServerFn(listMyDomains);
+  const lookUp = useServerFn(checkDomainAvailability);
+  const buy = useServerFn(requestDomainPurchase);
+  const bringOwn = useServerFn(requestOwnDomain);
+
+  const [wanted, setWanted] = useState("");
+  const [owned, setOwned] = useState("");
+  const [lookup, setLookup] = useState<{
+    domain: string;
+    available: boolean;
+    known: boolean;
+  } | null>(null);
 
   const domains = useQuery({
     queryKey: ["domains", businessId],
     enabled: Boolean(businessId),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("domains")
-        .select(
-          "id, domain, kind, status, ssl_active, verification_token, last_checked_at, created_at",
-        )
-        .eq("business_id", businessId!)
-        .order("created_at");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => listMine({ data: { businessId: businessId! } }),
   });
 
-  const addDomain = useMutation({
+  const availability = useMutation({
     mutationFn: async () => {
-      const domain = value
-        .trim()
-        .toLowerCase()
-        .replace(/^https?:\/\//, "")
-        .replace(/^www\./, "")
-        .replace(/\/.*$/, "");
-      if (!DOMAIN_PATTERN.test(domain)) throw new Error("That doesn't look like a valid domain name.");
-      const { error } = await supabase
-        .from("domains")
-        .insert({ business_id: businessId!, domain, kind: "connected" });
-      if (error) throw error;
+      const domain = clean(wanted);
+      if (!DOMAIN_PATTERN.test(domain))
+        throw new Error("Type the full name, like yourbusiness.com");
+      return lookUp({ data: { domain } });
+    },
+    onSuccess: (result) => setLookup(result),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not check that name"),
+  });
+
+  const startPurchase = useMutation({
+    mutationFn: (domain: string) => buy({ data: { businessId: businessId!, domain } }),
+    onSuccess: (result) => {
+      if (result.url) window.location.href = result.url;
+      else {
+        toast.success("Already paid — our team is on it.");
+        void queryClient.invalidateQueries({ queryKey: ["domains", businessId] });
+      }
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start that order"),
+  });
+
+  const addOwn = useMutation({
+    mutationFn: async () => {
+      const domain = clean(owned);
+      if (!DOMAIN_PATTERN.test(domain))
+        throw new Error("That doesn't look like a valid domain name.");
+      return bringOwn({ data: { businessId: businessId!, domain } });
     },
     onSuccess: () => {
-      setValue("");
-      toast.success("Domain added — now add the two records below");
+      setOwned("");
+      toast.success("Got it — we're setting that up for you.");
       void queryClient.invalidateQueries({ queryKey: ["domains", businessId] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not add that domain"),
-  });
-
-  const removeDomain = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("domains").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Domain removed");
-      void queryClient.invalidateQueries({ queryKey: ["domains", businessId] });
-    },
   });
 
   const runCheck = useMutation({
@@ -157,7 +200,7 @@ function DomainsPage() {
     <>
       <PageHeader
         title="Your website address"
-        description="Use the free WebWarheads address, buy a name of your own, or connect one you already have."
+        description="Use the free WebWarheads address, let us get you a name of your own, or bring one you already have."
       />
 
       {slug ? (
@@ -170,134 +213,178 @@ function DomainsPage() {
         </div>
       ) : null}
 
-      <div className="mb-6 grid gap-4 md:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-5">
-          <h2 className="text-sm font-semibold">I don't have a domain yet</h2>
+      <div className="mb-8 grid gap-4 md:grid-cols-2">
+        <section className="rounded-xl border border-accent/40 bg-accent/10 p-5">
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+            Get a domain for me — ${DOMAIN_SETUP_FEE_USD} one-off
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            A name like yourbusiness.com costs about $12–20 a year. Our guide walks you through
-            buying one on GoDaddy in about five minutes, including which extras to skip.
+            Tell us the name you want. We check it's free, buy it, and connect it to your website
+            for you — nothing technical to do.
           </p>
-          <Button asChild className="mt-4">
-            <Link to="/connect-domain">Show me how to buy one</Link>
-          </Button>
+          <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <div className="space-y-1">
+              <Label htmlFor="wanted">Name you want</Label>
+              <Input
+                id="wanted"
+                placeholder="yourbusiness.com"
+                value={wanted}
+                onChange={(e) => {
+                  setWanted(e.target.value);
+                  setLookup(null);
+                }}
+              />
+            </div>
+            <Button
+              variant="outline"
+              disabled={availability.isPending || !wanted.trim()}
+              onClick={() => availability.mutate()}
+            >
+              {availability.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Search className="h-4 w-4" aria-hidden="true" />
+              )}
+              <span className="ml-1.5">Check</span>
+            </Button>
+          </div>
+
+          {lookup ? (
+            <div className="mt-3 space-y-2">
+              {lookup.available ? (
+                <>
+                  <p className="text-sm font-medium text-foreground">
+                    {lookup.domain} looks available.
+                  </p>
+                  <Button
+                    disabled={startPurchase.isPending || !businessId}
+                    onClick={() => startPurchase.mutate(lookup.domain)}
+                  >
+                    {startPurchase.isPending
+                      ? "Opening payment…"
+                      : `Get ${lookup.domain} — $${DOMAIN_SETUP_FEE_USD}`}
+                  </Button>
+                </>
+              ) : lookup.known ? (
+                <p className="text-sm text-muted-foreground">
+                  {lookup.domain} is already taken. Try another spelling or a different ending.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  We couldn't check that name right now. Try again in a moment.
+                </p>
+              )}
+            </div>
+          ) : null}
         </section>
 
-        <section className="rounded-xl border border-accent/40 bg-accent/10 p-5">
-          <h2 className="text-sm font-semibold">I already own one</h2>
+        <section className="rounded-xl border border-border bg-card p-5">
+          <h2 className="text-sm font-semibold">I already have a domain</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Add it below. We'll show you the exact two records to paste at your provider, then check
-            them for you and switch the padlock on.
+            Add it here and our team sets up the connection. We'll email you if we need anything
+            from your domain provider.
           </p>
-          <Button asChild variant="outline" className="mt-4">
-            <Link to="/connect-domain" hash="connect">
-              Read the connecting steps
+          <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <div className="space-y-1">
+              <Label htmlFor="owned">Your domain</Label>
+              <Input
+                id="owned"
+                placeholder="yourbusiness.com"
+                value={owned}
+                onChange={(e) => setOwned(e.target.value)}
+              />
+            </div>
+            <Button
+              disabled={addOwn.isPending || !owned.trim() || !businessId}
+              onClick={() => addOwn.mutate()}
+            >
+              {addOwn.isPending ? "Adding…" : "Add domain"}
+            </Button>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Not sure how domains work?{" "}
+            <Link to="/connect-domain" className="underline">
+              Read the short guide
             </Link>
-          </Button>
+            .
+          </p>
         </section>
       </div>
 
-      <section className="mb-6 space-y-3 rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Connect a domain you own</h2>
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <div className="space-y-1">
-            <Label htmlFor="domain">Domain name</Label>
-            <Input
-              id="domain"
-              placeholder="yourbusiness.com"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-            />
-          </div>
-          <Button
-            disabled={addDomain.isPending || !value.trim() || !businessId}
-            onClick={() => addDomain.mutate()}
-          >
-            Add domain
-          </Button>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          We never buy or transfer a domain on your behalf — you own the name, we just point it at
-          your website.
-        </p>
-      </section>
-
       {rows.length === 0 ? (
         <EmptyState
-          title="No domain connected yet"
-          description="Add a domain above whenever you're ready. Your free WebWarheads address keeps working either way."
+          title="No domain yet"
+          description="Pick one of the two options above whenever you're ready. Your free WebWarheads address keeps working either way."
         />
       ) : (
         <ul className="space-y-4">
-          {rows.map((d) => (
-            <li key={d.id} className="rounded-xl border border-border bg-card p-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="min-w-0 flex-1 truncate font-medium">{d.domain}</p>
-                <Badge variant={d.status === "active" ? "default" : "secondary"}>
-                  {d.status === "active" ? "Live" : d.status === "verifying" ? "Almost there" : "Waiting on records"}
-                </Badge>
-                {d.ssl_active ? <Badge>Secure</Badge> : null}
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {STATUS_COPY[d.status] ?? "We're keeping an eye on this one."}
-              </p>
-
-              {d.status !== "active" ? (
-                <div className="mt-4 space-y-3">
-                  <p className="text-sm font-medium">
-                    Add {d.verification_token ? "these records" : "these two records"} at your
-                    provider
-                  </p>
-                  <RecordRow host="@" name={`This one covers ${d.domain}`} />
-                  <RecordRow host="www" name={`This one covers www.${d.domain}`} />
-                  {d.verification_token ? (
-                    <RecordRow
-                      type="TXT"
-                      host="_lovable"
-                      value={d.verification_token}
-                      name="This one proves you own the name. Add it exactly as shown."
-                    />
-                  ) : null}
-                  <p className="text-xs text-muted-foreground">
-                    In GoDaddy: My Products → your domain → DNS → Add New Record. If a record with
-                    the same name already exists, edit it instead of adding a second one. Once the
-                    records are in, hit “Check my records” — we finish the secure setup for you,
-                    usually within a few hours.
-                  </p>
+          {rows.map((d) => {
+            const label = statusLabel(d);
+            const showRecords = d.records_released && d.status !== "active";
+            return (
+              <li key={d.id} className="rounded-xl border border-border bg-card p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <p className="min-w-0 flex-1 truncate font-medium">{d.domain}</p>
+                  <Badge variant={label.tone}>{label.text}</Badge>
+                  {d.ssl_active ? <Badge>Secure</Badge> : null}
                 </div>
-              ) : null}
+                <p className="mt-1 text-sm text-muted-foreground">{statusCopy(d)}</p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => runCheck.mutate(d.id)}
-                  disabled={runCheck.isPending}
-                >
-                  {runCheck.isPending ? "Checking…" : "Check my records"}
-                </Button>
-                {d.status === "active" ? (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={`https://${d.domain}`} target="_blank" rel="noreferrer">
-                      Open site <ExternalLink className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
-                    </a>
-                  </Button>
+                {showRecords ? (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-sm font-medium">Add these records at your provider</p>
+                    <RecordRow host="@" name={`This one covers ${d.domain}`} />
+                    <RecordRow host="www" name={`This one covers www.${d.domain}`} />
+                    {d.verification_token ? (
+                      <RecordRow
+                        type="TXT"
+                        host="_lovable"
+                        value={d.verification_token}
+                        name="This one proves you own the name. Add it exactly as shown."
+                      />
+                    ) : null}
+                    <p className="text-xs text-muted-foreground">
+                      In GoDaddy: My Products → your domain → DNS → Add New Record. If a record with
+                      the same name already exists, edit it instead of adding a second one. Then hit
+                      “Check my records” — we finish the secure setup for you.
+                    </p>
+                  </div>
                 ) : null}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="text-destructive"
-                  onClick={() => removeDomain.mutate(d.id)}
-                  disabled={removeDomain.isPending}
-                >
-                  Remove
-                </Button>
-                {d.last_checked_at ? (
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    Last checked {new Date(d.last_checked_at).toLocaleString()}
-                  </span>
-                ) : null}
-              </div>
-            </li>
-          ))}
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  {d.request_type === "purchase" &&
+                  d.purchase_status === "awaiting_payment" &&
+                  d.checkout_url ? (
+                    <Button size="sm" asChild>
+                      <a href={d.checkout_url}>Finish payment</a>
+                    </Button>
+                  ) : null}
+                  {showRecords ? (
+                    <Button
+                      size="sm"
+                      onClick={() => runCheck.mutate(d.id)}
+                      disabled={runCheck.isPending}
+                    >
+                      {runCheck.isPending ? "Checking…" : "Check my records"}
+                    </Button>
+                  ) : null}
+                  {d.status === "active" ? (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={`https://${d.domain}`} target="_blank" rel="noreferrer">
+                        Open site <ExternalLink className="ml-1 h-3.5 w-3.5" aria-hidden="true" />
+                      </a>
+                    </Button>
+                  ) : null}
+                  {d.last_checked_at ? (
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      Last checked {new Date(d.last_checked_at).toLocaleString()}
+                    </span>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </>

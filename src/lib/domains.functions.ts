@@ -145,7 +145,7 @@ function normaliseDomain(raw: string) {
 }
 
 const DOMAIN_COLUMNS =
-  "id, domain, kind, status, ssl_active, ssl_status, verification_token, admin_notes, created_at, last_checked_at, business_id";
+  "id, domain, kind, status, ssl_active, ssl_status, verification_token, admin_notes, created_at, last_checked_at, business_id, request_type, purchase_status, records_released, paid_at, fulfilled_at, checkout_url";
 
 /** Every customer domain across the platform, for the admin setup queue. */
 export const listAllDomains = createServerFn({ method: "POST" })
@@ -349,4 +349,253 @@ export const remindPendingDomains = createServerFn({ method: "POST" })
     }
     return { sent };
 
+  });
+
+/* ------------------------------------------------ customer-facing requests */
+
+export const DOMAIN_SETUP_FEE_USD = 20;
+
+/** The customer's own domains, with only the detail they're meant to see. */
+export const listMyDomains = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) => z.object({ businessId: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { data: allowed } = await context.supabase.rpc("is_business_member", {
+      _user_id: context.userId,
+      _business_id: data.businessId,
+    });
+    if (!allowed) throw new Error("You don't have access to that business");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("domains")
+      .select(
+        "id, domain, status, ssl_active, request_type, purchase_status, records_released, verification_token, checkout_url, last_checked_at, created_at",
+      )
+      .eq("business_id", data.businessId)
+      .order("created_at");
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+/** Is this name still free to register? Uses the public RDAP registry. */
+export const checkDomainAvailability = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) => z.object({ domain: z.string().min(3).max(253) }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { enforceRateLimit, RateLimitError } = await import("@/lib/rate-limit.server");
+    try {
+      await enforceRateLimit({
+        bucket: "domain_availability",
+        subject: context.userId,
+        limit: 40,
+        windowSeconds: 600,
+        message: "That's a lot of searches — give it a minute and try again.",
+      });
+    } catch (error) {
+      if (error instanceof RateLimitError) throw error;
+    }
+
+    const domain = normaliseDomain(data.domain);
+    try {
+      const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
+        headers: { accept: "application/rdap+json" },
+      });
+      if (res.status === 404) return { domain, available: true, known: true };
+      if (res.ok) return { domain, available: false, known: true };
+      return { domain, available: false, known: false };
+    } catch {
+      return { domain, available: false, known: false };
+    }
+  });
+
+async function businessForCaller(
+  context: { supabase: any; userId: string },
+  businessId: string,
+) {
+  const { data: business, error } = await context.supabase
+    .from("businesses")
+    .select("id, name, email")
+    .eq("id", businessId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!business) throw new Error("You don't have access to that business");
+  return business as { id: string; name: string; email: string | null };
+}
+
+/** Option 1: the customer pays us $20 and we register + connect the name. */
+export const requestDomainPurchase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z.object({ businessId: z.string().uuid(), domain: z.string().min(3).max(253) }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const business = await businessForCaller(context as never, data.businessId);
+    const domain = normaliseDomain(data.domain);
+    const productId = process.env["POLAR_DOMAIN_PRODUCT_ID"];
+    if (!productId) throw new Error("Domain purchases aren't switched on yet.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing } = await supabaseAdmin
+      .from("domains")
+      .select("id, business_id, purchase_status, checkout_url")
+      .eq("domain", domain)
+      .maybeSingle();
+    if (existing && existing.business_id !== business.id) {
+      throw new Error("That name is already being set up for another website.");
+    }
+    if (existing?.purchase_status === "paid" || existing?.purchase_status === "fulfilled") {
+      return { alreadyPaid: true, url: null as string | null, domainId: existing.id };
+    }
+    if (existing?.checkout_url) {
+      return { alreadyPaid: false, url: existing.checkout_url, domainId: existing.id };
+    }
+
+    const rowId =
+      existing?.id ??
+      (
+        await supabaseAdmin
+          .from("domains")
+          .insert({
+            business_id: business.id,
+            domain,
+            kind: "purchased",
+            request_type: "purchase",
+            purchase_status: "awaiting_payment",
+            records_released: false,
+          })
+          .select("id")
+          .single()
+      ).data?.id;
+    if (!rowId) throw new Error("Could not start that domain order.");
+
+    const appUrl = process.env["APP_URL"] ?? "https://www.webwarheads.com";
+    const { createPolarCheckout } = await import("@/lib/polar.server");
+    const checkout = await createPolarCheckout({
+      productId,
+      externalCustomerId: business.id,
+      customerEmail: business.email,
+      metadata: { domain_request_id: rowId, business_id: business.id, domain },
+      successUrl: `${appUrl}/domains?ordered=${encodeURIComponent(domain)}`,
+    });
+
+    await supabaseAdmin
+      .from("domains")
+      .update({ polar_checkout_id: checkout.id, checkout_url: checkout.url })
+      .eq("id", rowId);
+
+    return { alreadyPaid: false, url: checkout.url, domainId: rowId };
+  });
+
+/** Option 2: the customer already owns the name; we do the setup for them. */
+export const requestOwnDomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z.object({ businessId: z.string().uuid(), domain: z.string().min(3).max(253) }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const business = await businessForCaller(context as never, data.businessId);
+    const domain = normaliseDomain(data.domain);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: clash } = await supabaseAdmin
+      .from("domains")
+      .select("id, business_id")
+      .eq("domain", domain)
+      .maybeSingle();
+    if (clash && clash.business_id !== business.id) {
+      throw new Error("That name is already connected to another website.");
+    }
+    if (clash) return { id: clash.id, domain, existing: true };
+
+    const { data: row, error } = await supabaseAdmin
+      .from("domains")
+      .insert({
+        business_id: business.id,
+        domain,
+        kind: "connected",
+        request_type: "byo",
+        purchase_status: "none",
+        records_released: false,
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+
+    const { adminDomainRequest, sendDomainRequestReceivedEmail } = await import(
+      "@/lib/emails.server"
+    );
+    await adminDomainRequest({
+      businessId: business.id,
+      businessName: business.name,
+      domain,
+      kind: "byo",
+      paid: false,
+    });
+    if (business.email) {
+      await sendDomainRequestReceivedEmail({
+        to: business.email,
+        businessId: business.id,
+        domain,
+      });
+    }
+    return { id: row.id, domain, existing: false };
+  });
+
+/* -------------------------------------------------------- staff fulfilment */
+
+/** Staff flip whether the customer can see the DNS records for their domain. */
+export const setDomainRecordsReleased = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z.object({ domainId: z.string().uuid(), released: z.boolean() }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("domains")
+      .update({ records_released: data.released })
+      .eq("id", data.domainId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+/** Staff mark a bought domain as registered and attached in hosting. */
+export const markDomainFulfilled = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) => z.object({ domainId: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as never);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("domains")
+      .update({
+        purchase_status: "fulfilled",
+        fulfilled_at: new Date().toISOString(),
+        status: "active",
+        ssl_active: true,
+        ssl_status: "active",
+      })
+      .eq("id", data.domainId)
+      .select("domain, business_id")
+      .single();
+    if (error) throw error;
+
+    const { data: business } = await supabaseAdmin
+      .from("businesses")
+      .select("id, email")
+      .eq("id", row.business_id)
+      .maybeSingle();
+    if (business?.email) {
+      const { sendDomainLiveEmail } = await import("@/lib/emails.server");
+      await sendDomainLiveEmail({
+        to: business.email,
+        businessId: business.id,
+        domain: row.domain,
+        secure: true,
+      });
+    }
+    return { ok: true };
   });

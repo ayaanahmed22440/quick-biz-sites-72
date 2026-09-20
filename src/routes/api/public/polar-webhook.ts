@@ -71,6 +71,52 @@ export const Route = createFileRoute("/api/public/polar-webhook")({
           );
           const sub = data as never;
 
+          // One-off $20 domain purchases carry our domain row id in metadata.
+          const meta = (data["metadata"] ?? {}) as Record<string, unknown>;
+          const domainRequestId =
+            typeof meta["domain_request_id"] === "string" ? meta["domain_request_id"] : null;
+          const paidEvent =
+            eventType === "order.paid" ||
+            (eventType === "checkout.updated" && data["status"] === "succeeded");
+          if (domainRequestId && paidEvent) {
+            const { data: row } = await supabaseAdmin
+              .from("domains")
+              .select("id, domain, business_id, purchase_status")
+              .eq("id", domainRequestId)
+              .maybeSingle();
+            if (row && row.purchase_status !== "paid" && row.purchase_status !== "fulfilled") {
+              await supabaseAdmin
+                .from("domains")
+                .update({ purchase_status: "paid", paid_at: new Date().toISOString() })
+                .eq("id", row.id);
+
+              const { data: business } = await supabaseAdmin
+                .from("businesses")
+                .select("id, name, email")
+                .eq("id", row.business_id)
+                .maybeSingle();
+              const { adminDomainRequest, sendDomainOrderedEmail } = await import(
+                "@/lib/emails.server"
+              );
+              await adminDomainRequest({
+                businessId: row.business_id,
+                businessName: business?.name ?? "Customer",
+                domain: row.domain,
+                kind: "purchase",
+                paid: true,
+              });
+              if (business?.email) {
+                await sendDomainOrderedEmail({
+                  to: business.email,
+                  businessId: business.id,
+                  domain: row.domain,
+                });
+              }
+            }
+            await finish("processed", row?.business_id ?? null);
+            return Response.json({ ok: true, domain: true });
+          }
+
           if (eventType.startsWith("subscription.")) {
             const forceStatus =
               eventType === "subscription.active" || eventType === "subscription.uncanceled"
