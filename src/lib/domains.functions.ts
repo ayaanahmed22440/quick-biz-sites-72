@@ -54,10 +54,11 @@ export const checkDomain = createServerFn({ method: "POST" })
     }
     if (!row) throw new Error("That domain is no longer on your account");
 
-    const [apex, www, txt] = await Promise.all([
+    const [apex, www, txt, txtWww] = await Promise.all([
       resolve(row.domain, "A"),
       resolve(`www.${row.domain}`, "A"),
       resolve(`_lovable.${row.domain}`, "TXT"),
+      resolve(`_lovable.www.${row.domain}`, "TXT"),
     ]);
 
     const apexOk = apex.includes(DOMAIN_TARGET_IP);
