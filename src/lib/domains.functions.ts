@@ -31,22 +31,39 @@ export const checkDomain = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw) => input.parse(raw))
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
+    const { data: own, error } = await context.supabase
       .from("domains")
       .select("id, domain, business_id, status, ssl_active")
       .eq("id", data.domainId)
       .maybeSingle();
     if (error) throw error;
+
+    let row = own;
+    if (!row) {
+      const { data: staff } = await context.supabase.rpc("is_platform_staff", {
+        _user_id: context.userId,
+      });
+      if (!staff) throw new Error("That domain is no longer on your account");
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: adminRow } = await supabaseAdmin
+        .from("domains")
+        .select("id, domain, business_id, status, ssl_active")
+        .eq("id", data.domainId)
+        .maybeSingle();
+      row = adminRow;
+    }
     if (!row) throw new Error("That domain is no longer on your account");
 
-    const [apex, www] = await Promise.all([
+    const [apex, www, txt] = await Promise.all([
       resolve(row.domain, "A"),
       resolve(`www.${row.domain}`, "A"),
+      resolve(`_lovable.${row.domain}`, "TXT"),
     ]);
 
     const apexOk = apex.includes(DOMAIN_TARGET_IP);
     const wwwOk = www.includes(DOMAIN_TARGET_IP);
     const anyRecord = apex.length > 0 || www.length > 0;
+
 
     const status: "pending" | "verifying" | "active" = apexOk
       ? "active"
