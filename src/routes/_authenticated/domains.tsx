@@ -122,7 +122,7 @@ function statusCopy(d: DomainRow) {
   if (!d.records_released)
     return "Our team is preparing this one. If we need anything from you, we'll email you simple steps.";
   if (d.status === "verifying")
-    return "Records spotted. They can take an hour or two to spread across the internet.";
+    return "Records spotted. They can take 12–24 hours to fully settle — we'll email you the moment it's live.";
   return "Add the records below at your domain provider and we'll do the rest.";
 }
 
