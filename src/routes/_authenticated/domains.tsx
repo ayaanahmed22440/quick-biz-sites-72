@@ -2,7 +2,16 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, ExternalLink, Loader2, Search, ShoppingBag } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Clock,
+  Copy,
+  ExternalLink,
+  Loader2,
+  Search,
+  ShoppingBag,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   checkDomain,
@@ -113,7 +122,7 @@ function statusCopy(d: DomainRow) {
   if (!d.records_released)
     return "Our team is preparing this one. If we need anything from you, we'll email you simple steps.";
   if (d.status === "verifying")
-    return "Records spotted. They can take an hour or two to spread across the internet.";
+    return "Records spotted. They can take 12–24 hours to fully settle — we'll email you the moment it's live.";
   return "Add the records below at your domain provider and we'll do the rest.";
 }
 
@@ -333,6 +342,17 @@ function DomainsPage() {
 
                 {showRecords ? (
                   <div className="mt-4 space-y-3">
+                    <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3">
+                      <p className="flex items-start gap-2 text-sm font-medium text-foreground">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
+                        Before you add these, clear out any old records
+                      </p>
+                      <p className="mt-1.5 pl-6 text-sm text-muted-foreground">
+                        At your provider, <span className="font-medium text-foreground">delete any existing A or AAAA record for @</span> — and if
+                        there's already anything named <span className="font-medium text-foreground">www</span> (an A record or a CNAME), delete that
+                        too. Old records pointing somewhere else will stop your site from showing and can leave the name stuck for days.
+                      </p>
+                    </div>
                     <p className="text-sm font-medium">Add these records at your provider</p>
                     <RecordRow host="@" name={`This one covers ${d.domain}`} />
                     <RecordRow host="www" name={`This one covers www.${d.domain}`} />
@@ -349,6 +369,15 @@ function DomainsPage() {
                       the same name already exists, edit it instead of adding a second one. Then hit
                       “Check my records” — we finish the secure setup for you.
                     </p>
+                    <div className="rounded-lg border border-border bg-muted/40 p-3">
+                      <p className="flex items-start gap-2 text-sm">
+                        <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                        <span className="text-muted-foreground">
+                          Allow <span className="font-medium text-foreground">12–24 hours</span> for the records to fully settle across the internet.
+                          We'll keep checking in the background and email you the moment your site is live — no need to keep refreshing this page.
+                        </span>
+                      </p>
+                    </div>
                   </div>
                 ) : null}
 
