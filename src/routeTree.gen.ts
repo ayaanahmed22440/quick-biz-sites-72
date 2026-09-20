@@ -18,6 +18,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CancellationPolicyRouteImport } from './routes/cancellation-policy'
 import { Route as CleaningBusinessWebsitesRouteImport } from './routes/cleaning-business-websites'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as FaviconDoticoRouteImport } from './routes/favicon[.]ico'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -100,6 +101,11 @@ const CleaningBusinessWebsitesRoute =
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaviconDoticoRoute = FaviconDoticoRouteImport.update({
+  id: '/favicon.ico',
+  path: '/favicon.ico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -309,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
+  '/favicon.ico': typeof FaviconDoticoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
+  '/favicon.ico': typeof FaviconDoticoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
@@ -407,6 +415,7 @@ export interface FileRoutesById {
   '/cancellation-policy': typeof CancellationPolicyRoute
   '/cleaning-business-websites': typeof CleaningBusinessWebsitesRoute
   '/contact': typeof ContactRoute
+  '/favicon.ico': typeof FaviconDoticoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
   '/pricing': typeof PricingRoute
@@ -457,6 +466,7 @@ export interface FileRouteTypes {
     | '/cancellation-policy'
     | '/cleaning-business-websites'
     | '/contact'
+    | '/favicon.ico'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
@@ -505,6 +515,7 @@ export interface FileRouteTypes {
     | '/cancellation-policy'
     | '/cleaning-business-websites'
     | '/contact'
+    | '/favicon.ico'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
@@ -554,6 +565,7 @@ export interface FileRouteTypes {
     | '/cancellation-policy'
     | '/cleaning-business-websites'
     | '/contact'
+    | '/favicon.ico'
     | '/how-it-works'
     | '/onboarding'
     | '/pricing'
@@ -604,6 +616,7 @@ export interface RootRouteChildren {
   CancellationPolicyRoute: typeof CancellationPolicyRoute
   CleaningBusinessWebsitesRoute: typeof CleaningBusinessWebsitesRoute
   ContactRoute: typeof ContactRoute
+  FaviconDoticoRoute: typeof FaviconDoticoRoute
   HowItWorksRoute: typeof HowItWorksRoute
   OnboardingRoute: typeof OnboardingRoute
   PricingRoute: typeof PricingRoute
@@ -685,6 +698,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/favicon.ico': {
+      id: '/favicon.ico'
+      path: '/favicon.ico'
+      fullPath: '/favicon.ico'
+      preLoaderRoute: typeof FaviconDoticoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/how-it-works': {
@@ -1027,6 +1047,7 @@ const rootRouteChildren: RootRouteChildren = {
   CancellationPolicyRoute: CancellationPolicyRoute,
   CleaningBusinessWebsitesRoute: CleaningBusinessWebsitesRoute,
   ContactRoute: ContactRoute,
+  FaviconDoticoRoute: FaviconDoticoRoute,
   HowItWorksRoute: HowItWorksRoute,
   OnboardingRoute: OnboardingRoute,
   PricingRoute: PricingRoute,
