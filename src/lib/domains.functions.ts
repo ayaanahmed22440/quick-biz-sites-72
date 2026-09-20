@@ -145,7 +145,7 @@ function normaliseDomain(raw: string) {
 }
 
 const DOMAIN_COLUMNS =
-  "id, domain, kind, status, ssl_active, ssl_status, verification_token, admin_notes, created_at, last_checked_at, business_id";
+  "id, domain, kind, status, ssl_active, ssl_status, verification_token, admin_notes, created_at, last_checked_at, business_id, request_type, purchase_status, records_released, paid_at, fulfilled_at, checkout_url";
 
 /** Every customer domain across the platform, for the admin setup queue. */
 export const listAllDomains = createServerFn({ method: "POST" })
