@@ -455,6 +455,7 @@ export type Database = {
       }
       domains: {
         Row: {
+          admin_notes: string | null
           business_id: string
           created_at: string
           dns_notes: string | null
@@ -463,6 +464,7 @@ export type Database = {
           id: string
           kind: Database["public"]["Enums"]["domain_kind"]
           last_checked_at: string | null
+          reminded_at: string | null
           ssl_active: boolean
           ssl_status: string
           status: Database["public"]["Enums"]["domain_status"]
@@ -470,6 +472,7 @@ export type Database = {
           verification_token: string | null
         }
         Insert: {
+          admin_notes?: string | null
           business_id: string
           created_at?: string
           dns_notes?: string | null
@@ -478,6 +481,7 @@ export type Database = {
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
           last_checked_at?: string | null
+          reminded_at?: string | null
           ssl_active?: boolean
           ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
@@ -485,6 +489,7 @@ export type Database = {
           verification_token?: string | null
         }
         Update: {
+          admin_notes?: string | null
           business_id?: string
           created_at?: string
           dns_notes?: string | null
@@ -493,6 +498,7 @@ export type Database = {
           id?: string
           kind?: Database["public"]["Enums"]["domain_kind"]
           last_checked_at?: string | null
+          reminded_at?: string | null
           ssl_active?: boolean
           ssl_status?: string
           status?: Database["public"]["Enums"]["domain_status"]
