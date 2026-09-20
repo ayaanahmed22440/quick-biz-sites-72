@@ -50,3 +50,12 @@ The existing admin Domains section gains a **queue** at the top: every domain aw
 - Notifications: reuse the existing Gmail admin email path plus the admin notification bell.
 - Customer-facing DNS record display moves behind `records_released`; `/connect-domain` guide is trimmed to the two options and the buying guide moves into the option 1 flow.
 - Nothing about checkout for plans, Polar subscription sync, or site serving changes.
+
+## How a purchased domain lands on the right client (and only them)
+
+Every client site lives inside this one project, and we already serve by hostname: a request comes in, we look the domain up in the `domains` table and render that business's site. `getSiteForHost` does this today. So connecting `cleanpro.com` to the project plus a `domains` row pointing at that business is all it takes — no other client is affected, and webwarheads.com keeps serving the platform.
+
+Two safeguards worth naming:
+
+1. **Primary domain must be unset (one-time).** `www.webwarheads.com` is currently marked primary, which makes every other connected domain 301 to it — a newly bought client domain would bounce to our homepage. Fix once in Project Settings → Domains → three-dot menu on `www.webwarheads.com` → Unset as primary. Our own non-www → www redirect is done inside the app (`src/start.ts`) and only matches `webwarheads.com`, so nothing changes for us.
+2. **Unmapped domain = safe fallback.** If a domain is connected in project settings but has no `domains` row yet, `getSiteForHost` returns nothing and the visitor sees the platform, not a random client's site. The admin action that marks a purchase fulfilled writes the row, so ordering is: buy in Lovable → row already exists from the customer's request → live.

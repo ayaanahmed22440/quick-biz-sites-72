@@ -70,3 +70,8 @@
 - Admin previews now use industry-specific businesses, services, locations and reviews instead of repeating the cleaning demo.
 
 - Security hardening pass: contact form moved server-side with throttling, lead submissions throttled, security headers + CSP, hardened media serving (no SVG), upload allowlist, robots.txt lockdown, cookie notice, escaped JSON-LD.
+
+## Domain flow redesign (open)
+- Two customer options: buy-for-me ($20 Polar) and bring-your-own; hide DNS/token from customers.
+- Admin queue for fulfilment + token entry + release-records toggle.
+- ONE-TIME manual step: unset www.webwarheads.com as primary domain in Project Settings → Domains, or every client domain redirects to our homepage.
