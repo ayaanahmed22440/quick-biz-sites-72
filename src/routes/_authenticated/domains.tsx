@@ -357,12 +357,20 @@ function DomainsPage() {
                     <RecordRow host="@" name={`This one covers ${d.domain}`} />
                     <RecordRow host="www" name={`This one covers www.${d.domain}`} />
                     {d.verification_token ? (
-                      <RecordRow
-                        type="TXT"
-                        host="_lovable"
-                        value={d.verification_token}
-                        name="This one proves you own the name. Add it exactly as shown."
-                      />
+                      <>
+                        <RecordRow
+                          type="TXT"
+                          host="_lovable"
+                          value={d.verification_token}
+                          name="This one proves you own the name. Add it exactly as shown."
+                        />
+                        <RecordRow
+                          type="TXT"
+                          host="_lovable.www"
+                          value={d.verification_token}
+                          name={`Same code, added a second time with the name _lovable.www — this one covers www.${d.domain}.`}
+                        />
+                      </>
                     ) : null}
                     <p className="text-xs text-muted-foreground">
                       In GoDaddy: My Products → your domain → DNS → Add New Record. If a record with

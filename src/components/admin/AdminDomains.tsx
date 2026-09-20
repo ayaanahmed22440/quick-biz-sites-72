@@ -252,12 +252,20 @@ function DomainCard({
           hint={`Covers www.${domain.domain}. This one is not automatic — it must be added separately.`}
         />
         {domain.verification_token ? (
-          <RecordCard
-            type="TXT"
-            host="_lovable"
-            value={domain.verification_token}
-            hint="Proves ownership. Paste exactly as shown."
-          />
+          <>
+            <RecordCard
+              type="TXT"
+              host="_lovable"
+              value={domain.verification_token}
+              hint="Proves ownership. Paste exactly as shown."
+            />
+            <RecordCard
+              type="TXT"
+              host="_lovable.www"
+              value={domain.verification_token}
+              hint={`Same token, added again as _lovable.www — covers www.${domain.domain}.`}
+            />
+          </>
         ) : (
           <p className="text-xs text-muted-foreground">
             Attach {domain.domain} in the WebWarheads project settings first, then paste the
