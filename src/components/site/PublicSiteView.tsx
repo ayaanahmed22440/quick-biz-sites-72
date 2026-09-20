@@ -48,6 +48,33 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
     setJustPaid(new URLSearchParams(window.location.search).get("paid") === "1");
   }, []);
 
+  // Swap the tab icon to the customer's own logo while their site is shown,
+  // so their browser tab never displays the WebWarheads mark.
+  useEffect(() => {
+    const logo = b.logo_url;
+    if (!logo) return;
+    const href = logo.startsWith("/") ? `${window.location.origin}${logo}` : logo;
+    const removed: HTMLLinkElement[] = [];
+    document
+      .querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]')
+      .forEach((el) => {
+        removed.push(el);
+        el.remove();
+      });
+    const icon = document.createElement("link");
+    icon.rel = "icon";
+    icon.href = href;
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.href = href;
+    document.head.append(icon, apple);
+    return () => {
+      icon.remove();
+      apple.remove();
+      removed.forEach((el) => document.head.appendChild(el));
+    };
+  }, [b.logo_url]);
+
   const content = normaliseContent(
     site.content,
     defaultSiteContent({
