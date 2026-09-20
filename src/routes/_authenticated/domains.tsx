@@ -2,7 +2,15 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Copy, ExternalLink, Loader2, Search, ShoppingBag } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  ExternalLink,
+  Loader2,
+  Search,
+  ShoppingBag,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   checkDomain,
