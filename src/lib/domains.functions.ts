@@ -397,16 +397,41 @@ export const checkDomainAvailability = createServerFn({ method: "POST" })
     }
 
     const domain = normaliseDomain(data.domain);
+    // 1) Registry RDAP direct (fast, no redirect hop) for the big TLDs,
+    //    otherwise the rdap.org bootstrap.
+    const tld = domain.split(".").pop() ?? "";
+    const registry =
+      tld === "com" || tld === "net"
+        ? `https://rdap.verisign.com/${tld}/v1/domain/${encodeURIComponent(domain)}`
+        : tld === "org"
+          ? `https://rdap.publicinterestregistry.org/rdap/domain/${encodeURIComponent(domain)}`
+          : `https://rdap.org/domain/${encodeURIComponent(domain)}`;
     try {
-      const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
+      const res = await fetch(registry, {
         headers: { accept: "application/rdap+json" },
+        redirect: "follow",
       });
       if (res.status === 404) return { domain, available: true, known: true };
       if (res.ok) return { domain, available: false, known: true };
-      return { domain, available: false, known: false };
-    } catch {
-      return { domain, available: false, known: false };
+    } catch (error) {
+      console.error("domain availability rdap failed", { domain, error });
     }
+    // 2) Fallback: registered names have nameservers. NXDOMAIN = free.
+    try {
+      const res = await fetch(
+        `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=NS`,
+      );
+      if (res.ok) {
+        const json = (await res.json()) as { Status?: number; Answer?: unknown[] };
+        if (json.Status === 3) return { domain, available: true, known: true };
+        if (json.Status === 0) {
+          return { domain, available: (json.Answer?.length ?? 0) === 0, known: true };
+        }
+      }
+    } catch (error) {
+      console.error("domain availability dns fallback failed", { domain, error });
+    }
+    return { domain, available: false, known: false };
   });
 
 async function businessForCaller(
