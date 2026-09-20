@@ -275,6 +275,52 @@ export function sendDomainLiveEmail(opts: {
   });
 }
 
+export function sendDomainOrderedEmail(opts: {
+  to: string;
+  businessId: string;
+  domain: string;
+}) {
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "domain_ordered",
+    subject: `We're setting up ${opts.domain}`,
+    title: "Your domain is on its way",
+    body: [
+      paragraph(
+        `Thanks — we've got your payment for <strong>${escape(opts.domain)}</strong>. Our team registers it and points it at your website for you.`,
+      ),
+      paragraph(
+        "It's usually live within 24 hours. We'll email you the moment it is — there's nothing for you to do in the meantime.",
+      ),
+      button("See the status", `${SITE_URL}/domains`),
+    ].join(""),
+  });
+}
+
+export function sendDomainRequestReceivedEmail(opts: {
+  to: string;
+  businessId: string;
+  domain: string;
+}) {
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "domain_request_received",
+    subject: `We're setting up ${opts.domain}`,
+    title: "We've got your domain",
+    body: [
+      paragraph(
+        `We're getting <strong>${escape(opts.domain)}</strong> ready to point at your website. Our team handles the technical side.`,
+      ),
+      paragraph(
+        "If we need you to change anything at your domain provider, we'll email you simple copy-and-paste instructions.",
+      ),
+      button("See the status", `${SITE_URL}/domains`),
+    ].join(""),
+  });
+}
+
 export function sendDomainReminderEmail(opts: {
   to: string;
   businessId: string;
@@ -494,6 +540,31 @@ export function adminCheckoutAbuse(opts: {
       `<strong>${escape(opts.businessName)}</strong>`,
       `${opts.failures} declined payment attempts in the last hour — checkout is temporarily blocked for this account.`,
       "Clear the block from the admin area if this is a genuine customer.",
+    ],
+  });
+}
+
+export function adminDomainRequest(opts: {
+  businessId: string;
+  businessName: string;
+  domain: string;
+  kind: "purchase" | "byo";
+  paid: boolean;
+}) {
+  const label = opts.kind === "purchase" ? "Domain purchase" : "Domain connection";
+  return adminNote({
+    purpose: "admin_domain_request",
+    businessId: opts.businessId,
+    subject: `${label}: ${opts.domain}`,
+    title: label,
+    lines: [
+      `<strong>${escape(opts.businessName)}</strong>`,
+      `Domain: <strong>${escape(opts.domain)}</strong>`,
+      opts.kind === "purchase"
+        ? opts.paid
+          ? "Paid $20. Buy it in Lovable (Project Settings &rarr; Domains &rarr; Buy new domain), then mark it connected in the admin Domains queue."
+          : "Awaiting the $20 payment. Nothing to do yet."
+        : "Customer already owns this name. Run Connect Domain in Lovable, paste the ownership token into the admin Domains queue, then release the records to them.",
     ],
   });
 }
