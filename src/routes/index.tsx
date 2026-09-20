@@ -37,10 +37,15 @@ const DESCRIPTION =
   "Build, edit and publish a professional local-business website with hosting, leads and support included from $37/month.";
 
 export const Route = createFileRoute("/")({
-  loader: async () =>
-    (await getSiteForHost({
-      data: { host: typeof document === "undefined" ? null : window.location.hostname },
-    })) as HostedSite | null,
+  loader: async () => {
+    try {
+      return (await getSiteForHost({
+        data: { host: typeof document === "undefined" ? null : window.location.hostname },
+      })) as HostedSite | null;
+    } catch {
+      return null;
+    }
+  },
   head: ({ loaderData }) =>
     loaderData
       ? publicSiteMeta(loaderData.site, loaderData.slug, loaderData.canonicalUrl)
