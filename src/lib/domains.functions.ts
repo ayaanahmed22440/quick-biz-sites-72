@@ -104,6 +104,15 @@ export const checkDomain = createServerFn({ method: "POST" })
       apexOk,
       wwwOk,
       found: anyRecord,
+      records: [
+        { label: `A @ (${row.domain})`, ok: apexOk, observed: apex },
+        { label: `A www (www.${row.domain})`, ok: wwwOk, observed: www },
+        {
+          label: `TXT _lovable.${row.domain}`,
+          ok: txt.length > 0,
+          observed: txt.map((t) => t.replace(/^"|"$/g, "")),
+        },
+      ],
       message: apexOk
         ? wwwOk
           ? "Your domain is pointing at your website and the padlock is on."
@@ -112,6 +121,7 @@ export const checkDomain = createServerFn({ method: "POST" })
           ? "We can see records, but they're not pointing at us yet — or they're still spreading across the internet. Try again in an hour."
           : "No records found yet. Add the two records at your domain provider, then check again.",
     };
+
   });
 
 async function assertStaff(context: { supabase: { rpc: Function }; userId: string }) {
