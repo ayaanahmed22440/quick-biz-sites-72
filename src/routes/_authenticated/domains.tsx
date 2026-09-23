@@ -439,6 +439,18 @@ function DomainsPage() {
                       </a>
                     </Button>
                   ) : null}
+                  {d.status !== "active" &&
+                  d.purchase_status !== "paid" &&
+                  d.purchase_status !== "fulfilled" ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      onClick={() => setToRemove({ id: d.id, domain: d.domain })}
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
                   {d.last_checked_at ? (
                     <span className="ml-auto text-xs text-muted-foreground">
                       Last checked {new Date(d.last_checked_at).toLocaleString()}
