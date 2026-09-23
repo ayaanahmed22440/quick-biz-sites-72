@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  cancelMyDomain,
   checkDomain,
   checkDomainAvailability,
   DOMAIN_SETUP_FEE_USD,
