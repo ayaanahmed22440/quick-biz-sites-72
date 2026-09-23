@@ -29,6 +29,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/domains")({
   head: () => ({
@@ -138,9 +148,11 @@ function DomainsPage() {
   const lookUp = useServerFn(checkDomainAvailability);
   const buy = useServerFn(requestDomainPurchase);
   const bringOwn = useServerFn(requestOwnDomain);
+  const cancel = useServerFn(cancelMyDomain);
 
   const [wanted, setWanted] = useState("");
   const [owned, setOwned] = useState("");
+  const [toRemove, setToRemove] = useState<{ id: string; domain: string } | null>(null);
   const [lookup, setLookup] = useState<{
     domain: string;
     available: boolean;
