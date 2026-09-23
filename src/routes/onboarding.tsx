@@ -9,7 +9,17 @@ import { startOnboardingAccount } from "@/lib/signup.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Eye, Loader2, Search, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ClipboardList,
+  Eye,
+  Image as ImageIcon,
+  Loader2,
+  Rocket,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace, workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
