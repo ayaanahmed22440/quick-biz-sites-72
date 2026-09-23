@@ -726,7 +726,7 @@ function OnboardingPage() {
             <span className="hidden sm:inline">{index === 0 ? "Exit" : "Back"}</span>
           </button>
 
-          <ol className="flex flex-1 items-center justify-center gap-1 sm:gap-2">
+          <ol className="flex min-w-0 flex-1 items-center justify-center gap-1 sm:gap-2">
             {PHASES.map((phase, i) => {
               const done = i < phaseIndex;
               const active = i === phaseIndex;
