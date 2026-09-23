@@ -330,6 +330,10 @@ function OnboardingPage() {
   const step = STEPS[index]!;
   const preview = useMemo(() => previewContent(draft), [draft]);
   const stageIndex = STAGES.findIndex((s) => s.key === step.stage);
+  const phaseIndex = Math.max(
+    0,
+    PHASES.findIndex((phase) => phase.stages.includes(step.stage)),
+  );
   const isLast = index === STEPS.length - 1;
   const address = `webwarheads.com/${draft.name ? slugify(draft.name) : "your-business"}`;
 
