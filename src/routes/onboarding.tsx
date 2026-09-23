@@ -1093,7 +1093,7 @@ function OnboardingPage() {
               <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
                 <Button
                   variant="ghost"
-                  onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                  onClick={goBack}
                   disabled={index === 0 || saving}
                 >
                   Back
