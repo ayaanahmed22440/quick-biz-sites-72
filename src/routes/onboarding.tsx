@@ -575,6 +575,16 @@ function OnboardingPage() {
     }
   }
 
+  /** One question back, or out to the homepage from the very first question. */
+  function goBack() {
+    if (index > 0) {
+      setError(null);
+      setIndex((i) => Math.max(0, i - 1));
+      return;
+    }
+    void navigate({ to: "/" });
+  }
+
   async function next() {
     const message = step.validate?.(draft) ?? null;
     if (message) {
