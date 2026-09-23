@@ -771,19 +771,11 @@ function OnboardingPage() {
           </ol>
 
 
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button size="sm" variant="outline" className="gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  See my site
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-4">
-                {previewNode}
-              </SheetContent>
-            </Sheet>
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span className="whitespace-nowrap">~3 mins</span>
           </div>
+
         </div>
       </header>
 
