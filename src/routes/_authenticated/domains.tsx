@@ -213,6 +213,19 @@ function DomainsPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not check that domain"),
   });
 
+  const removeDomain = useMutation({
+    mutationFn: (domainId: string) =>
+      cancel({ data: { businessId: businessId!, domainId } }),
+    onSuccess: (result) => {
+      setToRemove(null);
+      toast.success(`${result.domain} removed — you can add it again any time.`);
+      void queryClient.invalidateQueries({ queryKey: ["domains", businessId] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not remove that name"),
+  });
+
+
+
   if (isLoading || domains.isLoading) return <LoadingBlock rows={3} />;
   if (domains.isError) return <ErrorBlock />;
 
