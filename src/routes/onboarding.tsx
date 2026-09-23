@@ -119,6 +119,20 @@ const STAGES: { key: StageKey; label: string }[] = [
   { key: "reviews", label: "Reviews" },
 ];
 
+/** The simple four-part path we show customers at the top of the wizard. */
+const PHASES: {
+  key: string;
+  label: string;
+  icon: typeof ClipboardList;
+  stages: StageKey[];
+}[] = [
+  { key: "details", label: "Details", icon: ClipboardList, stages: ["trade", "business", "services"] },
+  { key: "media", label: "Media", icon: ImageIcon, stages: ["look"] },
+  { key: "preview", label: "Preview", icon: Eye, stages: ["reviews"] },
+  { key: "live", label: "Live", icon: Rocket, stages: [] },
+];
+
+
 type StepKey =
   | "niche"
   | "name"
