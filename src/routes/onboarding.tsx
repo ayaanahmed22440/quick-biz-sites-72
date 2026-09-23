@@ -714,42 +714,60 @@ function OnboardingPage() {
       {/* Progress rail */}
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={saving}
+            className="flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Exit</span>
-          </Link>
+            <span className="hidden sm:inline">{index === 0 ? "Exit" : "Back"}</span>
+          </button>
 
-          <ol className="flex flex-1 items-center gap-1.5 sm:gap-3">
-            {STAGES.map((stage, i) => {
-              const done = i < stageIndex;
-              const active = i === stageIndex;
+          <ol className="flex flex-1 items-center justify-center gap-1 sm:gap-2">
+            {PHASES.map((phase, i) => {
+              const done = i < phaseIndex;
+              const active = i === phaseIndex;
+              const Icon = phase.icon;
               return (
-                <li key={stage.key} className="flex min-w-0 flex-1 items-center gap-2">
-                  <span
+                <li key={phase.key} className="flex min-w-0 items-center gap-1 sm:gap-2">
+                  <div
                     className={cn(
-                      "h-1.5 flex-1 rounded-full transition-colors duration-500",
-                      done || active ? "bg-accent" : "bg-muted",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "hidden shrink-0 text-xs font-medium sm:inline",
+                      "flex items-center gap-1.5 rounded-full border px-2 py-1 transition-colors duration-300 sm:px-3 sm:py-1.5",
                       active
-                        ? "text-foreground"
+                        ? "border-accent bg-accent/10 text-foreground"
                         : done
-                          ? "text-muted-foreground"
-                          : "text-muted-foreground/60",
+                          ? "border-accent/40 text-muted-foreground"
+                          : "border-border text-muted-foreground/60",
                     )}
                   >
-                    {stage.label}
-                  </span>
+                    {done ? (
+                      <Check className="h-3.5 w-3.5 text-accent" />
+                    ) : (
+                      <Icon className={cn("h-3.5 w-3.5", active && "text-accent")} />
+                    )}
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        active ? "inline" : "hidden sm:inline",
+                      )}
+                    >
+                      {phase.label}
+                    </span>
+                  </div>
+                  {i < PHASES.length - 1 ? (
+                    <span
+                      className={cn(
+                        "h-px w-3 sm:w-6",
+                        done ? "bg-accent" : "bg-border",
+                      )}
+                    />
+                  ) : null}
                 </li>
               );
             })}
           </ol>
+
 
           <div className="lg:hidden">
             <Sheet>
