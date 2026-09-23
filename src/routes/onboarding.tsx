@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   Check,
+  Clock,
+
   ClipboardList,
   Eye,
   Image as ImageIcon,
@@ -26,7 +28,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ImageUpload } from "@/components/app/ImageUpload";
 import { BrowserPreview } from "@/components/app/BrowserPreview";
 import { ReviewsEditor } from "@/components/website/ReviewsEditor";
@@ -715,7 +716,7 @@ function OnboardingPage() {
     <div className="min-h-screen bg-background">
       {/* Progress rail */}
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
           <button
             type="button"
             onClick={goBack}
@@ -726,7 +727,7 @@ function OnboardingPage() {
             <span className="hidden sm:inline">{index === 0 ? "Exit" : "Back"}</span>
           </button>
 
-          <ol className="flex flex-1 items-center justify-center gap-1 sm:gap-2">
+          <ol className="flex min-w-0 flex-1 items-center justify-center gap-1 sm:gap-2">
             {PHASES.map((phase, i) => {
               const done = i < phaseIndex;
               const active = i === phaseIndex;
@@ -771,19 +772,11 @@ function OnboardingPage() {
           </ol>
 
 
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button size="sm" variant="outline" className="gap-1.5">
-                  <Eye className="h-4 w-4" />
-                  See my site
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-4">
-                {previewNode}
-              </SheetContent>
-            </Sheet>
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span className="whitespace-nowrap">~3 mins</span>
           </div>
+
         </div>
       </header>
 
