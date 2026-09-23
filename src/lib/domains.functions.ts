@@ -574,7 +574,37 @@ export const requestOwnDomain = createServerFn({ method: "POST" })
     return { id: row.id, domain, existing: false };
   });
 
+/** Customer removes a domain request they added by mistake or no longer want. */
+export const cancelMyDomain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z.object({ businessId: z.string().uuid(), domainId: z.string().uuid() }).parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    const business = await businessForCaller(context as never, data.businessId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: row, error: readError } = await supabaseAdmin
+      .from("domains")
+      .select("id, domain, status, purchase_status, business_id")
+      .eq("id", data.domainId)
+      .maybeSingle();
+    if (readError) throw readError;
+    if (!row || row.business_id !== business.id) throw new Error("We couldn't find that domain.");
+    if (row.status === "active") {
+      throw new Error("That name is already live — message support and we'll remove it for you.");
+    }
+    if (row.purchase_status === "paid" || row.purchase_status === "fulfilled") {
+      throw new Error("You've already paid for that one — message support and we'll sort it out.");
+    }
+
+    const { error } = await supabaseAdmin.from("domains").delete().eq("id", row.id);
+    if (error) throw error;
+    return { ok: true, domain: row.domain };
+  });
+
 /* -------------------------------------------------------- staff fulfilment */
+
 
 /** Staff flip whether the customer can see the DNS records for their domain. */
 export const setDomainRecordsReleased = createServerFn({ method: "POST" })

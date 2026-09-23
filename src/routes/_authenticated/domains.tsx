@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
+  cancelMyDomain,
   checkDomain,
   checkDomainAvailability,
   DOMAIN_SETUP_FEE_USD,
@@ -28,6 +29,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/domains")({
   head: () => ({
@@ -137,9 +148,11 @@ function DomainsPage() {
   const lookUp = useServerFn(checkDomainAvailability);
   const buy = useServerFn(requestDomainPurchase);
   const bringOwn = useServerFn(requestOwnDomain);
+  const cancel = useServerFn(cancelMyDomain);
 
   const [wanted, setWanted] = useState("");
   const [owned, setOwned] = useState("");
+  const [toRemove, setToRemove] = useState<{ id: string; domain: string } | null>(null);
   const [lookup, setLookup] = useState<{
     domain: string;
     available: boolean;
@@ -199,6 +212,19 @@ function DomainsPage() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not check that domain"),
   });
+
+  const removeDomain = useMutation({
+    mutationFn: (domainId: string) =>
+      cancel({ data: { businessId: businessId!, domainId } }),
+    onSuccess: (result) => {
+      setToRemove(null);
+      toast.success(`${result.domain} removed — you can add it again any time.`);
+      void queryClient.invalidateQueries({ queryKey: ["domains", businessId] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not remove that name"),
+  });
+
+
 
   if (isLoading || domains.isLoading) return <LoadingBlock rows={3} />;
   if (domains.isError) return <ErrorBlock />;
@@ -413,6 +439,18 @@ function DomainsPage() {
                       </a>
                     </Button>
                   ) : null}
+                  {d.status !== "active" &&
+                  d.purchase_status !== "paid" &&
+                  d.purchase_status !== "fulfilled" ? (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive"
+                      onClick={() => setToRemove({ id: d.id, domain: d.domain })}
+                    >
+                      Remove
+                    </Button>
+                  ) : null}
                   {d.last_checked_at ? (
                     <span className="ml-auto text-xs text-muted-foreground">
                       Last checked {new Date(d.last_checked_at).toLocaleString()}
@@ -424,6 +462,28 @@ function DomainsPage() {
           })}
         </ul>
       )}
+
+      <AlertDialog open={Boolean(toRemove)} onOpenChange={(open) => !open && setToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {toRemove?.domain}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              We'll stop setting this name up. Your website stays online at its free WebWarheads
+              address, and you can add the correct name straight after.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removeDomain.isPending}
+              onClick={() => toRemove && removeDomain.mutate(toRemove.id)}
+            >
+              Remove it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
+
   );
 }
