@@ -329,7 +329,8 @@ function OnboardingPage() {
 
   const step = STEPS[index]!;
   const preview = useMemo(() => previewContent(draft), [draft]);
-  const stageIndex = STAGES.findIndex((s) => s.key === step.stage);
+  const phaseIndexBase = STAGES.findIndex((s) => s.key === step.stage);
+  void phaseIndexBase;
   const phaseIndex = Math.max(
     0,
     PHASES.findIndex((phase) => phase.stages.includes(step.stage)),
