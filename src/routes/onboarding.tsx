@@ -715,7 +715,7 @@ function OnboardingPage() {
     <div className="min-h-screen bg-background">
       {/* Progress rail */}
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
           <button
             type="button"
             onClick={goBack}
