@@ -121,13 +121,6 @@ function slugify(value: string) {
 
 type StageKey = "trade" | "business" | "services" | "look" | "reviews";
 
-const STAGES: { key: StageKey; label: string }[] = [
-  { key: "trade", label: "Trade" },
-  { key: "business", label: "Business" },
-  { key: "services", label: "Services" },
-  { key: "look", label: "Look" },
-  { key: "reviews", label: "Reviews" },
-];
 
 /** The simple four-part path we show customers at the top of the wizard. */
 const PHASES: {
