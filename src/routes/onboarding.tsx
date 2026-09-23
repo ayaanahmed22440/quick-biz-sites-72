@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,7 +9,17 @@ import { startOnboardingAccount } from "@/lib/signup.functions";
 
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Eye, Loader2, Search, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ClipboardList,
+  Eye,
+  Image as ImageIcon,
+  Loader2,
+  Rocket,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace, workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
@@ -111,13 +121,20 @@ function slugify(value: string) {
 
 type StageKey = "trade" | "business" | "services" | "look" | "reviews";
 
-const STAGES: { key: StageKey; label: string }[] = [
-  { key: "trade", label: "Trade" },
-  { key: "business", label: "Business" },
-  { key: "services", label: "Services" },
-  { key: "look", label: "Look" },
-  { key: "reviews", label: "Reviews" },
+
+/** The simple four-part path we show customers at the top of the wizard. */
+const PHASES: {
+  key: string;
+  label: string;
+  icon: typeof ClipboardList;
+  stages: StageKey[];
+}[] = [
+  { key: "details", label: "Details", icon: ClipboardList, stages: ["trade", "business", "services"] },
+  { key: "media", label: "Media", icon: ImageIcon, stages: ["look"] },
+  { key: "preview", label: "Preview", icon: Eye, stages: ["reviews"] },
+  { key: "live", label: "Live", icon: Rocket, stages: [] },
 ];
+
 
 type StepKey =
   | "niche"
@@ -305,7 +322,10 @@ function OnboardingPage() {
 
   const step = STEPS[index]!;
   const preview = useMemo(() => previewContent(draft), [draft]);
-  const stageIndex = STAGES.findIndex((s) => s.key === step.stage);
+  const phaseIndex = Math.max(
+    0,
+    PHASES.findIndex((phase) => phase.stages.includes(step.stage)),
+  );
   const isLast = index === STEPS.length - 1;
   const address = `webwarheads.com/${draft.name ? slugify(draft.name) : "your-business"}`;
 
@@ -555,6 +575,16 @@ function OnboardingPage() {
     }
   }
 
+  /** One question back, or out to the homepage from the very first question. */
+  function goBack() {
+    if (index > 0) {
+      setError(null);
+      setIndex((i) => Math.max(0, i - 1));
+      return;
+    }
+    void navigate({ to: "/" });
+  }
+
   async function next() {
     const message = step.validate?.(draft) ?? null;
     if (message) {
@@ -686,42 +716,60 @@ function OnboardingPage() {
       {/* Progress rail */}
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          <button
+            type="button"
+            onClick={goBack}
+            disabled={saving}
+            className="flex shrink-0 items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Exit</span>
-          </Link>
+            <span className="hidden sm:inline">{index === 0 ? "Exit" : "Back"}</span>
+          </button>
 
-          <ol className="flex flex-1 items-center gap-1.5 sm:gap-3">
-            {STAGES.map((stage, i) => {
-              const done = i < stageIndex;
-              const active = i === stageIndex;
+          <ol className="flex flex-1 items-center justify-center gap-1 sm:gap-2">
+            {PHASES.map((phase, i) => {
+              const done = i < phaseIndex;
+              const active = i === phaseIndex;
+              const Icon = phase.icon;
               return (
-                <li key={stage.key} className="flex min-w-0 flex-1 items-center gap-2">
-                  <span
+                <li key={phase.key} className="flex min-w-0 items-center gap-1 sm:gap-2">
+                  <div
                     className={cn(
-                      "h-1.5 flex-1 rounded-full transition-colors duration-500",
-                      done || active ? "bg-accent" : "bg-muted",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "hidden shrink-0 text-xs font-medium sm:inline",
+                      "flex items-center gap-1.5 rounded-full border px-2 py-1 transition-colors duration-300 sm:px-3 sm:py-1.5",
                       active
-                        ? "text-foreground"
+                        ? "border-accent bg-accent/10 text-foreground"
                         : done
-                          ? "text-muted-foreground"
-                          : "text-muted-foreground/60",
+                          ? "border-accent/40 text-muted-foreground"
+                          : "border-border text-muted-foreground/60",
                     )}
                   >
-                    {stage.label}
-                  </span>
+                    {done ? (
+                      <Check className="h-3.5 w-3.5 text-accent" />
+                    ) : (
+                      <Icon className={cn("h-3.5 w-3.5", active && "text-accent")} />
+                    )}
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        active ? "inline" : "hidden sm:inline",
+                      )}
+                    >
+                      {phase.label}
+                    </span>
+                  </div>
+                  {i < PHASES.length - 1 ? (
+                    <span
+                      className={cn(
+                        "h-px w-3 sm:w-6",
+                        done ? "bg-accent" : "bg-border",
+                      )}
+                    />
+                  ) : null}
                 </li>
               );
             })}
           </ol>
+
 
           <div className="lg:hidden">
             <Sheet>
@@ -1045,7 +1093,7 @@ function OnboardingPage() {
               <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
                 <Button
                   variant="ghost"
-                  onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                  onClick={goBack}
                   disabled={index === 0 || saving}
                 >
                   Back
