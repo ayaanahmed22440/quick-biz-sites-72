@@ -462,6 +462,28 @@ function DomainsPage() {
           })}
         </ul>
       )}
+
+      <AlertDialog open={Boolean(toRemove)} onOpenChange={(open) => !open && setToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {toRemove?.domain}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              We'll stop setting this name up. Your website stays online at its free WebWarheads
+              address, and you can add the correct name straight after.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep it</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={removeDomain.isPending}
+              onClick={() => toRemove && removeDomain.mutate(toRemove.id)}
+            >
+              Remove it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
+
   );
 }
