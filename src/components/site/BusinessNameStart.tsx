@@ -49,8 +49,7 @@ export function BusinessNameStart({
               setValue(event.target.value);
               if (error) setError(null);
             }}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            placeholder={placeholder}
             placeholder={placeholder}
             aria-label="Your business name"
             className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
