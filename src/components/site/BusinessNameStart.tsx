@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,14 +10,9 @@ type Props = {
   className?: string;
 };
 
-const EXAMPLE_NAMES = ["Sparkle Clean Co.", "Apex Roofing", "GreenScape Landscaping"];
-
 /**
  * Shared landing-page starter: the visitor types their business name and is taken
  * straight into onboarding with that name already filled in.
- *
- * While the input is empty and unfocused, an animated caret types through example
- * business names; the animation stops as soon as the visitor focuses or types.
  */
 export function BusinessNameStart({
   onSubmitTrack,
@@ -26,59 +21,7 @@ export function BusinessNameStart({
 }: Props) {
   const navigate = useNavigate();
   const [value, setValue] = useState("");
-  const [focused, setFocused] = useState(false);
-  const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(query.matches);
-    const listener = (event: MediaQueryListEvent) => setReducedMotion(event.matches);
-    query.addEventListener("change", listener);
-    return () => query.removeEventListener("change", listener);
-  }, []);
-
-  const animating = value === "" && !focused && !reducedMotion;
-
-  useEffect(() => {
-    if (!animating) {
-      setTyped("");
-      return;
-    }
-    let nameIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
-    let timer: number;
-
-    const tick = () => {
-      const current = EXAMPLE_NAMES[nameIndex] ?? "Sparkle Clean Co.";
-      if (!deleting) {
-        charIndex += 1;
-        setTyped(current.slice(0, charIndex));
-        if (charIndex >= current.length) {
-          deleting = true;
-          timer = window.setTimeout(tick, 1700);
-          return;
-        }
-        timer = window.setTimeout(tick, 60 + Math.random() * 45);
-        return;
-      }
-      charIndex -= 1;
-      setTyped(current.slice(0, charIndex));
-      if (charIndex <= 0) {
-        deleting = false;
-        nameIndex = (nameIndex + 1) % EXAMPLE_NAMES.length;
-        timer = window.setTimeout(tick, 400);
-        return;
-      }
-      timer = window.setTimeout(tick, 28);
-    };
-
-    timer = window.setTimeout(tick, 500);
-    return () => window.clearTimeout(timer);
-  }, [animating]);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -91,6 +34,7 @@ export function BusinessNameStart({
     onSubmitTrack?.(name);
     void navigate({ to: "/onboarding", search: { name } });
   };
+
 
   return (
     <div className={cn("mx-auto w-full max-w-xl", className)}>
