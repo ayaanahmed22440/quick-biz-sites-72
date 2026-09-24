@@ -40,7 +40,7 @@ export function BusinessNameStart({
     <div className={cn("mx-auto w-full max-w-xl", className)}>
       <form
         onSubmit={submit}
-        className="flex items-center gap-2 rounded-2xl border-2 border-accent/35 bg-card p-2 pl-5 shadow-lg shadow-accent/10 transition-all focus-within:border-accent focus-within:shadow-xl focus-within:shadow-accent/20"
+        className="flex flex-col gap-2.5 rounded-2xl border-2 border-accent/35 bg-card p-2.5 shadow-lg shadow-accent/10 transition-all focus-within:border-accent focus-within:shadow-xl focus-within:shadow-accent/20 sm:flex-row sm:items-center sm:gap-2 sm:p-2 sm:pl-5"
       >
         <div className="relative min-w-0 flex-1">
           <input
@@ -51,17 +51,18 @@ export function BusinessNameStart({
             }}
             placeholder={placeholder}
             aria-label="Your business name"
-            className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
+            className="h-11 w-full bg-transparent px-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground sm:px-0"
           />
         </div>
         <button
           type="submit"
-          className="group flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-navy px-4 text-sm font-semibold text-navy-foreground transition-all duration-300 hover:bg-navy-muted sm:px-6"
+          className="group flex h-12 w-full shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-navy px-4 text-sm font-semibold text-navy-foreground transition-all duration-300 hover:bg-navy-muted sm:h-11 sm:w-auto sm:px-6"
         >
           Build my website
           <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
       </form>
+
       <p className={cn("mt-2 text-xs", error ? "text-destructive" : "text-muted-foreground")}>
         {error ?? "Type your business name and press Enter"}
       </p>
