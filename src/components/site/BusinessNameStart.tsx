@@ -107,26 +107,17 @@ export function BusinessNameStart({
             }}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            placeholder={animating ? "" : placeholder}
+            placeholder={placeholder}
             aria-label="Your business name"
             className="h-11 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
           />
-          {animating && (
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 flex items-center text-base text-muted-foreground"
-            >
-              {typed}
-              <span className="ml-0.5 inline-block h-[1.1em] w-[2px] animate-pulse bg-accent" />
-            </span>
-          )}
         </div>
         <button
           type="submit"
-          aria-label="Start building my website"
-          className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-navy-foreground transition-all duration-300 hover:bg-navy-muted"
+          className="group flex h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-navy px-4 text-sm font-semibold text-navy-foreground transition-all duration-300 hover:bg-navy-muted sm:px-6"
         >
-          <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
+          Build my website
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
         </button>
       </form>
       <p className={cn("mt-2 text-xs", error ? "text-destructive" : "text-muted-foreground")}>
@@ -135,3 +126,4 @@ export function BusinessNameStart({
     </div>
   );
 }
+
