@@ -5,7 +5,9 @@
  * Sending never throws — a mail problem must not break the action that caused
  * it. Failures land in the admin email log instead.
  */
-import { sendGmail, emailShell } from "@/lib/gmail.server";
+import { emailShell } from "@/lib/gmail.server";
+import { sendMail } from "@/lib/mailer.server";
+
 
 const SITE_URL = "https://www.webwarheads.com";
 export const ADMIN_ALERT_EMAIL = process.env["ADMIN_ALERT_EMAIL"] ?? "admin@webwarheads.com";
@@ -64,7 +66,7 @@ async function send({ to, subject, title, body, purpose, businessId, replyTo }: 
     return { sent: false, preview: true };
   }
   try {
-    return await sendGmail({
+    return await sendMail({
       to,
       subject,
       purpose,
@@ -72,6 +74,7 @@ async function send({ to, subject, title, body, purpose, businessId, replyTo }: 
       ...(replyTo ? { replyTo } : {}),
       html: emailShell(title, body),
     });
+
   } catch (error) {
     console.error(`[email:${purpose}] failed`, error);
     return { sent: false, error: error instanceof Error ? error.message : "Unknown error" };

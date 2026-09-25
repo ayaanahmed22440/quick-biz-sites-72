@@ -32,14 +32,15 @@ export const sendTestEmail = createServerFn({ method: "POST" })
     const template = (await renderEmailPreviews()).find((item) => item.key === data.key);
     if (!template) throw new Error("That template no longer exists.");
 
-    const { sendGmail } = await import("@/lib/gmail.server");
-    const result = await sendGmail({
+    const { sendMail } = await import("@/lib/mailer.server");
+    const result = await sendMail({
       to: data.to,
       subject: `[Test] ${template.subject}`,
       html: template.html,
       purpose: "test_send",
       businessId: null,
     });
+
 
     if (!result?.sent) {
       throw new Error(
