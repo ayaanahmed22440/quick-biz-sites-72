@@ -44,6 +44,14 @@ function AdminEmailsPage() {
   const items = previews.data ?? [];
   const selected = items.find((i) => i.key === active) ?? items[0];
 
+  const groups: Array<{ name: string; items: typeof items }> = [];
+  for (const item of items) {
+    const label = item.group ?? "Other";
+    const bucket = groups.find((g) => g.name === label);
+    if (bucket) bucket.items.push(item);
+    else groups.push({ name: label, items: [item] });
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -56,25 +64,33 @@ function AdminEmailsPage() {
 
       {items.length > 0 && selected ? (
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <div className="space-y-2">
-            {items.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => setActive(item.key)}
-                className={`w-full rounded-lg border p-3 text-left transition-colors ${
-                  selected.key === item.key
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:bg-muted/50"
-                }`}
-              >
-                <span className="block text-sm font-semibold">{item.name}</span>
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {item.description}
-                </span>
-              </button>
+          <div className="space-y-5">
+            {groups.map((group) => (
+              <div key={group.name} className="space-y-2">
+                <p className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {group.name}
+                </p>
+                {group.items.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => setActive(item.key)}
+                    className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                      selected.key === item.key
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:bg-muted/50"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold">{item.name}</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {item.description}
+                    </span>
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
+
 
           <Card>
             <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
