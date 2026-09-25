@@ -37,7 +37,32 @@ type SendArgs = {
   replyTo?: string;
 };
 
+/**
+ * Preview capture. When on, senders render their HTML instead of posting it,
+ * so the admin email library shows the real template rather than a copy.
+ * The flag is only ever set around one synchronous sender call.
+ */
+let capturing = false;
+let captured: { subject: string; html: string } | null = null;
+
+export function captureEmail(run: () => unknown): { subject: string; html: string } | null {
+  capturing = true;
+  captured = null;
+  try {
+    run();
+  } catch (error) {
+    console.error("[email:preview] failed", error);
+  } finally {
+    capturing = false;
+  }
+  return captured;
+}
+
 async function send({ to, subject, title, body, purpose, businessId, replyTo }: SendArgs) {
+  if (capturing) {
+    captured = { subject, html: emailShell(title, body) };
+    return { sent: false, preview: true };
+  }
   try {
     return await sendGmail({
       to,
@@ -52,6 +77,7 @@ async function send({ to, subject, title, body, purpose, businessId, replyTo }: 
     return { sent: false, error: error instanceof Error ? error.message : "Unknown error" };
   }
 }
+
 
 /* ------------------------------------------------------------------ owner */
 
