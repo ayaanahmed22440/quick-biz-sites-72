@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { getEmailPreviews } from "@/lib/email-previews.functions";
+import { toast } from "sonner";
+import { getEmailPreviews, sendTestEmail } from "@/lib/email-previews.functions";
 import { getEmailLog } from "@/lib/email-logs.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -10,6 +11,8 @@ import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBloc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 
 export const Route = createFileRoute("/_authenticated/admin-emails")({
   head: () => ({
@@ -28,7 +31,17 @@ export const Route = createFileRoute("/_authenticated/admin-emails")({
 function AdminEmailsPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const fetchPreviews = useServerFn(getEmailPreviews);
+  const runTestSend = useServerFn(sendTestEmail);
   const [active, setActive] = useState<string | null>(null);
+  const [testTo, setTestTo] = useState("");
+
+  const testSend = useMutation({
+    mutationFn: (input: { key: string; to: string }) => runTestSend({ data: input }),
+    onSuccess: (result) => toast.success(`Test email sent to ${result.to}`),
+    onError: (error: unknown) =>
+      toast.error(error instanceof Error ? error.message : "The email could not be sent."),
+  });
+
 
   const previews = useQuery({
     queryKey: ["email-previews"],
