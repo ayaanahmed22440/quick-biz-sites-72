@@ -39,7 +39,7 @@ export function ManualSiteBanner({
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-4 gap-y-2 text-center">
         <p className="text-sm font-medium">
           Payment pending — this preview expires in{" "}
-          <span className="font-mono font-bold tabular-nums">
+          <span className="rounded-md bg-red-600 px-2 py-0.5 font-mono text-base font-bold tabular-nums text-white">
             {hh}:{mm}:{ss}
           </span>
         </p>
@@ -52,4 +52,5 @@ export function ManualSiteBanner({
       </div>
     </div>
   );
+
 }
