@@ -93,30 +93,57 @@ function AdminEmailsPage() {
 
 
           <Card>
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-base">{selected.name}</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Subject: {selected.subject}
-                </p>
+            <CardHeader className="gap-3">
+              <div className="flex flex-row flex-wrap items-center justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base">{selected.name}</CardTitle>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Subject: {selected.subject}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">support@webwarheads.com</Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const w = window.open("", "_blank");
+                      if (w) {
+                        w.document.write(selected.html);
+                        w.document.close();
+                      }
+                    }}
+                  >
+                    Open full size
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">support@webwarheads.com</Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const w = window.open("", "_blank");
-                    if (w) {
-                      w.document.write(selected.html);
-                      w.document.close();
-                    }
-                  }}
-                >
-                  Open full size
+
+              <form
+                className="flex flex-col gap-2 rounded-lg border border-border bg-muted/40 p-3 sm:flex-row sm:items-center"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (testSend.isPending) return;
+                  testSend.mutate({ key: selected.key, to: testTo });
+                }}
+              >
+                <label className="text-sm font-medium sm:whitespace-nowrap" htmlFor="test-to">
+                  Send a test to
+                </label>
+                <Input
+                  id="test-to"
+                  type="email"
+                  value={testTo}
+                  placeholder="you@example.com"
+                  onChange={(event) => setTestTo(event.target.value)}
+                  className="h-9 sm:max-w-xs"
+                />
+                <Button type="submit" size="sm" disabled={testSend.isPending}>
+                  {testSend.isPending ? "Sending…" : "Send test email"}
                 </Button>
-              </div>
+              </form>
             </CardHeader>
+
             <CardContent>
               <iframe
                 title={`${selected.name} preview`}
