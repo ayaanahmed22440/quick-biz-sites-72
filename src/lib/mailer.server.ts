@@ -48,7 +48,7 @@ export async function sendMail(opts: {
           purpose: "transactional",
           label: opts.purpose,
           idempotency_key: opts.idempotencyKey || crypto.randomUUID(),
-          reply_to: opts.replyTo,
+          ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
         },
         { apiKey },
       );
