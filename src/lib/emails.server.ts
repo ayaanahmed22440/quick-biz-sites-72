@@ -10,7 +10,7 @@ import { sendMail } from "@/lib/mailer.server";
 
 
 const SITE_URL = "https://www.webwarheads.com";
-export const ADMIN_ALERT_EMAIL = process.env["ADMIN_ALERT_EMAIL"] ?? "admin@webwarheads.com";
+export const ADMIN_ALERT_EMAIL = process.env["ADMIN_ALERT_EMAIL"] ?? "support@webwarheads.com";
 
 const escape = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -404,7 +404,6 @@ export function sendEnquiryReplyEmail(opts: {
     purpose: "enquiry_reply",
     subject: opts.subject,
     title: "A reply from WebWarheads",
-    replyTo: ADMIN_ALERT_EMAIL,
     body: [
       paragraph(`Hi ${escape(opts.name?.trim() || "there")},`),
       `<p style="margin:0 0 14px;font-size:15px;line-height:1.65;white-space:pre-line;">${escape(opts.message)}</p>`,
@@ -434,7 +433,6 @@ export function sendManualPreviewEmail(opts: {
     purpose: "manual_preview",
     subject: `Your ${opts.businessName} website is ready to view`,
     title: "Here's your website",
-    replyTo: ADMIN_ALERT_EMAIL,
     body: [
       paragraph(`Hi ${escape(opts.contactName?.trim() || "there")},`),
       paragraph(
