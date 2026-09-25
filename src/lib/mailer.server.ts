@@ -16,6 +16,8 @@ const SITE_NAME = "WebWarheads";
 const SENDER_DOMAIN = "notify.webwarheads.com";
 /** Domain shown in the From: header. */
 const FROM_DOMAIN = "webwarheads.com";
+/** Where customer replies land unless a sender sets its own Reply-To. */
+const DEFAULT_REPLY_TO = "support@webwarheads.com";
 
 export type MailResult = { sent: boolean; error?: string; suppressed?: boolean };
 
