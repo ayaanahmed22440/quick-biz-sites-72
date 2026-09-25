@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { getEmailPreviews } from "@/lib/email-previews.functions";
+import { toast } from "sonner";
+import { getEmailPreviews, sendTestEmail } from "@/lib/email-previews.functions";
 import { getEmailLog } from "@/lib/email-logs.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/hooks/useWorkspace";
@@ -10,6 +11,8 @@ import { ErrorBlock, LoadingBlock, PageHeader } from "@/components/app/StateBloc
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 
 export const Route = createFileRoute("/_authenticated/admin-emails")({
   head: () => ({
@@ -28,7 +31,17 @@ export const Route = createFileRoute("/_authenticated/admin-emails")({
 function AdminEmailsPage() {
   const { data: workspace, isLoading } = useWorkspace();
   const fetchPreviews = useServerFn(getEmailPreviews);
+  const runTestSend = useServerFn(sendTestEmail);
   const [active, setActive] = useState<string | null>(null);
+  const [testTo, setTestTo] = useState("");
+
+  const testSend = useMutation({
+    mutationFn: (input: { key: string; to: string }) => runTestSend({ data: input }),
+    onSuccess: (result) => toast.success(`Test email sent to ${result.to}`),
+    onError: (error: unknown) =>
+      toast.error(error instanceof Error ? error.message : "The email could not be sent."),
+  });
+
 
   const previews = useQuery({
     queryKey: ["email-previews"],
@@ -93,30 +106,57 @@ function AdminEmailsPage() {
 
 
           <Card>
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-base">{selected.name}</CardTitle>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Subject: {selected.subject}
-                </p>
+            <CardHeader className="gap-3">
+              <div className="flex flex-row flex-wrap items-center justify-between gap-3">
+                <div>
+                  <CardTitle className="text-base">{selected.name}</CardTitle>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Subject: {selected.subject}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">support@webwarheads.com</Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const w = window.open("", "_blank");
+                      if (w) {
+                        w.document.write(selected.html);
+                        w.document.close();
+                      }
+                    }}
+                  >
+                    Open full size
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">support@webwarheads.com</Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const w = window.open("", "_blank");
-                    if (w) {
-                      w.document.write(selected.html);
-                      w.document.close();
-                    }
-                  }}
-                >
-                  Open full size
+
+              <form
+                className="flex flex-col gap-2 rounded-lg border border-border bg-muted/40 p-3 sm:flex-row sm:items-center"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (testSend.isPending) return;
+                  testSend.mutate({ key: selected.key, to: testTo });
+                }}
+              >
+                <label className="text-sm font-medium sm:whitespace-nowrap" htmlFor="test-to">
+                  Send a test to
+                </label>
+                <Input
+                  id="test-to"
+                  type="email"
+                  value={testTo}
+                  placeholder="you@example.com"
+                  onChange={(event) => setTestTo(event.target.value)}
+                  className="h-9 sm:max-w-xs"
+                />
+                <Button type="submit" size="sm" disabled={testSend.isPending}>
+                  {testSend.isPending ? "Sending…" : "Send test email"}
                 </Button>
-              </div>
+              </form>
             </CardHeader>
+
             <CardContent>
               <iframe
                 title={`${selected.name} preview`}
