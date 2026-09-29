@@ -52,15 +52,19 @@ export function PlanChooser({
 
   return (
     <div className="@container space-y-4">
-      <div className="rounded-xl border border-success/40 bg-success/10 p-4">
-        <p className="text-base font-bold text-foreground">
-          🎉 Free for {TRIAL_DAYS} days — no charge until {trialEndDate()}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your site goes live straight away. We take your card to start the trial, but you won't be
-          charged a penny until day {TRIAL_DAYS}. Cancel anytime before then, no questions asked.
-        </p>
+      <div className="flex gap-3 rounded-lg border border-border bg-muted/40 p-3.5">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            Free for {TRIAL_DAYS} days — no charge until {trialEndDate()}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your site goes live straight away. We take your card to start the trial, but you won't be
+            charged until day {TRIAL_DAYS}. Cancel anytime before then.
+          </p>
+        </div>
       </div>
+
 
       <div className="inline-flex max-w-full flex-wrap rounded-lg border border-border bg-card p-1">
 

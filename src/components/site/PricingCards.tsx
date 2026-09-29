@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
-import { PLAN_COPY, TRIAL_DAYS, TRIAL_LABEL } from "@/lib/plans";
+import { PLAN_COPY, TRIAL_DAYS } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
