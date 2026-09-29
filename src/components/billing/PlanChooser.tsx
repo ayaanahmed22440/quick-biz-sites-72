@@ -94,9 +94,6 @@ export function PlanChooser({
                   {period === "yearly" ? "/year" : "/month"}
                 </span>
               </p>
-              <p className="mt-1.5 inline-flex w-fit rounded-full bg-success/15 px-2.5 py-1 text-xs font-bold text-success">
-                {TRIAL_LABEL}
-              </p>
 
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.slice(0, featureCount).map((f) => (
