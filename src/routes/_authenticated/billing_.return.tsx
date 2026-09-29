@@ -76,7 +76,7 @@ function BillingReturnPage() {
               ...(eventId ? { eventId } : {}),
             });
             setState("active");
-            setTimeout(() => void navigate({ to: destination }), 1200);
+            setTimeout(() => void navigate({ to: destination }), 3500);
             return;
           }
         } catch {
