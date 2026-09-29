@@ -29,6 +29,7 @@ import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
 import { AdminNotificationBell, AdminUsersTab } from "@/components/admin/AdminUsers";
 import { AdminManualSitesTab } from "@/components/admin/AdminManualSites";
 import { AdminDomains } from "@/components/admin/AdminDomains";
+import { AdminDemoAccounts } from "@/components/admin/AdminDemoAccounts";
 import {
   Dialog,
   DialogContent,
