@@ -201,9 +201,13 @@ function CleaningBusinessLandingPage() {
               Build a website made for your cleaning business, add your services and photos, then preview the whole thing before you pay.
             </p>
             <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
-            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex justify-center">
+            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col items-center justify-center gap-4">
               <BuildButton />
+              <p className="inline-flex items-center rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+                Free for 7 days — cancel anytime
+              </p>
             </div>
+
             <TrustPoints className="mt-10 sm:mt-9" />
           </div>
 

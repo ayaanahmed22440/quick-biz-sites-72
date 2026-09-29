@@ -231,7 +231,11 @@ function HomePage() {
           </p>
           <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
             <BusinessNameStart onSubmitTrack={() => trackLead()} />
+            <p className="inline-flex items-center rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+              Free for 7 days — cancel anytime
+            </p>
           </div>
+
           <TrustPoints className="animate-hero-entry animate-hero-delay-4 mt-10 sm:mt-9" />
         </div>
         <ProductPreview />
