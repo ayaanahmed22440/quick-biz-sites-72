@@ -3,7 +3,7 @@ import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { startCheckout } from "@/lib/billing.functions";
-import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
+import { PLAN_COPY, yearlyPrice, TRIAL_DAYS, TRIAL_LABEL, trialEndDate } from "@/lib/plans";
 import { trackInitiateCheckout } from "@/lib/meta-pixel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -52,7 +52,18 @@ export function PlanChooser({
 
   return (
     <div className="@container space-y-4">
+      <div className="rounded-xl border border-success/40 bg-success/10 p-4">
+        <p className="text-base font-bold text-foreground">
+          🎉 Free for {TRIAL_DAYS} days — no charge until {trialEndDate()}
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your site goes live straight away. We take your card to start the trial, but you won't be
+          charged a penny until day {TRIAL_DAYS}. Cancel anytime before then, no questions asked.
+        </p>
+      </div>
+
       <div className="inline-flex max-w-full flex-wrap rounded-lg border border-border bg-card p-1">
+
 
         {(["monthly", "yearly"] as const).map((p) => (
           <button
