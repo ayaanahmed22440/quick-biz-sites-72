@@ -1,9 +1,8 @@
-import { CodeXml, Hammer, Eye, CalendarClock } from "lucide-react";
+import { CodeXml, Hammer, Eye, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TRIAL_LABEL } from "@/lib/plans";
 
 const POINTS = [
-  { label: TRIAL_LABEL, Icon: CalendarClock },
+  { label: "No card required", Icon: CreditCard },
   { label: "Preview before you pay", Icon: Eye },
   { label: "No coding", Icon: CodeXml },
   { label: "No developer", Icon: Hammer },
