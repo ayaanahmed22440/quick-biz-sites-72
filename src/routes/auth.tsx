@@ -145,7 +145,9 @@ function AuthPage() {
               <p className="mt-1.5 text-sm text-muted-foreground">
                 {selectedPlan
                   ? `You picked the ${selectedPlan.name} plan at $${selectedPlan.price}/month. Log in to continue.`
-                  : "Enter your email and we'll send you a one-time sign-in link. No password needed."}
+                  : usePassword
+                    ? "Enter your email and password to log in."
+                    : "Enter your email and we'll send you a one-time sign-in link. No password needed."}
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
@@ -161,12 +163,42 @@ function AuthPage() {
                   />
                 </div>
 
+                {usePassword ? (
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      className="mt-1.5"
+                    />
+                  </div>
+                ) : null}
+
                 {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
                 <Button type="submit" disabled={busy} className="w-full">
-                  {busy ? "Sending…" : "Email me a login link"}
+                  {busy
+                    ? usePassword
+                      ? "Logging in…"
+                      : "Sending…"
+                    : usePassword
+                      ? "Log in"
+                      : "Email me a login link"}
                 </Button>
               </form>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setUsePassword((v) => !v);
+                }}
+                className="mt-3 w-full text-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+              >
+                {usePassword ? "Email me a login link instead" : "Use a password instead"}
+              </button>
 
               <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="h-px flex-1 bg-border" />
