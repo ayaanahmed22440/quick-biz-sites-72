@@ -53,8 +53,8 @@ const MATRIX: { label: string; basic: boolean; seo: boolean; premium: boolean }[
 
 const FAQS = [
   {
-    q: "Do I get charged right away?",
-    a: "No. Every plan starts with a 7-day free trial. We take your card to start the trial, but nothing is charged until day 7. Cancel before then from your Billing page and you pay nothing at all.",
+    q: "Is there a contract?",
+    a: "No contract. You pay monthly and can cancel whenever you want from your Billing page.",
   },
   {
     q: "Which plan should I start on?",
@@ -99,9 +99,6 @@ function PricingPage() {
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
             One monthly price. Website, hosting and support included.
           </h1>
-          <p className="mt-4 text-sm font-semibold text-navy-foreground/80">
-            Free for 7 days — cancel anytime
-          </p>
 
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
             No build fee, no hourly charges for small changes, no surprise renewal invoices.
