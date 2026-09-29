@@ -24,11 +24,27 @@ export const Route = createFileRoute("/_authenticated/billing")({
 
 function BillingPage() {
   const { data: workspace, isLoading, refetch, isFetching } = useWorkspace();
+  const portal = useServerFn(openBillingPortal);
+  const [opening, setOpening] = useState(false);
+
+  async function manage() {
+    setOpening(true);
+    try {
+      const result = await portal({});
+      window.location.href = result.url;
+    } catch (error) {
+      setOpening(false);
+      toast.error(
+        error instanceof Error ? error.message : "We couldn't open your billing settings.",
+      );
+    }
+  }
 
   if (isLoading) return <LoadingBlock rows={3} />;
 
   const subscription = workspace?.subscription;
   const current = planCopy(subscription?.plan_id);
+  const trialing = subscription?.status === "trialing";
 
   return (
     <>
@@ -43,25 +59,48 @@ function BillingPage() {
           </Button>
         </div>
         {subscription && current ? (
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className="text-lg font-semibold">
-              ${isYearly(subscription.plan_id) ? yearlyPrice(current.price) : current.price}
-              {isYearly(subscription.plan_id) ? "/year" : "/month"} — {current.name}
-            </span>
-            <Badge variant="secondary">{subscription.status}</Badge>
-            {subscription.current_period_end ? (
-              <span className="text-sm text-muted-foreground">
-                {subscription.cancel_at_period_end ? "Ends" : "Renews"}{" "}
-                {new Date(subscription.current_period_end).toLocaleDateString()}
+          <>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <span className="text-lg font-semibold">
+                ${isYearly(subscription.plan_id) ? yearlyPrice(current.price) : current.price}
+                {isYearly(subscription.plan_id) ? "/year" : "/month"} — {current.name}
               </span>
+              <Badge variant={trialing ? "default" : "secondary"}>
+                {trialing ? `Free trial` : subscription.status}
+              </Badge>
+              {subscription.current_period_end ? (
+                <span className="text-sm text-muted-foreground">
+                  {subscription.cancel_at_period_end
+                    ? "Ends"
+                    : trialing
+                      ? "First payment"
+                      : "Renews"}{" "}
+                  {new Date(subscription.current_period_end).toLocaleDateString()}
+                </span>
+              ) : null}
+            </div>
+            {trialing ? (
+              <p className="mt-3 rounded-lg bg-success/10 p-3 text-sm text-foreground">
+                You're on your {TRIAL_DAYS}-day free trial. Cancel before it ends and you won't be
+                charged anything.
+              </p>
             ) : null}
-          </div>
+            <Button
+              className="mt-4"
+              variant="outline"
+              disabled={opening}
+              onClick={() => void manage()}
+            >
+              {opening ? "Opening…" : "Manage payment or cancel"}
+            </Button>
+          </>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
             You don't have an active plan yet.
           </p>
         )}
       </div>
+
 
       {subscription?.status === "past_due" ? (
         <div className="rounded-xl border border-warning/40 bg-warning/10 p-5">
