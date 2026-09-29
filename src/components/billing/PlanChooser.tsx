@@ -117,7 +117,7 @@ export function PlanChooser({
                   ) : isCurrent ? (
                     "Your current plan"
                   ) : (
-                    `Start ${TRIAL_DAYS}-day free trial`
+                    "Choose this plan"
                   )}
                 </Button>
               </div>
@@ -128,9 +128,10 @@ export function PlanChooser({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Secure payment handled by Polar. $0 today — your first payment is on day {TRIAL_DAYS}.
-        Cancel any time from Billing; your website and content stay yours.
+        Secure payment handled by Polar. Cancel any time from Billing; your website and content
+        stay yours.
       </p>
+
 
     </div>
   );
