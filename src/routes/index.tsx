@@ -229,12 +229,10 @@ function HomePage() {
           <p className="animate-hero-entry animate-hero-delay-2 mx-auto mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-xl sm:leading-8">
             Build, preview and publish a professional website without hiring a developer. Everything you need, from <strong className="font-semibold text-foreground">$37 a month.</strong>
           </p>
-          <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center gap-4">
+          <div className="animate-hero-entry animate-hero-delay-3 mt-9 flex flex-col items-center justify-center">
             <BusinessNameStart onSubmitTrack={() => trackLead()} />
-            <p className="inline-flex items-center rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
-              Free for 7 days — cancel anytime
-            </p>
           </div>
+
 
           <TrustPoints className="animate-hero-entry animate-hero-delay-4 mt-10 sm:mt-9" />
         </div>
