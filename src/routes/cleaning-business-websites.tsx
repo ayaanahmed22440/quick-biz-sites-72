@@ -119,8 +119,8 @@ const faqs = [
   ["Do I need coding experience?", "No. WebWarHeads is designed for business owners who don't know how to code."],
   ["Do I need to hire a developer?", "No. You build and customize the website yourself."],
   ["Can I see my website before paying?", "Yes. Preview your website before choosing a plan."],
-  ["Do I get charged right away?", "No. Every plan starts with a 7-day free trial. We take your card to start the trial, but nothing is charged until day 7. Cancel before then and you pay nothing at all."],
-  ["How much does it cost?", "Plans start at $37/month, and the first 7 days are free."],
+  ["Do I pay before I see my website?", "No. You build and preview your website first, then choose a plan when you're happy with it."],
+  ["How much does it cost?", "Plans start at $37/month, with no setup fee and no contract."],
 
   ["Can I use my own domain?", "Yes. You can connect your own domain."],
   ["Can I add my own cleaning photos?", "Yes. Add your own photos, project images, logo and branding."],
@@ -205,9 +205,7 @@ function CleaningBusinessLandingPage() {
             <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
             <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col items-center justify-center gap-4">
               <BuildButton />
-              <p className="text-sm font-semibold text-navy-foreground/80">
-                Free for 7 days — cancel anytime
-              </p>
+
 
             </div>
 

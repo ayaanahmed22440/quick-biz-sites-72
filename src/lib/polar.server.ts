@@ -64,9 +64,6 @@ function usableEmail(email: string | null | undefined): string | null {
   return value;
 }
 
-/** Every subscription starts with a free trial of this many days. */
-export const TRIAL_DAYS = 7;
-
 /** Creates a hosted Polar checkout tied to our own checkout_sessions row via metadata. */
 export async function createPolarCheckout(input: {
   productId: string;
@@ -81,11 +78,6 @@ export async function createPolarCheckout(input: {
       products: [input.productId],
       success_url: input.successUrl,
       external_customer_id: input.externalCustomerId,
-      // Session-level trial wins over any product-level setting, so the free
-      // period is guaranteed no matter how the product is configured.
-      allow_trial: true,
-      trial_interval: "day",
-      trial_interval_count: TRIAL_DAYS,
       ...(withEmail && email ? { customer_email: email } : {}),
       metadata: input.metadata,
     });

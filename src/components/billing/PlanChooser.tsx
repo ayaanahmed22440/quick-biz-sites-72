@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Check, Loader2, ShieldCheck } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { startCheckout } from "@/lib/billing.functions";
-import { PLAN_COPY, yearlyPrice, TRIAL_DAYS, TRIAL_LABEL, trialEndDate } from "@/lib/plans";
+import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
 import { trackInitiateCheckout } from "@/lib/meta-pixel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -52,20 +52,6 @@ export function PlanChooser({
 
   return (
     <div className="@container space-y-4">
-      <div className="flex gap-3 rounded-lg border border-border bg-muted/40 p-3.5">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
-        <div>
-          <p className="text-sm font-semibold text-foreground">
-            Free for {TRIAL_DAYS} days — no charge until {trialEndDate()}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your site goes live straight away. We take your card to start the trial, but you won't be
-            charged until day {TRIAL_DAYS}. Cancel anytime before then.
-          </p>
-        </div>
-      </div>
-
-
       <div className="inline-flex max-w-full flex-wrap rounded-lg border border-border bg-card p-1">
 
 
@@ -108,9 +94,6 @@ export function PlanChooser({
                   {period === "yearly" ? "/year" : "/month"}
                 </span>
               </p>
-              <p className="mt-1.5 inline-flex w-fit rounded-full bg-success/15 px-2.5 py-1 text-xs font-bold text-success">
-                {TRIAL_LABEL}
-              </p>
 
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.slice(0, featureCount).map((f) => (
@@ -134,7 +117,7 @@ export function PlanChooser({
                   ) : isCurrent ? (
                     "Your current plan"
                   ) : (
-                    `Start ${TRIAL_DAYS}-day free trial`
+                    "Choose this plan"
                   )}
                 </Button>
               </div>
@@ -145,9 +128,10 @@ export function PlanChooser({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Secure payment handled by Polar. $0 today — your first payment is on day {TRIAL_DAYS}.
-        Cancel any time from Billing; your website and content stay yours.
+        Secure payment handled by Polar. Cancel any time from Billing; your website and content
+        stay yours.
       </p>
+
 
     </div>
   );

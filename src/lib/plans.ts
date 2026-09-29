@@ -56,18 +56,6 @@ export const PLAN_ENTITLEMENTS: Record<PlanId, Entitlements> = {
 
 export const ACTIVE_SUBSCRIPTION_STATUSES = ["active", "trialing", "past_due"] as const;
 
-/** Length of the free trial every new subscription starts with. */
-export const TRIAL_DAYS = 7;
-
-/** Short line used next to prices and buttons across the site. */
-export const TRIAL_LABEL = `${TRIAL_DAYS}-day free trial`;
-export const TRIAL_LINE = `Free for ${TRIAL_DAYS} days — cancel anytime.`;
-
-/** Human date the first charge would land on, counted from now. */
-export function trialEndDate(from: Date = new Date()): string {
-  const end = new Date(from.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
-  return end.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
-}
 
 
 /** Yearly plans use the id `<plan>_yearly` and carry identical entitlements. */
