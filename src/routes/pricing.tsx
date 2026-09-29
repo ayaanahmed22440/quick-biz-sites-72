@@ -46,9 +46,10 @@ const MATRIX: { label: string; basic: boolean; seo: boolean; premium: boolean }[
   { label: "LocalBusiness and Service schema", basic: false, seo: true, premium: true },
   { label: "SEO status dashboard", basic: false, seo: true, premium: true },
   { label: "Priority support queue", basic: false, seo: false, premium: true },
-  { label: "Human website edits", basic: false, seo: false, premium: true },
-  { label: "Enhanced SEO assistance", basic: false, seo: false, premium: true },
+  { label: "Advanced ranking and performance analytics", basic: false, seo: false, premium: true },
+  { label: "Multi-location and service-area page tools", basic: false, seo: false, premium: true },
   { label: "Early access to new features", basic: false, seo: false, premium: true },
+
 ];
 
 const FAQS = [
