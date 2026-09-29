@@ -14,7 +14,7 @@ import { trackViewContent } from "@/lib/meta-pixel";
 
 const TITLE = "Pricing — WebWarheads websites from $37/month";
 const DESCRIPTION =
-  "Three plans: $37 website, $68 website + local SEO, $97 growth with human edits and priority support. No setup fees, cancel anytime.";
+  "Three plans: $37 website, $68 website + local SEO, $97 growth with advanced analytics and priority support. No setup fees, cancel anytime.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
