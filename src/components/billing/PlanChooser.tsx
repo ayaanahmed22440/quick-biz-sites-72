@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Check, Loader2, ShieldCheck } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { startCheckout } from "@/lib/billing.functions";
-import { PLAN_COPY, yearlyPrice, TRIAL_DAYS, TRIAL_LABEL, trialEndDate } from "@/lib/plans";
+import { PLAN_COPY, yearlyPrice } from "@/lib/plans";
 import { trackInitiateCheckout } from "@/lib/meta-pixel";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
