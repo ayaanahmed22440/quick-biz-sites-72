@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
-import { PLAN_COPY, TRIAL_DAYS, TRIAL_LABEL } from "@/lib/plans";
+import { PLAN_COPY, TRIAL_DAYS } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -30,12 +30,13 @@ export function PricingCards({ compact = false }: { compact?: boolean }) {
             </span>
             <span className="text-sm text-muted-foreground">/month</span>
           </div>
-          <p className="mt-2 inline-flex w-fit items-center rounded-full bg-success/15 px-2.5 py-1 text-xs font-bold text-success">
-            {TRIAL_LABEL}
+          <p className="mt-2 text-sm font-semibold text-foreground">
+            {TRIAL_DAYS} days free, then ${plan.price}/month
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             No charge today. No setup fee. Cancel anytime.
           </p>
+
 
           <Button
             asChild

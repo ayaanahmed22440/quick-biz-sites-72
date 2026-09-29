@@ -80,10 +80,11 @@ function BillingPage() {
               ) : null}
             </div>
             {trialing ? (
-              <p className="mt-3 rounded-lg bg-success/10 p-3 text-sm text-foreground">
+              <p className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
                 You're on your {TRIAL_DAYS}-day free trial. Cancel before it ends and you won't be
                 charged anything.
               </p>
+
             ) : null}
             <Button
               className="mt-4"

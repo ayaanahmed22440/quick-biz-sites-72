@@ -99,9 +99,10 @@ function PricingPage() {
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
             One monthly price. Website, hosting and support included.
           </h1>
-          <p className="mt-4 inline-flex rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+          <p className="mt-4 text-sm font-semibold text-navy-foreground/80">
             Free for 7 days — cancel anytime
           </p>
+
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
             No build fee, no hourly charges for small changes, no surprise renewal invoices.
           </p>

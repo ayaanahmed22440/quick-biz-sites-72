@@ -205,9 +205,10 @@ function CleaningBusinessLandingPage() {
             <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
             <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col items-center justify-center gap-4">
               <BuildButton />
-              <p className="inline-flex items-center rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+              <p className="text-sm font-semibold text-navy-foreground/80">
                 Free for 7 days — cancel anytime
               </p>
+
             </div>
 
             <TrustPoints className="mt-10 sm:mt-9" />
