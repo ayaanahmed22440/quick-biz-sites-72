@@ -61,6 +61,23 @@ function AuthPage() {
       return;
     }
 
+    if (usePassword) {
+      const password = String(form.get("password") ?? "");
+      if (!password) {
+        setError("Enter your password");
+        return;
+      }
+      setBusy(true);
+      const { error: passwordError } = await supabase.auth.signInWithPassword({ email, password });
+      setBusy(false);
+      if (passwordError) {
+        setError("That email and password don't match an account.");
+        return;
+      }
+      void navigate({ to: "/dashboard", replace: true });
+      return;
+    }
+
     setBusy(true);
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
