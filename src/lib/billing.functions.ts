@@ -115,10 +115,31 @@ export const startCheckout = createServerFn({ method: "POST" })
   });
 
 /**
+ * Opens the Polar customer portal so the customer can update their card or
+ * cancel (including during the free trial) without contacting support.
+ */
+export const openBillingPortal = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: business } = await context.supabase
+      .from("businesses")
+      .select("id")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!business) throw new Error("No business found for this account.");
+
+    const { createPolarPortalSession } = await import("./polar.server");
+    const url = await createPolarPortalSession(business.id);
+    return { url };
+  });
+
+/**
  * Backend truth for "has the payment landed yet".
  * Never trusts the redirect: it reads the subscription written by the verified webhook.
  */
 export const checkSubscriptionState = createServerFn({ method: "POST" })
+
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data: business } = await context.supabase
