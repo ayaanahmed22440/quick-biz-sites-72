@@ -14,7 +14,7 @@ import { trackViewContent } from "@/lib/meta-pixel";
 
 const TITLE = "Pricing — WebWarheads websites from $37/month";
 const DESCRIPTION =
-  "Three plans: $37 website, $68 website + local SEO, $97 growth with human edits and priority support. No setup fees, cancel anytime.";
+  "Three plans: $37 website, $68 website + local SEO, $97 growth with advanced analytics and priority support. No setup fees, cancel anytime.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -46,9 +46,10 @@ const MATRIX: { label: string; basic: boolean; seo: boolean; premium: boolean }[
   { label: "LocalBusiness and Service schema", basic: false, seo: true, premium: true },
   { label: "SEO status dashboard", basic: false, seo: true, premium: true },
   { label: "Priority support queue", basic: false, seo: false, premium: true },
-  { label: "Human website edits", basic: false, seo: false, premium: true },
-  { label: "Enhanced SEO assistance", basic: false, seo: false, premium: true },
+  { label: "Advanced ranking and performance analytics", basic: false, seo: false, premium: true },
+  { label: "Multi-location and service-area page tools", basic: false, seo: false, premium: true },
   { label: "Early access to new features", basic: false, seo: false, premium: true },
+
 ];
 
 const FAQS = [
@@ -62,9 +63,10 @@ const FAQS = [
   },
 
   {
-    q: "What does 'human website edits' mean on the $97 plan?",
-    a: "You message us what you want changed — a new photo, a new service, updated hours — and our team makes the change for you instead of you doing it in the editor.",
+    q: "What extra do I get on the $97 plan?",
+    a: "Advanced ranking and performance analytics, multi-location and service-area page tools, deeper customization controls and a priority support queue.",
   },
+
   {
     q: "Can I change plan later?",
     a: "Yes. Upgrades apply immediately and the extra features unlock automatically. Downgrades apply at your next billing date.",
