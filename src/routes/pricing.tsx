@@ -53,9 +53,14 @@ const MATRIX: { label: string; basic: boolean; seo: boolean; premium: boolean }[
 
 const FAQS = [
   {
+    q: "Do I get charged right away?",
+    a: "No. Every plan starts with a 7-day free trial. We take your card to start the trial, but nothing is charged until day 7. Cancel before then from your Billing page and you pay nothing at all.",
+  },
+  {
     q: "Which plan should I start on?",
     a: "If you only need a professional site people can find when you send them the link, start at $37. If you want to be found by people searching your service in your area, $68 is the one that matters.",
   },
+
   {
     q: "What does 'human website edits' mean on the $97 plan?",
     a: "You message us what you want changed — a new photo, a new service, updated hours — and our team makes the change for you instead of you doing it in the editor.",
@@ -94,9 +99,13 @@ function PricingPage() {
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
             One monthly price. Website, hosting and support included.
           </h1>
+          <p className="mt-4 inline-flex rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+            Free for 7 days — cancel anytime
+          </p>
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
             No build fee, no hourly charges for small changes, no surprise renewal invoices.
           </p>
+
         </div>
       </section>
 

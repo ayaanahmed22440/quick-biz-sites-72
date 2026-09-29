@@ -564,11 +564,15 @@ function WebsitePage() {
 
           {!canPublish ? (
             <div ref={plansRef} className="scroll-mt-6 rounded-lg border border-accent/40 bg-accent/10 p-4">
-              <p className="text-sm font-semibold">Building is free — you only pay to go live</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Keep editing and previewing as long as you like. Choose a plan when you're happy
-                with how it looks and we'll put it online straight away.
+              <p className="text-sm font-semibold">
+                🎉 Free for 7 days — no charge today
               </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Choose a plan to put your website online right now. We take your card to start the
+                trial, but you won't be charged until day 7 — cancel before then and you pay
+                nothing.
+              </p>
+
               {showPlans ? (
                 <div className="mt-4">
                   <PlanChooser

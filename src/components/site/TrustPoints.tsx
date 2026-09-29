@@ -1,11 +1,14 @@
-import { CodeXml, Hammer, CreditCard } from "lucide-react";
+import { CodeXml, Hammer, CreditCard, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TRIAL_LABEL } from "@/lib/plans";
 
 const POINTS = [
+  { label: TRIAL_LABEL, Icon: Gift },
   { label: "No coding", Icon: CodeXml },
   { label: "No developer", Icon: Hammer },
   { label: "No card required", Icon: CreditCard },
 ] as const;
+
 
 /**
  * Trust points under the hero starter input. Stacks as a centered list on

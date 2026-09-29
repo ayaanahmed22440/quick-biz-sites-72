@@ -119,7 +119,9 @@ const faqs = [
   ["Do I need coding experience?", "No. WebWarHeads is designed for business owners who don't know how to code."],
   ["Do I need to hire a developer?", "No. You build and customize the website yourself."],
   ["Can I see my website before paying?", "Yes. Preview your website before choosing a plan."],
-  ["How much does it cost?", "Plans start at $37/month."],
+  ["Do I get charged right away?", "No. Every plan starts with a 7-day free trial. We take your card to start the trial, but nothing is charged until day 7. Cancel before then and you pay nothing at all."],
+  ["How much does it cost?", "Plans start at $37/month, and the first 7 days are free."],
+
   ["Can I use my own domain?", "Yes. You can connect your own domain."],
   ["Can I add my own cleaning photos?", "Yes. Add your own photos, project images, logo and branding."],
   ["Can I update my website later?", "Yes. You can make changes yourself instead of relying on a developer."],
@@ -201,9 +203,13 @@ function CleaningBusinessLandingPage() {
               Build a website made for your cleaning business, add your services and photos, then preview the whole thing before you pay.
             </p>
             <p className="mt-6 font-display text-2xl font-bold text-foreground sm:text-3xl">Starting at <span className="text-accent">$37/month</span></p>
-            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex justify-center">
+            <div className="animate-hero-entry animate-hero-delay-3 mt-8 flex flex-col items-center justify-center gap-4">
               <BuildButton />
+              <p className="inline-flex items-center rounded-full bg-success px-4 py-1.5 text-sm font-bold text-success-foreground">
+                Free for 7 days — cancel anytime
+              </p>
             </div>
+
             <TrustPoints className="mt-10 sm:mt-9" />
           </div>
 
@@ -348,7 +354,7 @@ function CleaningBusinessLandingPage() {
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           <Clock3 className="mx-auto h-9 w-9 text-accent" /><h2 className="mt-6 text-4xl font-bold sm:text-6xl">Your next customer is looking for a cleaner.</h2><p className="mx-auto mt-5 max-w-2xl text-xl text-navy-foreground/75">Give them somewhere professional to find your business.</p>
           <div className="mx-auto mt-8 max-w-xl space-y-2 text-lg font-semibold"><p>Build your cleaning business website.</p><p>Preview it before you pay.</p><p>Launch when you're ready.</p></div>
-          <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month</p>
+          <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month — free for your first 7 days</p>
           <div className="mt-8 flex justify-center"><BuildButton /></div>
         </div>
       </section>
