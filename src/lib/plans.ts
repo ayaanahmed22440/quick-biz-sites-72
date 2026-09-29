@@ -137,19 +137,20 @@ export const PLAN_COPY: PlanCopy[] = [
     id: "premium",
     name: "Growth",
     price: 97,
-    headline: "We do the work for you.",
-    who: "For owners who would rather send a message than log in and edit anything.",
+    headline: "Scale your visibility and conversions.",
+    who: "For owners who want the full toolkit: deeper customization, advanced SEO tools and priority support.",
     features: [
       "Everything in the $68 plan",
       "Priority support queue",
-      "Human website edits — ask us and we make the change",
-      "Priority troubleshooting",
-      "Enhanced SEO assistance",
-      "Deeper website customization",
+      "Advanced local ranking and performance analytics",
+      "Multi-location and service-area page tools",
+      "Customer review showcase widgets",
+      "Deeper website customization controls",
       "Early access to new features",
       "Direct support channel",
     ],
   },
+
 ];
 
 export function planCopy(id: string | null | undefined): PlanCopy | undefined {
