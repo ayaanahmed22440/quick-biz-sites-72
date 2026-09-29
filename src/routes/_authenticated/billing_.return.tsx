@@ -8,7 +8,7 @@ import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functio
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { trackPurchase } from "@/lib/meta-pixel";
-import { isYearly, planCopy, yearlyPrice } from "@/lib/plans";
+import { isYearly, planCopy, yearlyPrice, TRIAL_DAYS, trialEndDate } from "@/lib/plans";
 
 const search = z.object({
   session: z.string().optional(),
@@ -107,11 +107,16 @@ function BillingReturnPage() {
       ) : state === "active" ? (
         <>
           <CheckCircle2 className="h-8 w-8 text-success" />
-          <h1 className="mt-4 text-lg font-semibold">You're all set</h1>
+          <h1 className="mt-4 text-lg font-semibold">
+            🎉 Your {TRIAL_DAYS}-day free trial is live
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Your plan is active. Taking you back to where you left off…
+            You won't be charged until <strong>{trialEndDate()}</strong>. Cancel anytime before
+            then from your Billing page and you pay nothing. Taking you back to where you left
+            off…
           </p>
         </>
+
       ) : (
         <>
           <AlertTriangle className="h-8 w-8 text-warning" />
