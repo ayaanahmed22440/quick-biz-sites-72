@@ -263,7 +263,7 @@ function WebsitePage() {
         <PageHeader title="Your website" />
         <EmptyState
           title="Add your business first"
-          description="We build your website from your real business details — name, services, phone and areas covered."
+          description="Your website is generated from your real business details — name, services, phone and areas covered. You can customise everything in the editor."
           action={
             <Button asChild>
               <Link to="/onboarding">Start onboarding</Link>
