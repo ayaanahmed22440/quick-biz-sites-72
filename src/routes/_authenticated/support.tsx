@@ -104,8 +104,8 @@ function SupportPage() {
         title="Support"
         description={
           priority === "priority"
-            ? "You're on the priority queue — we answer your requests first."
-            : "Send us a message and we'll get back to you by email."
+            ? "You're on the priority queue — we answer questions about using the software first."
+            : "Need help using the platform or editor? Send us a message and we'll help you troubleshoot by email."
         }
       />
 

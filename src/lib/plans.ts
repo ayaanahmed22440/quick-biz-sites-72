@@ -13,7 +13,7 @@ export type FeatureKey =
   | "domains"
   | "seo"
   | "priority_support"
-  | "human_edits";
+  | "advanced_analytics";
 
 export type Entitlements = Record<FeatureKey, boolean>;
 
@@ -24,7 +24,7 @@ export const NO_ENTITLEMENTS: Entitlements = {
   domains: false,
   seo: false,
   priority_support: false,
-  human_edits: false,
+  advanced_analytics: false,
 };
 
 export const PLAN_ENTITLEMENTS: Record<PlanId, Entitlements> = {
@@ -50,7 +50,7 @@ export const PLAN_ENTITLEMENTS: Record<PlanId, Entitlements> = {
     domains: true,
     seo: true,
     priority_support: true,
-    human_edits: true,
+    advanced_analytics: true,
   },
 };
 

@@ -29,6 +29,7 @@ import { notifySupportReply, replyToEnquiry } from "@/lib/notify.functions";
 import { AdminNotificationBell, AdminUsersTab } from "@/components/admin/AdminUsers";
 import { AdminManualSitesTab } from "@/components/admin/AdminManualSites";
 import { AdminDomains } from "@/components/admin/AdminDomains";
+import { AdminDemoAccounts } from "@/components/admin/AdminDemoAccounts";
 import {
   Dialog,
   DialogContent,
@@ -443,10 +444,15 @@ function AdminPage() {
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
           <TabsTrigger value="payments">Payment attempts</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
+          <TabsTrigger value="demo">Demo accounts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
           <AdminUsersTab enabled={Boolean(workspace?.isStaff)} />
+        </TabsContent>
+
+        <TabsContent value="demo">
+          <AdminDemoAccounts enabled={Boolean(workspace?.isStaff)} />
         </TabsContent>
 
         <TabsContent value="manual">

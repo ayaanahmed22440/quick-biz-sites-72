@@ -31,7 +31,7 @@ const STEPS = [
   },
   {
     title: "Choose your plan",
-    body: "$37 for the website, $68 to add local SEO, $97 if you would rather we made the changes for you. Checkout is handled securely by our payment provider.",
+    body: "$37 for the website, $68 to add local SEO tools, $97 for growth analytics, multi-location tools and priority support. Checkout is handled securely by our payment provider.",
   },
   {
     title: "Pick a template",
@@ -57,7 +57,7 @@ function HowItWorksPage() {
       <section className="border-b border-border bg-navy text-navy-foreground">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            You give us your business details. We handle the complicated part.
+            Enter your business details. The software builds your website in minutes.
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
             No hosting to buy, no DNS to configure, no developer to chase. Here is exactly what
@@ -86,19 +86,19 @@ function HowItWorksPage() {
 
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight">What we do not do</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Good to know</h2>
           <ul className="mt-6 space-y-3 text-muted-foreground">
             <li>
-              We do not let a machine invent your website. Your site is built from a template our
-              team designed and approved, filled with your real business information.
+              Your site is generated from professionally designed templates inside the software and
+              filled with the business information you enter.
             </li>
             <li>
-              We do not promise Google rankings. We build the SEO fundamentals correctly and tell
+              We do not promise Google rankings. The software sets up the SEO fundamentals and shows
               you exactly what is in place.
             </li>
             <li>
-              We do not charge you every time you want a photo changed on the $37 and $68 plans —
-              you change it yourself in seconds.
+              Editing is unlimited and included on every plan. Change text, photos, services and
+              colours yourself in the editor — there are never change fees.
             </li>
           </ul>
         </div>
