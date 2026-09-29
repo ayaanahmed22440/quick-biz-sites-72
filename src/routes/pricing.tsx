@@ -63,9 +63,10 @@ const FAQS = [
   },
 
   {
-    q: "What does 'human website edits' mean on the $97 plan?",
-    a: "You message us what you want changed — a new photo, a new service, updated hours — and our team makes the change for you instead of you doing it in the editor.",
+    q: "What extra do I get on the $97 plan?",
+    a: "Advanced ranking and performance analytics, multi-location and service-area page tools, deeper customization controls and a priority support queue.",
   },
+
   {
     q: "Can I change plan later?",
     a: "Yes. Upgrades apply immediately and the extra features unlock automatically. Downgrades apply at your next billing date.",
