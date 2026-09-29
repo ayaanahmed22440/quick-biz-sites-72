@@ -57,7 +57,7 @@ function HowItWorksPage() {
       <section className="border-b border-border bg-navy text-navy-foreground">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl">
-            You give us your business details. We handle the complicated part.
+            Enter your business details. The software builds your website in minutes.
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-navy-foreground/75">
             No hosting to buy, no DNS to configure, no developer to chase. Here is exactly what
