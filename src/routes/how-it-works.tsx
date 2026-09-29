@@ -86,19 +86,19 @@ function HowItWorksPage() {
 
       <section className="border-b border-border bg-muted/40">
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
-          <h2 className="text-2xl font-bold tracking-tight">What we do not do</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Good to know</h2>
           <ul className="mt-6 space-y-3 text-muted-foreground">
             <li>
-              We do not let a machine invent your website. Your site is built from a template our
-              team designed and approved, filled with your real business information.
+              Your site is generated from professionally designed templates inside the software and
+              filled with the business information you enter.
             </li>
             <li>
-              We do not promise Google rankings. We build the SEO fundamentals correctly and tell
+              We do not promise Google rankings. The software sets up the SEO fundamentals and shows
               you exactly what is in place.
             </li>
             <li>
-              We do not charge you every time you want a photo changed on the $37 and $68 plans —
-              you change it yourself in seconds.
+              Editing is unlimited and included on every plan. Change text, photos, services and
+              colours yourself in the editor — there are never change fees.
             </li>
           </ul>
         </div>
