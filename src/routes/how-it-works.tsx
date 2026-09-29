@@ -31,7 +31,7 @@ const STEPS = [
   },
   {
     title: "Choose your plan",
-    body: "$37 for the website, $68 to add local SEO, $97 if you would rather we made the changes for you. Checkout is handled securely by our payment provider.",
+    body: "$37 for the website, $68 to add local SEO tools, $97 for growth analytics, multi-location tools and priority support. Checkout is handled securely by our payment provider.",
   },
   {
     title: "Pick a template",
