@@ -40,6 +40,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [usePassword, setUsePassword] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
