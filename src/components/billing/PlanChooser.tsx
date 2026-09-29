@@ -104,6 +104,10 @@ export function PlanChooser({
                   {period === "yearly" ? "/year" : "/month"}
                 </span>
               </p>
+              <p className="mt-1.5 inline-flex w-fit rounded-full bg-success/15 px-2.5 py-1 text-xs font-bold text-success">
+                {TRIAL_LABEL}
+              </p>
+
               <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
                 {plan.features.slice(0, featureCount).map((f) => (
                   <li key={f} className="flex gap-2">
@@ -126,18 +130,21 @@ export function PlanChooser({
                   ) : isCurrent ? (
                     "Your current plan"
                   ) : (
-                    `Choose ${plan.name}`
+                    `Start ${TRIAL_DAYS}-day free trial`
                   )}
                 </Button>
               </div>
+
             </div>
           );
         })}
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Secure payment handled by Polar. Cancel any time — your website and content stay yours.
+        Secure payment handled by Polar. $0 today — your first payment is on day {TRIAL_DAYS}.
+        Cancel any time from Billing; your website and content stay yours.
       </p>
+
     </div>
   );
 }
