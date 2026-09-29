@@ -8,7 +8,7 @@ import { checkSubscriptionState, getCheckoutReturn } from "@/lib/billing.functio
 import { workspaceQueryKey } from "@/hooks/useWorkspace";
 import { Button } from "@/components/ui/button";
 import { trackPurchase } from "@/lib/meta-pixel";
-import { isYearly, planCopy, yearlyPrice, TRIAL_DAYS, trialEndDate } from "@/lib/plans";
+import { isYearly, planCopy, yearlyPrice } from "@/lib/plans";
 
 const search = z.object({
   session: z.string().optional(),

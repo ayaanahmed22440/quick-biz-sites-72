@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useWorkspace } from "@/hooks/useWorkspace";
-import { planCopy, isYearly, yearlyPrice, TRIAL_DAYS } from "@/lib/plans";
+import { planCopy, isYearly, yearlyPrice } from "@/lib/plans";
 import { openBillingPortal } from "@/lib/billing.functions";
 import { LoadingBlock, PageHeader } from "@/components/app/StateBlocks";
 import { PlanChooser } from "@/components/billing/PlanChooser";
