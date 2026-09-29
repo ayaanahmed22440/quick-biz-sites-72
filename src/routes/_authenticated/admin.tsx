@@ -443,10 +443,15 @@ function AdminPage() {
           <TabsTrigger value="enquiries">Enquiries ({newMessages.length})</TabsTrigger>
           <TabsTrigger value="payments">Payment attempts</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
+          <TabsTrigger value="demo">Demo accounts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users">
           <AdminUsersTab enabled={Boolean(workspace?.isStaff)} />
+        </TabsContent>
+
+        <TabsContent value="demo">
+          <AdminDemoAccounts enabled={Boolean(workspace?.isStaff)} />
         </TabsContent>
 
         <TabsContent value="manual">
