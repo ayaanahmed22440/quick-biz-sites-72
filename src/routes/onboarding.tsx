@@ -378,11 +378,17 @@ function OnboardingPage() {
   }
 
   function selectNiche(niche: string) {
-    setDraft((current) => ({
-      ...current,
-      niche,
-      primary_color: presetFor(niche).accent,
-    }));
+    setDraft((current) => {
+      // Swap in the new trade's starter services unless the person typed their own.
+      const previousDefaults = defaultServicesForNiche(current.niche).join("\n");
+      const keep = current.services.trim() && current.services !== previousDefaults;
+      return {
+        ...current,
+        niche,
+        primary_color: presetFor(niche).accent,
+        services: keep ? current.services : defaultServicesForNiche(niche).join("\n"),
+      };
+    });
     setError(null);
   }
 
@@ -443,11 +449,12 @@ function OnboardingPage() {
   /** Saves the answers that belong to a step once the business exists. */
   async function persistStep(key: StepKey, id: string) {
     if (key === "services") {
-      const services = draft.services
+      let services = draft.services
         .split("\n")
         .map((s) => s.trim())
         .filter(Boolean)
         .slice(0, 20);
+      if (!services.length) services = defaultServicesForNiche(draft.niche || "cleaning");
       await supabase.from("services").delete().eq("business_id", id);
       if (services.length) {
         await supabase
@@ -902,26 +909,43 @@ function OnboardingPage() {
               ) : null}
 
               {step.key === "primary_service" ? (
-                <Input
-                  autoFocus
-                  className="h-14 text-lg"
-                  value={draft.primary_service}
-                  maxLength={120}
-                  placeholder={presetFor(draft.niche).copy.service}
-                  onChange={(e) => set("primary_service", e.target.value)}
-                />
+                <>
+                  <Input
+                    autoFocus
+                    className="h-14 text-lg"
+                    value={draft.primary_service}
+                    maxLength={120}
+                    placeholder={presetFor(draft.niche).copy.service}
+                    onChange={(e) => set("primary_service", e.target.value)}
+                  />
+                  <SuggestionChips
+                    label="Tap one to use it"
+                    items={defaultServicesForNiche(draft.niche || "cleaning")}
+                    onPick={(s) => set("primary_service", s)}
+                  />
+                </>
               ) : null}
 
               {step.key === "description" ? (
-                <Textarea
-                  autoFocus
-                  rows={5}
-                  maxLength={600}
-                  className="text-base"
-                  value={draft.description}
-                  placeholder="Family-run, same team every visit, satisfaction guaranteed…"
-                  onChange={(e) => set("description", e.target.value)}
-                />
+                <>
+                  <Textarea
+                    autoFocus
+                    rows={5}
+                    maxLength={600}
+                    className="text-base"
+                    value={draft.description}
+                    placeholder="Family-run, same team every visit, satisfaction guaranteed…"
+                    onChange={(e) => set("description", e.target.value)}
+                  />
+                  <SuggestionChips
+                    label="Need ideas? Tap to add a line"
+                    items={DESCRIPTION_SUGGESTIONS.filter((s) => !draft.description.includes(s))}
+                    onPick={(s) => {
+                      const current = draft.description.trim();
+                      set("description", (current ? `${current} ${s}` : s).slice(0, 600));
+                    }}
+                  />
+                </>
               ) : null}
 
               {step.key === "phone" ? (
@@ -972,14 +996,53 @@ function OnboardingPage() {
               ) : null}
 
               {step.key === "services" ? (
-                <Textarea
-                  autoFocus
-                  rows={6}
-                  className="text-base"
-                  value={draft.services}
-                  placeholder={"Regular house cleaning\nDeep cleaning\nMove-out cleaning"}
-                  onChange={(e) => set("services", e.target.value)}
-                />
+                <div className="space-y-3">
+                  {draft.services.split("\n").map((value, i, rows) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Input
+                        autoFocus={i === 0}
+                        className="h-12"
+                        value={value}
+                        maxLength={80}
+                        placeholder={`Service ${i + 1}`}
+                        onChange={(e) => {
+                          const next = [...rows];
+                          next[i] = e.target.value.replace(/\n/g, " ");
+                          set("services", next.join("\n"));
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label="Remove service"
+                        className="h-12 w-12 shrink-0"
+                        onClick={() => set("services", rows.filter((_, j) => j !== i).join("\n"))}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={draft.services.split("\n").length >= 12}
+                    onClick={() => set("services", draft.services ? `${draft.services}\n` : "")}
+                  >
+                    <Plus className="mr-2 h-4 w-4" /> Add service
+                  </Button>
+                  <SuggestionChips
+                    label="Popular for your trade — tap to add"
+                    items={serviceSuggestions(draft.niche).filter(
+                      (s) => !draft.services.split("\n").some((r) => r.trim().toLowerCase() === s.toLowerCase()),
+                    )}
+                    onPick={(s) => {
+                      const rows = draft.services.split("\n").filter((r) => r.trim());
+                      set("services", [...rows, s].join("\n"));
+                    }}
+                  />
+                </div>
               ) : null}
 
               {step.key === "areas" ? (

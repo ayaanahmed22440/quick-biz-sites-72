@@ -52,6 +52,7 @@ import { Route as AuthenticatedAdminSiteBusinessIdRouteImport } from './routes/_
 import { Route as AuthenticatedBillingReturnRouteImport } from './routes/_authenticated/billing_.return'
 import { Route as ApiPublicPolarWebhookRouteImport } from './routes/api/public/polar-webhook'
 import { Route as ApiPublicSitemapDotxmlRouteImport } from './routes/api/public/sitemap[.]xml'
+import { Route as ApiPublicHooksEmailRemindersRouteImport } from './routes/api/public/hooks/email-reminders'
 import { Route as ApiPublicManualCheckoutIdRouteImport } from './routes/api/public/manual-checkout.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -279,6 +280,12 @@ const ApiPublicSitemapDotxmlRoute = ApiPublicSitemapDotxmlRouteImport.update({
   path: '/api/public/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksEmailRemindersRoute =
+  ApiPublicHooksEmailRemindersRouteImport.update({
+    id: '/api/public/hooks/email-reminders',
+    path: '/api/public/hooks/email-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicManualCheckoutIdRoute =
   ApiPublicManualCheckoutIdRouteImport.update({
     id: '/api/public/manual-checkout/$id',
@@ -350,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/hooks/email-reminders': typeof ApiPublicHooksEmailRemindersRoute
   '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -399,6 +407,7 @@ export interface FileRoutesByTo {
   '/billing/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/hooks/email-reminders': typeof ApiPublicHooksEmailRemindersRoute
   '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -450,6 +459,7 @@ export interface FileRoutesById {
   '/_authenticated/billing_/return': typeof AuthenticatedBillingReturnRoute
   '/api/public/polar-webhook': typeof ApiPublicPolarWebhookRoute
   '/api/public/sitemap.xml': typeof ApiPublicSitemapDotxmlRoute
+  '/api/public/hooks/email-reminders': typeof ApiPublicHooksEmailRemindersRoute
   '/api/public/manual-checkout/$id': typeof ApiPublicManualCheckoutIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -501,6 +511,7 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/hooks/email-reminders'
     | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/billing/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/hooks/email-reminders'
     | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
@@ -600,6 +612,7 @@ export interface FileRouteTypes {
     | '/_authenticated/billing_/return'
     | '/api/public/polar-webhook'
     | '/api/public/sitemap.xml'
+    | '/api/public/hooks/email-reminders'
     | '/api/public/manual-checkout/$id'
     | '/api/public/media/$'
     | '/lovable/email/auth/preview'
@@ -629,6 +642,7 @@ export interface RootRouteChildren {
   SSlugRoute: typeof SSlugRoute
   ApiPublicPolarWebhookRoute: typeof ApiPublicPolarWebhookRoute
   ApiPublicSitemapDotxmlRoute: typeof ApiPublicSitemapDotxmlRoute
+  ApiPublicHooksEmailRemindersRoute: typeof ApiPublicHooksEmailRemindersRoute
   ApiPublicManualCheckoutIdRoute: typeof ApiPublicManualCheckoutIdRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -939,6 +953,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/email-reminders': {
+      id: '/api/public/hooks/email-reminders'
+      path: '/api/public/hooks/email-reminders'
+      fullPath: '/api/public/hooks/email-reminders'
+      preLoaderRoute: typeof ApiPublicHooksEmailRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/manual-checkout/$id': {
       id: '/api/public/manual-checkout/$id'
       path: '/api/public/manual-checkout/$id'
@@ -1060,6 +1081,7 @@ const rootRouteChildren: RootRouteChildren = {
   SSlugRoute: SSlugRoute,
   ApiPublicPolarWebhookRoute: ApiPublicPolarWebhookRoute,
   ApiPublicSitemapDotxmlRoute: ApiPublicSitemapDotxmlRoute,
+  ApiPublicHooksEmailRemindersRoute: ApiPublicHooksEmailRemindersRoute,
   ApiPublicManualCheckoutIdRoute: ApiPublicManualCheckoutIdRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
