@@ -536,6 +536,33 @@ export type Database = {
           },
         ]
       }
+      email_reminders: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          recipient: string
+          reminder_key: string
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          recipient: string
+          reminder_key: string
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          recipient?: string
+          reminder_key?: string
+        }
+        Relationships: []
+      }
       industries: {
         Row: {
           created_at: string
