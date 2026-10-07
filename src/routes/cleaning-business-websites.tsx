@@ -353,7 +353,7 @@ function CleaningBusinessLandingPage() {
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           <Clock3 className="mx-auto h-9 w-9 text-accent" /><h2 className="mt-6 text-4xl font-bold sm:text-6xl">Your next customer is looking for a cleaner.</h2><p className="mx-auto mt-5 max-w-2xl text-xl text-navy-foreground/75">Give them somewhere professional to find your business.</p>
           <div className="mx-auto mt-8 max-w-xl space-y-2 text-lg font-semibold"><p>Build your cleaning business website.</p><p>Preview it before you pay.</p><p>Launch when you're ready.</p></div>
-          <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month — free for your first 7 days</p>
+          <p className="mt-7 font-display text-2xl font-bold text-accent">Starting at $37/month — cancel anytime</p>
           <div className="mt-8 flex justify-center"><BuildButton /></div>
         </div>
       </section>
