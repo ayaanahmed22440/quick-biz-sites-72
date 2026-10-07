@@ -614,6 +614,11 @@ function WebsitePage() {
               value={draft.services.intro}
               onChange={(v) => update((c) => ({ ...c, services: { ...c.services, intro: v } }))}
             />
+            <ServicesEditor
+              businessId={businessId!}
+              niche={site.data.business.niche}
+              services={site.data.services}
+            />
             <Field
               label="Areas heading"
               value={draft.areas.heading}
@@ -625,7 +630,7 @@ function WebsitePage() {
               onChange={(v) => update((c) => ({ ...c, areas: { ...c.areas, intro: v } }))}
             />
             <p className="text-xs text-muted-foreground">
-              The service list and area list come from your{" "}
+              The area list comes from your{" "}
               <Link to="/business" className="underline">
                 business details
               </Link>
