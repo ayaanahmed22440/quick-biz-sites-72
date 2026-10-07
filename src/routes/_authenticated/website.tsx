@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Pencil, Rocket } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { notifySitePublished } from "@/lib/notify.functions";
@@ -39,6 +47,8 @@ type DeviceKey = keyof typeof PREVIEW_WIDTHS;
 
 
 export const Route = createFileRoute("/_authenticated/website")({
+  validateSearch: (search: Record<string, unknown>): { view?: "preview" } =>
+    search["view"] === "preview" ? { view: "preview" } : {},
   head: () => ({
     meta: [
       { title: "Your website — WebWarheads" },
@@ -83,7 +93,8 @@ function WebsitePage() {
   const [draft, setDraft] = useState<SiteContent | null>(null);
   const [dirty, setDirty] = useState(false);
   const [showPlans, setShowPlans] = useState(false);
-  const plansRef = useRef<HTMLDivElement | null>(null);
+  const { view } = Route.useSearch();
+  const navigate = useNavigate();
   const [device, setDevice] = useState<DeviceKey>("desktop");
   const isMobile = useIsMobile();
 
@@ -389,6 +400,7 @@ function WebsitePage() {
 
   return (
     <>
+      {plansDialog}
       <PageHeader
         title="Your website"
         description={`${presetFor(draft.templateId).name} — an approved WebWarheads design filled with your own details. Nothing is generated at random.`}
@@ -414,7 +426,7 @@ function WebsitePage() {
             Edit
           </Button>
           <Button asChild size="sm" variant="ghost" className="flex-1 sm:flex-none">
-            <a href="#website-preview">Preview</a>
+            <Link to="/website" search={{ view: "preview" }}>Preview</Link>
           </Button>
           {site.data.status === "published" || site.data.hasPublished ? (
             <Button asChild size="sm" variant="ghost" className="flex-1 sm:flex-none">
@@ -684,7 +696,7 @@ function WebsitePage() {
                 disabled={save.isPending}
                 onClick={() => void openPlans()}
               >
-                Publish my site
+                Set my website live
               </Button>
             )}
             {dirty ? (
@@ -699,37 +711,9 @@ function WebsitePage() {
         <div id="website-preview" className="order-1 min-w-0 scroll-mt-6 lg:order-2 lg:sticky lg:top-6">
           <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
             <p className="truncate text-sm font-medium">Preview</p>
-            <div className="flex shrink-0 gap-1.5">
-              {(Object.keys(PREVIEW_WIDTHS) as DeviceKey[]).map((key) => (
-                <Button
-                  key={key}
-                  size="sm"
-                  variant={device === key ? "default" : "outline"}
-                  onClick={() => setDevice(key)}
-                >
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Button>
-              ))}
-            </div>
+            {deviceSwitcher}
           </div>
-          <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-muted/40 p-2 sm:p-3">
-            <PreviewFrame
-              width={PREVIEW_WIDTHS[device]}
-              height={PREVIEW_HEIGHTS[device]}
-              className="min-w-0"
-            >
-
-              <LocalBusinessTemplate
-                business={site.data.business}
-                content={draft}
-                services={site.data.services}
-                areas={site.data.areas}
-                hours={site.data.hours}
-                reviews={reviews.data ?? []}
-                previewOnly
-              />
-            </PreviewFrame>
-          </div>
+          {previewBox}
         </div>
 
       </div>
