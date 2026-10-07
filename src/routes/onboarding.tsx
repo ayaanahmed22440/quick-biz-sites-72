@@ -678,7 +678,7 @@ function OnboardingPage() {
 
     setSaving(false);
     toast.success("Your website is ready to look at");
-    void navigate({ to: "/website" });
+    void navigate({ to: "/website", search: { view: "preview" } });
   }
 
 

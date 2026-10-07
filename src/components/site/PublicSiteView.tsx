@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitWebsiteLead, type PublishedSite } from "@/lib/public-site.functions";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
-import { ManualSiteBanner } from "@/components/site/ManualSiteBanner";
+import { ManualSiteBanner, ManualSiteEndCta } from "@/components/site/ManualSiteBanner";
 import { defaultSiteContent, normaliseContent } from "@/lib/site-content";
 
 export function publicSiteMeta(
@@ -113,6 +113,7 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
           manualId={site.manual.id}
           expiresAt={site.manual.expires_at}
           paidJustNow={justPaid}
+          businessName={b.name}
         />
       ) : null}
       {schema ? (
@@ -139,6 +140,9 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
           await send({ data: { slug, ...values } });
         }}
       />
+      {site.manual && site.manual.status !== "paid" && !justPaid ? (
+        <ManualSiteEndCta manualId={site.manual.id} businessName={b.name} />
+      ) : null}
     </>
   );
 }
