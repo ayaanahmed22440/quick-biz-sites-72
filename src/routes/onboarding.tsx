@@ -15,6 +15,8 @@ import {
   Clock,
 
   ClipboardList,
+  Minus,
+  Plus,
   Eye,
   Image as ImageIcon,
   Loader2,
@@ -34,7 +36,8 @@ import { ReviewsEditor } from "@/components/website/ReviewsEditor";
 import { LocalBusinessTemplate } from "@/components/templates/LocalBusinessTemplate";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 import { trackLead, trackCompleteRegistration } from "@/lib/meta-pixel";
-import { TEMPLATE_PRESETS, presetFor, templateIdForNiche } from "@/lib/template-registry";
+import { TEMPLATE_PRESETS, defaultServicesForNiche, presetFor, templateIdForNiche } from "@/lib/template-registry";
+import { DESCRIPTION_SUGGESTIONS, SuggestionChips, serviceSuggestions } from "@/components/onboarding/SuggestionChips";
 import { NICHE_CATEGORIES, NICHE_CATALOG } from "@/lib/niche-catalog";
 
 import { cn } from "@/lib/utils";
@@ -622,6 +625,13 @@ function OnboardingPage() {
     if (!id) return;
     setSaving(true);
 
+
+    // Every site starts with services: fall back to the trade's four defaults.
+    const { count: serviceCount } = await supabase
+      .from("services")
+      .select("id", { count: "exact", head: true })
+      .eq("business_id", id);
+    if (!serviceCount) await persistStep("services", id);
 
     await supabase
       .from("businesses")
