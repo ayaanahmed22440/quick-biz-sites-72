@@ -413,14 +413,15 @@ export const resendManualLink = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!business) throw new Error("Business not found.");
 
-    const { sendManualPreviewEmail } = await import("@/lib/emails.server");
-    const result = await sendManualPreviewEmail({
+    const { sendManualSiteLiveEmail } = await import("@/lib/emails.server");
+    const result = await sendManualSiteLiveEmail({
       to: row.contact_email,
       businessId: row.business_id,
       businessName: business.name,
       slug: business.slug,
       expiresAt: row.expires_at,
       contactName: row.contact_name,
+      manualId: data.id,
     });
     return { sent: Boolean((result as { sent?: boolean }).sent ?? true) };
   });
