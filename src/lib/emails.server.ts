@@ -489,23 +489,22 @@ export function sendManualSiteLiveEmail(opts: {
 }) {
   const url = `${SITE_URL}/${opts.slug}`;
   const hours = Math.max(1, Math.round((new Date(opts.expiresAt).getTime() - Date.now()) / 3600_000));
+  // Kept short, personal and single-link so Gmail treats it as a 1-to-1 note, not a promotion.
   return send({
     to: opts.to,
     businessId: opts.businessId,
     purpose: "manual_site_live",
-    subject: `As requested, your ${opts.businessName} website is live`,
+    subject: `Your ${opts.businessName} website is live`,
     title: "Your website is live",
     body: [
       paragraph(`Hi ${escape(opts.contactName?.trim() || "there")},`),
       paragraph(
-        `As you requested, we've built your website for <strong>${escape(opts.businessName)}</strong> and it's live right now:`,
+        `As requested, we've built the website for <strong>${escape(opts.businessName)}</strong>. It's live now and reserved for you for the next ${hours} hours.`,
       ),
-      paragraph(`<a href="${url}" style="color:#1f6feb;font-weight:700;">${url}</a>`),
       button("See my website", url),
       paragraph(
-        `It's reserved for you for the next <strong>${hours} hours</strong>. Like it? Keep it and it stays online for good — ready to bring you more jobs from Google.`,
+        `If you'd like to keep it, you can do that right from the website. Any questions, just reply to this email.`,
       ),
-      button("Keep my website", `${SITE_URL}/api/public/manual-checkout/${opts.manualId}`),
     ].join(""),
   });
 }
