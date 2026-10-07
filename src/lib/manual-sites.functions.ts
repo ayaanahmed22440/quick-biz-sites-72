@@ -292,6 +292,22 @@ export const createManualSite = createServerFn({ method: "POST" })
       meta: { slug: business.slug, plan_id: data.planId } as never,
     });
 
+    // Automatic "your site is live" email — never blocks creating the demo.
+    try {
+      const { sendManualSiteLiveEmail } = await import("@/lib/emails.server");
+      await sendManualSiteLiveEmail({
+        to: data.contactEmail,
+        businessId,
+        businessName: business.name,
+        slug: business.slug,
+        expiresAt,
+        contactName: data.contactName || null,
+        manualId: manual.id,
+      });
+    } catch (mailError) {
+      console.error("Manual live email failed", mailError);
+    }
+
     return {
       id: manual.id,
       businessId,

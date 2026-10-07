@@ -477,6 +477,118 @@ export function sendManualSiteActivatedEmail(opts: {
   });
 }
 
+/** Sent automatically the moment staff create a demo site. */
+export function sendManualSiteLiveEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+  slug: string;
+  expiresAt: string;
+  contactName?: string | null;
+  manualId: string;
+}) {
+  const url = `${SITE_URL}/${opts.slug}`;
+  const hours = Math.max(1, Math.round((new Date(opts.expiresAt).getTime() - Date.now()) / 3600_000));
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: "manual_site_live",
+    subject: `As requested, your ${opts.businessName} website is live`,
+    title: "Your website is live",
+    body: [
+      paragraph(`Hi ${escape(opts.contactName?.trim() || "there")},`),
+      paragraph(
+        `As you requested, we've built your website for <strong>${escape(opts.businessName)}</strong> and it's live right now:`,
+      ),
+      paragraph(`<a href="${url}" style="color:#1f6feb;font-weight:700;">${url}</a>`),
+      button("See my website", url),
+      paragraph(
+        `It's reserved for you for the next <strong>${hours} hours</strong>. Like it? Keep it and it stays online for good — ready to bring you more jobs from Google.`,
+      ),
+      button("Keep my website", `${SITE_URL}/api/public/manual-checkout/${opts.manualId}`),
+    ].join(""),
+  });
+}
+
+/** Expiry reminders for an unpaid demo site. */
+export function sendManualExpiryReminderEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+  slug: string;
+  nicheLabel: string;
+  manualId: string;
+  stage: "early" | "final";
+  contactName?: string | null;
+}) {
+  const url = `${SITE_URL}/${opts.slug}`;
+  const niche = escape(opts.nicheLabel.toLowerCase());
+  const final = opts.stage === "final";
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: final ? "manual_expiry_final" : "manual_expiry_reminder",
+    subject: final
+      ? `1 hour left — your ${opts.businessName} website expires soon`
+      : `Your website will expire — don't miss out on more ${opts.nicheLabel.toLowerCase()} jobs`,
+    title: final ? "Your website expires in 1 hour" : "Your website is waiting for you",
+    body: [
+      paragraph(`Hi ${escape(opts.contactName?.trim() || "there")},`),
+      paragraph(
+        final
+          ? `The website we built for <strong>${escape(opts.businessName)}</strong> goes offline in about an hour. After that, it's gone.`
+          : `Your <strong>${escape(opts.businessName)}</strong> website is still reserved, but not for long. Customers searching for ${niche} near you could be finding you instead of your competitors.`,
+      ),
+      button(final ? "Keep my website now" : "Keep my website", `${SITE_URL}/api/public/manual-checkout/${opts.manualId}`),
+      paragraph(
+        `<span style="color:#64748b;font-size:14px;">Want another look first? <a href="${url}" style="color:#1f6feb;">Open your website</a>.</span>`,
+      ),
+    ].join(""),
+  });
+}
+
+/** Reminders for someone who built a site in onboarding but never set it live. */
+export function sendCheckoutReminderEmail(opts: {
+  to: string;
+  businessId: string;
+  businessName: string;
+  nicheLabel: string;
+  stage: 1 | 2 | 3;
+}) {
+  const niche = opts.nicheLabel.toLowerCase();
+  const copy = {
+    1: {
+      subject: `Your ${opts.businessName} website is ready to go live`,
+      title: "You're one step away",
+      line: "Your website is built and saved. Pick a plan and it goes live straight away.",
+    },
+    2: {
+      subject: `Start getting more ${niche} jobs — your website is waiting`,
+      title: "Your website is still waiting",
+      line: `People search for ${escape(niche)} every day. Put your website live so they find you, call you and send you quote requests.`,
+    },
+    3: {
+      subject: `Last reminder: your ${opts.businessName} website isn't live yet`,
+      title: "Still want your website?",
+      line: "We've kept everything exactly as you left it. This is our last reminder — set it live whenever you're ready.",
+    },
+  }[opts.stage];
+  return send({
+    to: opts.to,
+    businessId: opts.businessId,
+    purpose: `checkout_reminder_${opts.stage}`,
+    subject: copy.subject,
+    title: copy.title,
+    body: [
+      paragraph(copy.line),
+      button("Set my website live", `${SITE_URL}/website?view=preview`),
+      paragraph(
+        `<span style="color:#64748b;font-size:14px;">Questions? Just reply to this email.</span>`,
+      ),
+    ].join(""),
+  });
+}
+
 /* ------------------------------------------------------------------ admin */
 
 function adminNote(opts: {
