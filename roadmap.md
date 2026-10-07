@@ -81,3 +81,10 @@
 - Paid/BYO requests alert the team by email; DNS records stay hidden until staff release them in Admin → Domains.
 - MANUAL per customer: buy/connect the name in Project Settings → Domains, paste the ownership token, then release records or mark connected & live.
 - STILL OPEN: unset www.webwarheads.com as primary domain, or every client domain redirects to our homepage.
+
+## Services + reminder emails (2026-10-07)
+- [x] Onboarding fills 4 starter services per trade, +/- rows, tap-to-add suggestion pills (main job, "why pick you", services)
+- [x] Website editor: edit/add/remove services directly; 1-click restore of the 4 starter services
+- [x] Demo sites: instant "your site is live" email, reminder after 6h, final reminder 1h before expiry
+- [x] Unfinished checkout: 3 reminders (2h, 24h, 72h) after onboarding, stop once paid
+- [ ] Weekly follow-ups forever: not built (counts as marketing; hurts sender reputation) — use a marketing email tool
