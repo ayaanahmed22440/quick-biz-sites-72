@@ -283,12 +283,6 @@ function WebsitePage() {
       if (dirty) await save.mutateAsync({ publish: false });
     } finally {
       setShowPlans(true);
-      // The plans sit below the editor fields — bring them into view so the
-      // customer immediately sees where to pick a plan.
-      requestAnimationFrame(() => {
-        plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-      toast("Choose a plan below to publish your site");
     }
   };
 
@@ -299,6 +293,99 @@ function WebsitePage() {
 
   const liveUrl = `/${site.data.business.slug}`;
   const canPublish = Boolean(workspace?.entitlements.website);
+
+  const plansDialog = (
+    <Dialog open={showPlans} onOpenChange={setShowPlans}>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Put your website live</DialogTitle>
+          <DialogDescription>
+            Pick a plan and your website goes online right after payment — ready to bring you more jobs.
+          </DialogDescription>
+        </DialogHeader>
+        <PlanChooser
+          currentPlanId={null}
+          returnPath="/website"
+          featureCount={4}
+          businessId={businessId ?? null}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+
+  const goLive = () => (canPublish ? save.mutate({ publish: true }) : void openPlans());
+
+  const deviceSwitcher = (
+    <div className="flex shrink-0 gap-1.5">
+      {(Object.keys(PREVIEW_WIDTHS) as DeviceKey[]).map((key) => (
+        <Button
+          key={key}
+          size="sm"
+          variant={device === key ? "default" : "outline"}
+          onClick={() => setDevice(key)}
+        >
+          {key.charAt(0).toUpperCase() + key.slice(1)}
+        </Button>
+      ))}
+    </div>
+  );
+
+  const previewBox = (
+    <div className="min-w-0 overflow-hidden rounded-lg border border-border bg-muted/40 p-2 sm:p-3">
+      <PreviewFrame width={PREVIEW_WIDTHS[device]} height={PREVIEW_HEIGHTS[device]} className="min-w-0">
+        <LocalBusinessTemplate
+          business={site.data.business}
+          content={draft}
+          services={site.data.services}
+          areas={site.data.areas}
+          hours={site.data.hours}
+          reviews={reviews.data ?? []}
+          previewOnly
+        />
+      </PreviewFrame>
+    </div>
+  );
+
+  if (view === "preview") {
+    const isLive = site.data.status === "published";
+    return (
+      <>
+        {plansDialog}
+        <div className="mb-5 grid gap-4 rounded-lg border border-border bg-card p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              Your website is ready
+            </p>
+            <h1 className="mt-1 text-xl font-semibold sm:text-2xl">
+              {isLive ? "Your website is live" : "Take a look, then set it live"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Check it on desktop and mobile. Change anything in the editor, or set it live and start getting more jobs.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => void navigate({ to: "/website", search: {} })}>
+              <Pencil className="mr-2 h-4 w-4" /> Edit website
+            </Button>
+            {isLive ? (
+              <Button asChild>
+                <a href={liveUrl} target="_blank" rel="noreferrer">View live site</a>
+              </Button>
+            ) : (
+              <Button disabled={save.isPending} onClick={goLive}>
+                <Rocket className="mr-2 h-4 w-4" /> Set live
+              </Button>
+            )}
+          </div>
+        </div>
+        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <p className="truncate text-sm font-medium">Preview</p>
+          {deviceSwitcher}
+        </div>
+        {previewBox}
+      </>
+    );
+  }
 
   return (
     <>
@@ -563,29 +650,14 @@ function WebsitePage() {
           </Section>
 
           {!canPublish ? (
-            <div ref={plansRef} className="scroll-mt-6 rounded-lg border border-accent/40 bg-accent/10 p-4">
-              <p className="text-sm font-semibold">
-                Choose a plan to publish your website
-              </p>
+            <div className="rounded-lg border border-accent/40 bg-accent/10 p-4">
+              <p className="text-sm font-semibold">Ready to start getting more jobs?</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your work is saved. Pick a plan below to put your website online right now.
+                Your work is saved. Pick a plan and your website goes live straight away.
               </p>
-
-
-              {showPlans ? (
-                <div className="mt-4">
-                  <PlanChooser
-                    currentPlanId={null}
-                    returnPath="/website"
-                    featureCount={4}
-                    businessId={businessId ?? null}
-                  />
-                </div>
-              ) : (
-                <Button className="mt-3" onClick={() => void openPlans()}>
-                  See plans and publish
-                </Button>
-              )}
+              <Button className="mt-3" onClick={() => void openPlans()}>
+                Set my website live
+              </Button>
             </div>
           ) : null}
 
