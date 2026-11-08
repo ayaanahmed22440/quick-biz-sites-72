@@ -95,8 +95,8 @@
 /* Dark: layered ink surfaces with a faint indigo tint, hairline borders,
    brand pink kept as the single glow accent. */
 .dark {
-  --navy: oklch(0.2 0.045 272);
-  --navy-muted: oklch(0.26 0.05 272);
+  --navy: oklch(0.29 0.1 276);
+  --navy-muted: oklch(0.34 0.1 276);
   --navy-foreground: oklch(0.97 0.006 272);
   --brand: oklch(0.68 0.22 356);
   --cleaning-surface: oklch(0.2 0.03 200);
