@@ -25,7 +25,7 @@ export function Logo({ className, showWordmark = true, tone = "dark", to = "/" }
         <span
           className={cn(
             "text-[15px] font-extrabold tracking-tight",
-            tone === "light" ? "text-navy-foreground" : "text-navy",
+            tone === "light" ? "text-navy-foreground" : "text-foreground",
           )}
         >
           Web<span className="text-accent">Warheads</span>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+import { ThemeToggle } from "@/components/brand/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
 
@@ -36,6 +37,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
+            <ThemeToggle className="mr-1" />
             {loading ? null : user ? (
               <Button asChild>
                 <Link to="/dashboard">Go to dashboard</Link>
@@ -58,6 +60,7 @@ export function SiteHeader() {
             )}
           </div>
 
+          <ThemeToggle className="ml-auto mr-2 md:hidden" />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

@@ -92,24 +92,88 @@
   --sidebar-border: oklch(0.34 0.1 276);
 }
 
+/* Dark: layered ink surfaces with a faint indigo tint, hairline borders,
+   brand pink kept as the single glow accent. */
 .dark {
-  --background: oklch(0.18 0.06 276);
-  --foreground: oklch(0.97 0.01 274);
-  --card: oklch(0.22 0.07 276);
-  --card-foreground: oklch(0.97 0.01 274);
-  --popover: oklch(0.22 0.07 276);
-  --popover-foreground: oklch(0.97 0.01 274);
-  --primary: oklch(0.97 0.01 274);
-  --primary-foreground: oklch(0.24 0.13 276);
-  --secondary: oklch(0.28 0.07 276);
-  --secondary-foreground: oklch(0.97 0.01 274);
-  --muted: oklch(0.28 0.07 276);
-  --muted-foreground: oklch(0.72 0.03 274);
-  --accent: oklch(0.63 0.24 356);
+  --navy: oklch(0.29 0.1 276);
+  --navy-muted: oklch(0.34 0.1 276);
+  --navy-foreground: oklch(0.97 0.006 272);
+  --brand: oklch(0.68 0.22 356);
+  --cleaning-surface: oklch(0.2 0.03 200);
+
+  --background: oklch(0.145 0.018 272);
+  --foreground: oklch(0.965 0.006 272);
+  --card: oklch(0.18 0.022 272);
+  --card-foreground: oklch(0.965 0.006 272);
+  --popover: oklch(0.2 0.024 272);
+  --popover-foreground: oklch(0.965 0.006 272);
+  --primary: oklch(0.965 0.006 272);
+  --primary-foreground: oklch(0.17 0.02 272);
+  --secondary: oklch(0.225 0.022 272);
+  --secondary-foreground: oklch(0.965 0.006 272);
+  --muted: oklch(0.215 0.02 272);
+  --muted-foreground: oklch(0.7 0.018 272);
+  --accent: oklch(0.68 0.22 356);
   --accent-foreground: oklch(0.99 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.63 0.24 356);
+  --destructive: oklch(0.64 0.2 25);
+  --success: oklch(0.7 0.15 155);
+  --success-foreground: oklch(0.16 0.03 155);
+  --warning: oklch(0.78 0.15 75);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.68 0.22 356);
+  --sidebar: oklch(0.125 0.016 272);
+  --sidebar-foreground: oklch(0.9 0.01 272);
+  --sidebar-accent: oklch(0.2 0.022 272);
+  --sidebar-border: oklch(1 0 0 / 8%);
+}
+
+/* Navy used as text means "heading ink" — keep it legible in dark mode. */
+.dark .text-navy {
+  color: var(--foreground);
+}
+
+.dark body {
+  background-image: radial-gradient(
+    1200px 600px at 50% -200px,
+    color-mix(in oklab, var(--accent) 7%, transparent),
+    transparent 70%
+  );
+  background-attachment: fixed;
+}
+
+.dark ::selection {
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
+}
+
+/* Customer websites always render in their own light design. */
+.light-scope {
+  color-scheme: light;
+  --navy: oklch(0.24 0.13 276);
+  --navy-muted: oklch(0.32 0.11 276);
+  --navy-foreground: oklch(0.99 0 0);
+  --brand: oklch(0.63 0.24 356);
+  --cleaning-surface: oklch(0.97 0.018 178);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.06 274);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.06 274);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.06 274);
+  --primary: oklch(0.24 0.13 276);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.968 0.008 274);
+  --secondary-foreground: oklch(0.24 0.13 276);
+  --muted: oklch(0.97 0.006 274);
+  --muted-foreground: oklch(0.52 0.03 274);
+  --accent: oklch(0.63 0.24 356);
+  --border: oklch(0.918 0.012 274);
+  --input: oklch(0.918 0.012 274);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+.dark .light-scope .text-navy {
+  color: var(--navy);
 }
 
 @layer base {
