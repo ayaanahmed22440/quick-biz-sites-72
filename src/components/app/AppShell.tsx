@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
+import { ThemeToggle } from "@/components/brand/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { SupportChat } from "@/components/support/SupportChat";
 import { supabase } from "@/integrations/supabase/client";
@@ -157,6 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <div className="flex-1 overflow-y-auto p-3">{nav}</div>
         <div className="border-t border-sidebar-border p-3">
+          <ThemeToggle tone="sidebar" showLabels className="mb-3 flex w-full" />
           <p className="truncate px-3 text-xs text-sidebar-foreground/60">{workspace?.email}</p>
           <button
             onClick={signOut}
@@ -185,6 +187,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {open ? (
           <div className="border-b border-sidebar-border bg-sidebar p-3 lg:hidden">
             {nav}
+            <ThemeToggle tone="sidebar" showLabels className="mt-3 flex w-full" />
             <Button variant="ghost" className="mt-3 w-full justify-start text-sidebar-foreground" onClick={signOut}>
               <LogOut className="mr-2 h-4 w-4" /> Sign out
             </Button>

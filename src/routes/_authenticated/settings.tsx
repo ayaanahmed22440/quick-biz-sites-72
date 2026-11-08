@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ThemeToggle } from "@/components/brand/ThemeToggle";
 import { getConsent, setConsent } from "@/lib/consent";
 import { startMetaPixel } from "@/lib/meta-pixel";
 
@@ -70,6 +71,14 @@ function SettingsPage() {
   return (
     <>
       <PageHeader title="Account settings" description="Your login details and profile." />
+
+      <div className="mb-6 rounded-xl border border-border bg-card p-6">
+        <h2 className="text-sm font-semibold">Appearance</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Choose light, dark, or match your device. Your customers' website always keeps its own look.
+        </p>
+        <ThemeToggle showLabels className="mt-4 flex w-full max-w-sm" />
+      </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
         <h2 className="text-sm font-semibold">Profile</h2>

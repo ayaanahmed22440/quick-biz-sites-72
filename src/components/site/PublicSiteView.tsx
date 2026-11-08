@@ -107,7 +107,7 @@ export function PublicSiteView({ site, slug }: { site: PublishedSite; slug: stri
     : null;
 
   return (
-    <>
+    <div className="light-scope min-h-screen">
       {site.manual && site.manual.status !== "paid" ? (
         <ManualSiteBanner
           manualId={site.manual.id}
