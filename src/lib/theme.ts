@@ -4,7 +4,7 @@ export type ThemePref = "light" | "dark" | "system";
 const KEY = "ww-theme";
 
 /** Inline script run in <head> before paint so there is no white flash. */
-export const THEME_INIT_SCRIPT = `(function(){try{var p=localStorage.getItem("${KEY}")||"system";var d=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
+export const THEME_INIT_SCRIPT = `(function(){try{var p=localStorage.getItem("${KEY}")||"light";var d=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
 
 function apply(pref: ThemePref) {
   const dark =
@@ -16,14 +16,14 @@ function apply(pref: ThemePref) {
 }
 
 export function useTheme() {
-  const [pref, setPref] = useState<ThemePref>("system");
+  const [pref, setPref] = useState<ThemePref>("light");
 
   useEffect(() => {
-    const stored = (localStorage.getItem(KEY) as ThemePref | null) ?? "system";
+    const stored = (localStorage.getItem(KEY) as ThemePref | null) ?? "light";
     setPref(stored);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if ((localStorage.getItem(KEY) ?? "system") === "system") apply("system");
+      if ((localStorage.getItem(KEY) ?? "light") === "system") apply("system");
     };
     const onSync = (e: Event) => setPref((e as CustomEvent<ThemePref>).detail);
     mq.addEventListener("change", onChange);
